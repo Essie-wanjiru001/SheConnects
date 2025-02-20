@@ -4,8 +4,19 @@ import Logo from "./Logo";
 import NavigationMenu from "./NavigationMenu";
 import HeroImage from "./HeroImage";
 import Footer from "./Footer";
+import SearchBar from "../Search/SearchBar";
+import FilterOptions from "../Search/FilterOptions";
 
 const HomePage = () => {
+  const handleSearch = (searchTerm) => {
+    console.log('Searching for:', searchTerm);
+    // Add search logic here
+  };
+
+  const handleFilter = (filters) => {
+    console.log('Filters applied:', filters);
+  };
+
   return (
     <HomeWrapper>
       <ContentContainer>
@@ -13,10 +24,19 @@ const HomePage = () => {
           <Logo />
           <NavigationMenu />
         </Header>
+        <SearchBarContainer>
+          <SearchBar 
+            onSearch={handleSearch}
+            placeholder="Search for scholarships and opportunities..."
+          />
+        </SearchBarContainer>
+        <FilterContainer>
+          <FilterOptions onFilterChange={handleFilter} />
+        </FilterContainer>
         <MainSection>
           <Section>
             <Tagline>
-            Empowering young women to break barriers through a digital platform that unlocks their potential for higher education and beyond: Connecting them to scholarship resources, and career opportunities
+              Empowering young women to break barriers through a digital platform that unlocks their potential for higher education and beyond: Connecting them to scholarship resources, and career opportunities
             </Tagline>
           </Section>
           <Section>
@@ -59,10 +79,23 @@ const Header = styled.div`
   margin-bottom: 20px;
 `;
 
+const SearchBarContainer = styled.div`
+  width: 100%;
+  padding: 0 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+`;
+
+const FilterContainer = styled.div`
+  width: 100%;
+  margin-bottom: 30px;
+`;
+
 const MainSection = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: stretch; // Changed to stretch to ensure equal height
+  align-items: stretch; 
   width: 100%;
   gap: 40px;
   padding: 20px;
