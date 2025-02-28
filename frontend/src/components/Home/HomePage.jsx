@@ -1,20 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import Logo from "./Logo";
 import NavigationMenu from "./NavigationMenu";
-import HeroImage from "./HeroImage";
 import Footer from "./Footer";
 import SearchBar from "../Search/SearchBar";
 import FilterOptions from "../Search/FilterOptions";
+import ScholarshipList from "../Scholarships/ScholarshipList";
 
 const HomePage = () => {
+  const [filters, setFilters] = useState({
+    scholarshipLevel: '',
+    internshipField: '',
+    eventType: ''
+  });
+
   const handleSearch = (searchTerm) => {
     console.log('Searching for:', searchTerm);
-    // Add search logic here
   };
 
-  const handleFilter = (filters) => {
-    console.log('Filters applied:', filters);
+  const handleFilter = (newFilters) => {
+    console.log('Applying filters:', newFilters);
+    setFilters(newFilters);
   };
 
   return (
@@ -33,16 +39,7 @@ const HomePage = () => {
         <FilterContainer>
           <FilterOptions onFilterChange={handleFilter} />
         </FilterContainer>
-        <MainSection>
-          <Section>
-            <Tagline>
-              Empowering young women to break barriers through a digital platform that unlocks their potential for higher education and beyond: Connecting them to scholarship resources, and career opportunities
-            </Tagline>
-          </Section>
-          <Section>
-            <HeroImage />
-          </Section>
-        </MainSection>
+        <ScholarshipList filters={filters} />
       </ContentContainer>
       <Footer />
     </HomeWrapper>
@@ -90,21 +87,6 @@ const SearchBarContainer = styled.div`
 const FilterContainer = styled.div`
   width: 100%;
   margin-bottom: 30px;
-`;
-
-const MainSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch; 
-  width: 100%;
-  gap: 40px;
-  padding: 20px;
-  margin: 20px 0;
-
-  @media (max-width: 991px) {
-    flex-direction: column;
-    gap: 20px;
-  }
 `;
 
 const Section = styled.div`

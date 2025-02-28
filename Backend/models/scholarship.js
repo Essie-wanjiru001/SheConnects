@@ -1,5 +1,14 @@
 const db = require('../config/database');
 
+const scholarshipSchema = {
+  type: {
+    type: String,
+    enum: ['Undergraduate', 'Masters', 'PhD'],
+    required: true,
+    default: 'Undergraduate'
+  },
+};
+
 class Scholarship {
   static async createScholarship(scholarshipData) {
     try {

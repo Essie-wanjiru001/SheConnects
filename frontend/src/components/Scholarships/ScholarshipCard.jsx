@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import ScholarshipInfo from "./ScholarshipInfo";
 import DueDate from "./DueDate";
 import ApplyButton from "./ApplyButton";
 
@@ -9,94 +8,100 @@ const ScholarshipCard = ({ scholarship }) => {
 
   return (
     <CardWrapper>
-      <CardContent>
-        <CardLayout>
-          <ScholarshipColumn>
-            <ScholarshipTitle>Scholarships</ScholarshipTitle>
-            {scholarship.image && (
-              <ScholarshipImage>
-                <img 
-                  src={scholarship.image} 
-                  alt={scholarship.name} 
-                  loading="lazy"
-                />
-              </ScholarshipImage>
-            )}
-          </ScholarshipColumn>
-          <ScholarshipInfo 
-            name={scholarship.name}
-            description={scholarship.description} 
-          />
+      <ContentLayout>
+        <ImageSection>
+          {scholarship.image && (
+            <ScholarshipImage 
+              src={`http://localhost:8000${scholarship.image}`} 
+              alt={scholarship.name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/placeholder-image.png';
+              }}
+            />
+          )}
+        </ImageSection>
+        
+        <InfoSection>
+          <ScholarshipTitle>{scholarship.name}</ScholarshipTitle>
+          <Description>{scholarship.description}</Description>
+        </InfoSection>
+
+        <ActionSection>
           <DueDate date={scholarship.application_deadline} />
           <ApplyButton applyLink={scholarship.apply_link} />
-        </CardLayout>
-      </CardContent>
+        </ActionSection>
+      </ContentLayout>
     </CardWrapper>
   );
 };
 
 const CardWrapper = styled.div`
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  display: flex;
-  max-width: 929px;
-  flex-direction: column;
-  margin: 20px 0;
+  background-color: #fff6e9;
   border-radius: 12px;
-  overflow: hidden;
-`;
-
-const CardContent = styled.div`
-  background-color: #fff;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding: 15px 50px 69px;
-  
-  @media (max-width: 991px) {
-    max-width: 100%;
-    padding: 20px;
-  }
+  max-width: 1200px;
 `;
 
-const CardLayout = styled.div`
+const ContentLayout = styled.div`
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
   gap: 20px;
-  display: flex;
-  
+  align-items: center;
+
   @media (max-width: 991px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 `;
 
-const ScholarshipColumn = styled.div`
+const ImageSection = styled.div`
+  width: 100%;
+  height: 150px;
+`;
+
+const ScholarshipImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+`;
+
+const InfoSection = styled.div`
   display: flex;
   flex-direction: column;
-  line-height: normal;
-  width: 32%;
-  margin-left: 0px;
-  
-  @media (max-width: 991px) {
-    width: 100%;
-  }
+  gap: 10px;
 `;
 
-const ScholarshipTitle = styled.h2`
-  color: #000101;
-  font: 700 32px Inter, sans-serif;
-  align-self: start;
+const ScholarshipTitle = styled.h3`
+  font: 600 24px 'Inter', sans-serif;
+  color: #000;
   margin: 0;
 `;
 
-const ScholarshipImage = styled.div`
-  margin-top: 16px;
-  width: 223px;
-  height: 93px;
+const Description = styled.p`
+  font: 400 16px 'Inter', sans-serif;
+  color: #000;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  border-radius: 8px;
+`;
 
-  img {
+const ActionSection = styled.div`
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: flex-end;
+
+  @media (max-width: 991px) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    justify-content: space-between;
   }
 `;
 

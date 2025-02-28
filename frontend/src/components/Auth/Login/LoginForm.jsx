@@ -29,7 +29,12 @@ function LoginForm() {
     try {
       const response = await loginUser(formData);
       console.log('Login successful:', response);
-      navigate('/'); // Redirect to home page after successful login
+      
+      // Store the token
+      localStorage.setItem('userToken', response.token);
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
     } catch (err) {
       setError(err.error || 'Login failed. Please try again.');
     } finally {

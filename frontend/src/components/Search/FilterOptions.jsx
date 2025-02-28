@@ -2,25 +2,20 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const FilterOptions = ({ onFilterChange }) => {
-  const [scholarshipLevel, setScholarshipLevel] = useState('');
-  const [internshipField, setInternshipField] = useState('');
-  const [eventType, setEventType] = useState('');
+  const [filters, setFilters] = useState({
+    scholarshipLevel: '',
+    internshipField: '',
+    eventType: ''
+  });
 
   const handleChange = (type, value) => {
-    switch(type) {
-      case 'scholarship':
-        setScholarshipLevel(value);
-        break;
-      case 'internship':
-        setInternshipField(value);
-        break;
-      case 'event':
-        setEventType(value);
-        break;
-      default:
-        break;
-    }
-    onFilterChange({ scholarshipLevel, internshipField, eventType });
+    const newFilters = {
+      ...filters,
+      [type]: value
+    };
+    console.log('New filters:', newFilters);
+    setFilters(newFilters);
+    onFilterChange(newFilters);
   };
 
   return (
@@ -28,36 +23,35 @@ const FilterOptions = ({ onFilterChange }) => {
       <FilterGroup>
         <FilterLabel>Scholarships</FilterLabel>
         <Select 
-          value={scholarshipLevel}
-          onChange={(e) => handleChange('scholarship', e.target.value)}
+          value={filters.scholarshipLevel}
+          onChange={(e) => handleChange('scholarshipLevel', e.target.value)}
         >
           <option value="">All Levels</option>
-          <option value="undergraduate">Undergraduate</option>
-          <option value="masters">Masters</option>
-          <option value="phd">PhD</option>
+          <option value="Undergraduate">Undergraduate</option>
+          <option value="Masters">Masters</option>
+          <option value="PhD">PhD</option>
         </Select>
       </FilterGroup>
 
       <FilterGroup>
         <FilterLabel>Internships</FilterLabel>
-        <Select 
-          value={internshipField}
-          onChange={(e) => handleChange('internship', e.target.value)}
+        <Select
+          value={filters.internshipField}
+          onChange={(e) => handleChange('internshipField', e.target.value)}
         >
           <option value="">All Fields</option>
           <option value="technology">Technology</option>
           <option value="business">Business</option>
           <option value="engineering">Engineering</option>
           <option value="healthcare">Healthcare</option>
-          <option value="education">Education</option>
         </Select>
       </FilterGroup>
 
       <FilterGroup>
         <FilterLabel>Events</FilterLabel>
-        <Select 
-          value={eventType}
-          onChange={(e) => handleChange('event', e.target.value)}
+        <Select
+          value={filters.eventType}
+          onChange={(e) => handleChange('eventType', e.target.value)}
         >
           <option value="">All Events</option>
           <option value="workshop">Workshop</option>
