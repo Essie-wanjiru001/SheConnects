@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const scholarshipRoutes = require('./routes/scholarshipRoutes');
 const internshipRoutes = require('./routes/internshipRoutes');
+const userRoutes = require('./routes/userRoutes');
 const path = require('path');
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/internships', internshipRoutes);
+app.use('/api/users', userRoutes);
 
 // Basic Route
 app.get("/", (req, res) => {

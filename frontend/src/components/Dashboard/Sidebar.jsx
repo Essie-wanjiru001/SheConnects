@@ -59,13 +59,20 @@ const SidebarWrapper = styled.aside`
   flex-direction: column;
   padding: 30px 20px;
   width: 280px;
-  min-height: calc(100vh - 70px); // Subtract header height
+  height: calc(100vh - 70px);
   position: fixed;
   left: 0;
-  top: 70px; // Start below header
+  top: 70px;
   color: #000000;
   border-right: 1px solid rgba(13, 146, 118, 0.2);
-  z-index: 999; // Below header z-index
+  z-index: 999;
+  overflow-y: scroll;
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none;  // IE and Edge
+  
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
 
   @media (max-width: 991px) {
     width: 100%;
@@ -116,6 +123,7 @@ const NavMenu = styled.nav`
   margin-top: 20px; // Reduced margin
   gap: 15px;
   padding: 0 13px;
+  flex: 1; // Take up available space
 `;
 
 const NavItem = styled(Link)`
@@ -139,7 +147,7 @@ const LogoutButton = styled.button`
   background-color: #ff4d4d; // Changed to red for logout
   color: #ffffff;
   padding: 12px 24px;
-  margin: auto 20px 20px;
+  margin: 20px 20px; // Changed from auto margin
   border: none;
   border-radius: 50px;
   cursor: pointer;

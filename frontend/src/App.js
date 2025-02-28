@@ -7,6 +7,7 @@ import UserGuide from "./components/Guide/UserGuide";
 import LoginPage from "./components/Auth/Login/LoginPage";
 import RegisterPage from "./components/Auth/Register/RegisterPage";
 import StudentDashboard from "./components/Dashboard/DashboardHome";
+import ProfilePage from "./components/Profile/ProfilePage";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
         <Route path="/events" element={<Navigate to="/dashboard" />} />
         <Route path="/notifications" element={<Navigate to="/dashboard" />} />
         <Route path="/report" element={<Navigate to="/dashboard" />} />
-        <Route path="/profile" element={<Navigate to="/dashboard" />} />
+        <Route path="/profile" element={<ProfilePage />} />
         
         {/* 404 Route */}
         <Route path="*" element={<Navigate to="/" />} />
