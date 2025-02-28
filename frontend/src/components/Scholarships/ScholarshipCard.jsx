@@ -37,7 +37,7 @@ const ScholarshipCard = ({ scholarship }) => {
 };
 
 const CardWrapper = styled.div`
-  background-color: #fff6e9;
+  background-color:rgba(255, 246, 233, 0.93);
   border-radius: 12px;
   padding: 20px;
   margin: 15px 0;

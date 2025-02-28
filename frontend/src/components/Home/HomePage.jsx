@@ -6,6 +6,7 @@ import Footer from "./Footer";
 import SearchBar from "../Search/SearchBar";
 import FilterOptions from "../Search/FilterOptions";
 import ScholarshipList from "../Scholarships/ScholarshipList";
+import { CommonWrapper, CommonHeader, ContentContainer } from '../../styles/CommonStyles';
 
 const HomePage = () => {
   const [filters, setFilters] = useState({
@@ -25,11 +26,11 @@ const HomePage = () => {
 
   return (
     <HomeWrapper>
+      <CommonHeader>
+        <Logo />
+        <NavigationMenu />
+      </CommonHeader>
       <ContentContainer>
-        <Header>
-          <Logo />
-          <NavigationMenu />
-        </Header>
         <SearchBarContainer>
           <SearchBar 
             onSearch={handleSearch}
@@ -46,35 +47,7 @@ const HomePage = () => {
   );
 };
 
-const HomeWrapper = styled.div`
-  background-color: #9ad0c2;
-  min-height: 100vh; // Changed back to min-height
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  overflow-y: auto; // Allow vertical scrolling
-  border: 1px solid #000;
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 30px; // Increased gap for better spacing
-  max-width: 1440px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px 0;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 0 20px;
-  margin-bottom: 20px;
-`;
+const HomeWrapper = styled(CommonWrapper)``;
 
 const SearchBarContainer = styled.div`
   width: 100%;

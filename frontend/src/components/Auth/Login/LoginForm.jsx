@@ -47,8 +47,8 @@ function LoginForm() {
   };
 
   return (
-    <FormWrapper>
-      <form onSubmit={handleSubmit}>
+    <FormContainer>
+      <Form onSubmit={handleSubmit}>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <InputField>
           <label htmlFor="email" className="visually-hidden">Email</label>
@@ -89,8 +89,8 @@ function LoginForm() {
           <NoAccountText>No account yet? </NoAccountText>
           <StyledLink to="/register">Sign Up</StyledLink>
         </SignUpPrompt>
-      </form>
-    </FormWrapper>
+      </Form>
+    </FormContainer>
   );
 }
 
@@ -213,6 +213,22 @@ const ErrorMessage = styled.div`
   margin-bottom: 20px;
   text-align: center;
   font-size: 14px;
+`;
+
+const FormContainer = styled.div`
+  background-color: #fff6e9;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px; // Reduced from original size
+  margin-top: 40px; // Added spacing from header
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px; // Slightly reduced gap
 `;
 
 export default LoginForm;

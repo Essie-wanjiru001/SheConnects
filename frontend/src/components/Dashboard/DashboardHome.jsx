@@ -41,6 +41,7 @@ const MainContent = styled.main`
   display: flex;
   padding: 20px;
   position: relative;
+  margin-top: 70px; // Add margin to account for fixed header
 
   @media (max-width: 991px) {
     flex-direction: column;
@@ -80,16 +81,14 @@ const ContentSection = styled.section`
 
 const ContentWrapper = styled.div`
   display: flex;
-  margin-top: auto;
-  margin-bottom: auto;
   width: 100%;
   flex-direction: column;
   align-self: stretch;
   align-items: center;
+  padding-top: 20px; // Add padding for spacing
 
   @media (max-width: 991px) {
     max-width: 100%;
-    margin-top: 40px;
   }
 `;
 

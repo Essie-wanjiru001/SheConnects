@@ -43,7 +43,7 @@ const SearchForm = styled.form`
   max-width: 500px;
   width: 100%;
   margin: 0 auto;
-  background: #fff6e9;
+  background:rgba(255, 246, 233, 0.93);
   border-radius: 50px;
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

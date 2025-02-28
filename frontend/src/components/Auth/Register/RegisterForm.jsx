@@ -55,55 +55,57 @@ const RegisterForm = () => {
 
   return (
     <FormWrapper>
-      <Form onSubmit={handleSubmit}>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        <InputGroup>
-          <Input
-            type="text"
-            id="name"
-            placeholder="Name"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={isLoading}
-            required
-          />
-          <Input
-            type="email"
-            id="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={isLoading}
-            required
-          />
-          <Input
-            type="password"
-            id="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={isLoading}
-            required
-          />
-          <Input
-            type="password"
-            id="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            disabled={isLoading}
-            required
-          />
-        </InputGroup>
-        <ButtonGroup>
-          <SubmitButton type="submit" disabled={isLoading}>
-            {isLoading ? 'Registering...' : 'Submit'}
-          </SubmitButton>
-          <CancelButton type="button" onClick={handleCancel} disabled={isLoading}>
-            Cancel
-          </CancelButton>
-        </ButtonGroup>
-      </Form>
+      <FormContainer>
+        <Form onSubmit={handleSubmit}>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          <InputGroup>
+            <Input
+              type="text"
+              id="name"
+              placeholder="Name"
+              value={formData.name}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+            <Input
+              type="email"
+              id="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+            <Input
+              type="password"
+              id="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+            <Input
+              type="password"
+              id="confirmPassword"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+            />
+          </InputGroup>
+          <ButtonGroup>
+            <SubmitButton type="submit" disabled={isLoading}>
+              {isLoading ? 'Registering...' : 'Submit'}
+            </SubmitButton>
+            <CancelButton type="button" onClick={handleCancel} disabled={isLoading}>
+              Cancel
+            </CancelButton>
+          </ButtonGroup>
+        </Form>
+      </FormContainer>
     </FormWrapper>
   );
 };
@@ -128,14 +130,20 @@ const FormWrapper = styled.div`
   }
 `;
 
+const FormContainer = styled.div`
+  background-color: #fff6e9;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px; // Reduced from original size
+  margin-top: 40px; // Added spacing from header
+`;
+
 const Form = styled.form`
   display: flex;
-  width: 392px;
-  max-width: 100%;
   flex-direction: column;
-  @media (max-width: 991px) {
-    white-space: initial;
-  }
+  gap: 20px; // Slightly reduced gap
 `;
 
 const InputGroup = styled.div`

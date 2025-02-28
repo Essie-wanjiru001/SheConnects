@@ -4,55 +4,30 @@ import logoImage from "../../assets/images/logo.png";
 
 const Logo = () => {
   return (
-    <LogoContainer>
+    <LogoWrapper>
       <LogoImage loading="lazy" src={logoImage} alt="SheConnects Logo" />
       <BrandName>SheConnects</BrandName>
-    </LogoContainer>
+    </LogoWrapper>
   );
 };
 
-const LogoContainer = styled.div`
+const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  gap: 10px;
 `;
 
 const LogoImage = styled.img`
-  width: 200px;
-  height: 200px;
-  object-fit: contain;
-  object-position: center;
-
-  @media (max-width: 991px) {
-    width: 150px;
-    height: 150px;
-  }
-
-  @media (max-width: 576px) {
-    width: 120px;
-    height: 120px;
-  }
+  height: 50px; // Reduced height
+  width: auto;
 `;
 
 const BrandName = styled.h1`
-  color: #000;
-  font: 400 96px 'Jomhuria', sans-serif;
+  color: #000000;
+  font-family: Moul, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 32px; // Reduced font size
+  font-weight: 400;
   margin: 0;
-  transition: font-size 0.3s ease;
-  
-  @media (max-width: 991px) {
-    font-size: 72px;
-  }
-  
-  @media (max-width: 768px) {
-    font-size: 60px;
-  }
 `;
 
 export default Logo;

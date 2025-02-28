@@ -12,67 +12,42 @@ const NavigationMenu = () => {
   ];
 
   return (
-    <NavContainer>
+    <Nav>
       {menuItems.map((item) => (
-        <NavItem 
+        <NavLink 
           key={item.name} 
           to={item.path}
-          $isActive={location.pathname === item.path}
+          className={location.pathname === item.path ? 'active' : ''}
         >
           {item.name}
-        </NavItem>
+        </NavLink>
       ))}
-    </NavContainer>
+    </Nav>
   );
 };
 
-const NavContainer = styled.nav`
+const Nav = styled.nav`
   display: flex;
-  gap: 22px;
-  flex-wrap: wrap;
-  padding: 20px;
-  justify-content: center;
-  color: #000;
-  font: 400 24px "Inter", sans-serif;
-  
-  @media (max-width: 991px) {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-  }
+  align-items: center;
+  gap: 30px;
 `;
 
-const NavItem = styled(Link)`
-  border-radius: 20px;
-  background-color: ${props => props.$isActive ? '#f0e4d3' : '#fff6e9'};
-  padding: 11px 24px;
-  cursor: pointer;
+const NavLink = styled(Link)`
+  color: #000000;
+  font-family: Inter, sans-serif;
+  font-size: 16px; // Reduced font size
+  font-weight: 500;
   text-decoration: none;
-  color: #000;
-  font-weight: ${props => props.$isActive ? '600' : '400'};
-  transition: all 0.3s ease-in-out;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 5px 10px;
+  transition: color 0.3s ease;
 
   &:hover {
-    background-color: #f0e4d3;
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    color: #0d9276;
   }
 
-  &:active {
-    transform: scale(0.98);
-  }
-
-  @media (max-width: 991px) {
-    padding: 11px 20px;
-    width: 80%;
-    text-align: center;
-  }
-
-  @media (max-width: 576px) {
-    width: 90%;
-    font-size: 20px;
+  &.active {
+    color: #0d9276;
+    font-weight: 600;
   }
 `;
 

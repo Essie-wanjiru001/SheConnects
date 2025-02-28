@@ -69,7 +69,7 @@ const FilterContainer = styled.div`
   justify-content: center;
   gap: 40px;
   padding: 20px;
-  background-color: #fff6e9;
+  background-color:rgba(255, 246, 233, 0.93);
   border-radius: 50px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 0 20px;

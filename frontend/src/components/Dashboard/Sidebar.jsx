@@ -57,31 +57,43 @@ const SidebarWrapper = styled.aside`
   background-color: rgba(154, 208, 194, 1);
   display: flex;
   flex-direction: column;
-  padding: 21px 0;
-  width: 26%;
+  padding: 30px 20px;
+  width: 280px;
+  min-height: calc(100vh - 70px); // Subtract header height
+  position: fixed;
+  left: 0;
+  top: 70px; // Start below header
   color: #000000;
-  font: 400 32px Inter, sans-serif;
+  border-right: 1px solid rgba(13, 146, 118, 0.2);
+  z-index: 999; // Below header z-index
+
   @media (max-width: 991px) {
     width: 100%;
+    position: fixed;
+    top: 70px;
+    transform: translateX(${props => props.isOpen ? '0' : '-100%'});
+    transition: transform 0.3s ease;
   }
 `;
 
+// Adjust ProfileContainer top margin
 const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 30px;
+  margin: 10px 0 30px; // Reduced top margin
 `;
 
 const ProfileImageWrapper = styled.div`
-  width: 132px;
-  height: 132px;
+  width: 100px; // Reduced size
+  height: 100px; // Reduced size
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid rgba(13, 146, 118, 1);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const ProfileImage = styled.img`
@@ -92,19 +104,23 @@ const ProfileImage = styled.img`
 
 const ProfileName = styled.div`
   align-self: center;
-  margin-top: 20px;
+  margin-top: 15px;
+  font-size: 20px; // Reduced font size
+  font-weight: 500;
 `;
 
+// Update NavMenu top margin
 const NavMenu = styled.nav`
   display: flex;
   flex-direction: column;
-  margin-top: 50px;
+  margin-top: 20px; // Reduced margin
+  gap: 15px;
   padding: 0 13px;
 `;
 
 const NavItem = styled(Link)`
-  padding: 7px 24px;
-  margin-bottom: 20px;
+  padding: 12px 24px;
+  font-size: 16px; // Reduced font size
   cursor: pointer;
   text-decoration: none;
   color: inherit;
@@ -115,20 +131,25 @@ const NavItem = styled(Link)`
 
   &:hover {
     background-color: ${props => props.active ? 'rgba(13, 146, 118, 0.9)' : 'rgba(13, 146, 118, 0.1)'};
+    transform: translateX(5px); // Added subtle animation
   }
 `;
 
 const LogoutButton = styled.button`
-  background-color: rgba(0, 0, 0, 1);
-  color: #ffffff; // Changed to white for better visibility
-  padding: 16px 70px;
-  margin-top: auto;
+  background-color: #ff4d4d; // Changed to red for logout
+  color: #ffffff;
+  padding: 12px 24px;
+  margin: auto 20px 20px;
   border: none;
+  border-radius: 50px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  font-weight: 500;
 
   &:hover {
-    background-color: #333;
+    background-color: #ff3333;
+    transform: translateY(-2px);
   }
 `;
 
