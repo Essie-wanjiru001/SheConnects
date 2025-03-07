@@ -62,16 +62,12 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  color: rgba(18, 18, 17, 1);
+  color: #ffffff;
   font-size: 32px;
-  font-family:
-    Inter,
-    -apple-system,
-    Roboto,
-    Helvetica,
-    sans-serif;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   font-weight: 700;
   margin-bottom: 41px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
 const CardsContainer = styled.div`
@@ -111,8 +107,10 @@ const CardContent = styled.div`
 `;
 
 const Description = styled.p`
+  color: #ffffff;
   padding: 0 34px;
   margin: 0;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 991px) {
     padding: 0 10px;

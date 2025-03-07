@@ -12,7 +12,7 @@ const Footer = () => {
 };
 
 const FooterWrapper = styled.footer`
-  background-color: #0d9276;
+  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
   display: flex;
   margin-top: 53px;
   width: 100%;
@@ -20,6 +20,7 @@ const FooterWrapper = styled.footer`
   align-items: center;
   justify-content: center;
   padding: 13px 70px;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 991px) {
     max-width: 100%;
@@ -29,10 +30,11 @@ const FooterWrapper = styled.footer`
 `;
 
 const Copyright = styled.p`
-  color: white;
+  color: #ffffff;
   font-size: 14px;
   margin-top: 10px;
   text-align: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 export default Footer;

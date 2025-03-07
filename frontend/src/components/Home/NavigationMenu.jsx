@@ -33,21 +33,35 @@ const Nav = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: #000000;
+  color: #ffffff; // Changed to white for better visibility
   font-family: Inter, sans-serif;
-  font-size: 16px; // Reduced font size
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   padding: 5px 10px;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
 
   &:hover {
-    color: #0d9276;
+    color: #9ad0c2; // Light mint color on hover
+    text-shadow: 0 0 8px rgba(154, 208, 194, 0.4); // Glow effect on hover
   }
 
   &.active {
-    color: #0d9276;
+    color: #9ad0c2; // Light mint color for active state
     font-weight: 600;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 2px;
+      background-color: #9ad0c2;
+      border-radius: 2px;
+    }
   }
 `;
 

@@ -21,24 +21,14 @@ const HeaderWrapper = styled.header`
   justify-content: center;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   width: 100%;
-  background-color: rgba(13, 146, 118, 1);
+  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
   padding: 10px 0;
   position: fixed;
   top: 0;
   left: 0;
   height: 70px;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: rgba(0, 0, 0, 0.1);
-  }
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
 const MenuIcon = styled.img`
@@ -56,11 +46,12 @@ const MenuIcon = styled.img`
 
 const Title = styled.h1`
   margin: 0;
-  color: rgba(255, 255, 255, 1);
+  color: #ffffff;
   font-family: Moul, -apple-system, Roboto, Helvetica, sans-serif;
   font-size: 45px; // Slightly reduced
   font-weight: 400;
   text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 991px) {
     font-size: 35px;

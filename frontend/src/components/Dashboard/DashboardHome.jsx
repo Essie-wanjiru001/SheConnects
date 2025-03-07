@@ -32,7 +32,8 @@ const StudentDashboard = () => {
 };
 
 const DashboardWrapper = styled.div`
-  background-color: rgba(251, 251, 251, 1);
+  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
+  min-height: 100vh;
   padding-bottom: 10px;
   overflow: hidden;
 `;

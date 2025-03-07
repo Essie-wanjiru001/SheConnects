@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import profileImage from "../../assets/images/profile 1.jpg";
-import { logout } from "../../../src/services/authService";
+import { getUserProfile } from "../../services/profileService";
+import defaultProfileImage from "../../assets/images/profile 1.jpg";
+import { logout } from "../../services/authService";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [userData, setUserData] = useState({
+    name: '',
+    profilePicture: null
+  });
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const data = await getUserProfile();
+      setUserData({
+        name: data.name || 'User',
+        profilePicture: data.profilePicture || data.profile_image // Handle both naming conventions
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Keep default values if fetch fails
+      setUserData({
+        name: 'User',
+        profilePicture: null
+      });
+    }
+  };
 
   const handleLogout = () => {
     logout(); 
@@ -21,9 +47,15 @@ const Sidebar = () => {
     <SidebarWrapper>
       <ProfileContainer>
         <ProfileImageWrapper>
-          <ProfileImage src={profileImage} alt="Profile" />
+          <ProfileImage 
+            src={userData.profilePicture ? `http://localhost:8000${userData.profilePicture}` : defaultProfileImage} 
+            alt={userData.name} 
+            onError={(e) => {
+              e.target.src = defaultProfileImage; // Fallback to default if image fails to load
+            }}
+          />
         </ProfileImageWrapper>
-        <ProfileName>Name</ProfileName>
+        <ProfileName>{userData.name}</ProfileName>
       </ProfileContainer>
       <NavMenu>
         <NavItem as={Link} to="/dashboard" $active={isActive('/dashboard')}>
@@ -54,7 +86,7 @@ const Sidebar = () => {
 };
 
 const SidebarWrapper = styled.aside`
-  background-color: rgba(154, 208, 194, 1);
+  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
   display: flex;
   flex-direction: column;
   padding: 30px 20px;
@@ -63,8 +95,8 @@ const SidebarWrapper = styled.aside`
   position: fixed;
   left: 0;
   top: 70px;
-  color: #000000;
-  border-right: 1px solid rgba(13, 146, 118, 0.2);
+  color: #ffffff;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 999;
   overflow-y: scroll;
   scrollbar-width: none; // Firefox
@@ -110,10 +142,12 @@ const ProfileImage = styled.img`
 `;
 
 const ProfileName = styled.div`
+  color: #ffffff;
   align-self: center;
   margin-top: 15px;
-  font-size: 20px; // Reduced font size
+  font-size: 20px;
   font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
 // Update NavMenu top margin
@@ -128,18 +162,17 @@ const NavMenu = styled.nav`
 
 const NavItem = styled(Link)`
   padding: 12px 24px;
-  font-size: 16px; // Reduced font size
+  font-size: 16px;
   cursor: pointer;
   text-decoration: none;
-  color: inherit;
+  color: #ffffff;
   transition: all 0.3s ease;
   border-radius: 50px;
-  background-color: ${props => props.$active ? 'rgba(13, 146, 118, 1)' : 'transparent'};
-  color: ${props => props.$active ? '#ffffff' : '#000000'};
+  background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent'};
 
   &:hover {
-    background-color: ${props => props.$active ? 'rgba(13, 146, 118, 0.9)' : 'rgba(13, 146, 118, 0.1)'};
-    transform: translateX(5px); // Added subtle animation
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
   }
 `;
 
