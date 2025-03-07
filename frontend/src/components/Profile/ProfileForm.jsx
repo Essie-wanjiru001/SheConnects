@@ -197,8 +197,8 @@ export const ProfileForm = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewImage(reader.result);
-        setFormData(prevState => ({
-          ...prevState,
+        setFormData(prev => ({
+          ...prev,
           profile_image: file
         }));
       };
@@ -213,13 +213,21 @@ export const ProfileForm = () => {
 
     try {
       const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key]);
-      });
+      
+      // Add text fields
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('gender', formData.gender);
+      formDataToSend.append('phone_number', formData.phone_number);
+      formDataToSend.append('careerInterests', formData.career_interests);
+
+      // Add file if selected
+      if (formData.profile_image instanceof File) {
+        formDataToSend.append('file', formData.profile_image);
+      }
 
       const response = await updateProfile(formDataToSend);
       console.log('Profile updated:', response);
-      // Show success message or redirect
+      // Show success message
     } catch (err) {
       setError(err.error || 'Failed to update profile');
     } finally {

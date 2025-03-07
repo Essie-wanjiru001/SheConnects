@@ -5,24 +5,27 @@ const upload = require('../config/multerConfig');
 const User = require('../models/user');
 const db = require('../config/database');
 
-router.put('/profile', auth, upload.single('profile_image'), async (req, res) => {
+router.put('/profile', auth, upload.single('file'), async (req, res) => {
   try {
     const userId = req.user.id;
     const profileData = {
-      name: req.body.name,
-      gender: req.body.gender,
-      phone_number: req.body.phone_number,
-      profile_image: req.file ? `/uploads/profiles/${req.file.filename}` : undefined
+      ...req.body,
+      profilePicture: req.file ? `/uploads/profiles/${req.file.filename}` : undefined
     };
 
     const success = await User.updateProfile(userId, profileData);
+    
     if (!success) {
       return res.status(400).json({ error: 'Failed to update profile' });
     }
 
-    res.json({ message: 'Profile updated successfully' });
+    res.json({ 
+      message: 'Profile updated successfully',
+      profilePicture: profileData.profilePicture
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 

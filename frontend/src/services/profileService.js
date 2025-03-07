@@ -2,12 +2,13 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/users';
 
-export const updateProfile = async (profileData) => {
+export const updateProfile = async (formData) => {
   try {
     const token = localStorage.getItem('userToken');
-    const response = await axios.put(`${API_URL}/profile`, profileData, {
+    const response = await axios.put(`${API_URL}/profile`, formData, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
       }
     });
     return response.data;
