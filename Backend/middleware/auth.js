@@ -1,15 +1,36 @@
 const jwt = require('jsonwebtoken');
+const db = require('../config/database');
 
-const auth = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Access denied' });
-
+const auth = async (req, res, next) => {
   try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    
+    // Get user ID from database using email
+    const [rows] = await db.execute(
+      'SELECT userID FROM users WHERE email = ?',
+      [decoded.email]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    req.user = {
+      id: rows[0].userID,
+      email: decoded.email
+    };
+    
     next();
-  } catch (err) {
-    res.status(400).json({ error: 'Invalid token' });
+  } catch (error) {
+    console.error('Auth Middleware Error:', error);
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
 

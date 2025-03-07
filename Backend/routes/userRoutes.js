@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../config/multerConfig');
 const User = require('../models/user');
+const db = require('../config/database');
 
 router.put('/profile', auth, upload.single('profile_image'), async (req, res) => {
   try {
@@ -28,24 +29,29 @@ router.put('/profile', auth, upload.single('profile_image'), async (req, res) =>
 router.get('/profile', auth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId);
     
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+    const [rows] = await db.execute(
+      `SELECT userID, name, email, gender, phone_number, 
+       profilePicture, careerInterests 
+       FROM users WHERE userID = ?`,
+      [userId]
+    );
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'User profile not found' });
     }
 
-    // Only send necessary user data
-    const userData = {
-      name: user.name,
-      email: user.email,
-      gender: user.gender,
-      phone_number: user.phone_number,
-      profile_image: user.profile_image
+    // Transform the response to match frontend expectations
+    const userProfile = {
+      ...rows[0],
+      profile_image: rows[0].profilePicture,
+      career_interests: rows[0].careerInterests
     };
 
-    res.json(userData);
+    res.json(userProfile);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch profile data' });
   }
 });
 

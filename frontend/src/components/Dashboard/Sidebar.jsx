@@ -26,25 +26,25 @@ const Sidebar = () => {
         <ProfileName>Name</ProfileName>
       </ProfileContainer>
       <NavMenu>
-        <NavItem as={Link} to="/dashboard" active={isActive('/dashboard')}>
+        <NavItem as={Link} to="/dashboard" $active={isActive('/dashboard')}>
           Dashboard
         </NavItem>
-        <NavItem as={Link} to="/scholarships" active={isActive('/scholarships')}>
+        <NavItem as={Link} to="/scholarships" $active={isActive('/scholarships')}>
           Scholarships
         </NavItem>
-        <NavItem as={Link} to="/internships" active={isActive('/internships')}>
+        <NavItem as={Link} to="/internships" $active={isActive('/internships')}>
           Internships
         </NavItem>
-        <NavItem as={Link} to="/events" active={isActive('/events')}>
+        <NavItem as={Link} to="/events" $active={isActive('/events')}>
           Events
         </NavItem>
-        <NavItem as={Link} to="/notifications" active={isActive('/notifications')}>
+        <NavItem as={Link} to="/notifications" $active={isActive('/notifications')}>
           Notifications
         </NavItem>
-        <NavItem as={Link} to="/report" active={isActive('/report')}>
+        <NavItem as={Link} to="/report" $active={isActive('/report')}>
           Report
         </NavItem>
-        <NavItem as={Link} to="/profile" active={isActive('/profile')}>
+        <NavItem as={Link} to="/profile" $active={isActive('/profile')}>
           Profile
         </NavItem>
       </NavMenu>
@@ -134,11 +134,11 @@ const NavItem = styled(Link)`
   color: inherit;
   transition: all 0.3s ease;
   border-radius: 50px;
-  background-color: ${props => props.active ? 'rgba(13, 146, 118, 1)' : 'transparent'};
-  color: ${props => props.active ? '#ffffff' : '#000000'};
+  background-color: ${props => props.$active ? 'rgba(13, 146, 118, 1)' : 'transparent'};
+  color: ${props => props.$active ? '#ffffff' : '#000000'};
 
   &:hover {
-    background-color: ${props => props.active ? 'rgba(13, 146, 118, 0.9)' : 'rgba(13, 146, 118, 0.1)'};
+    background-color: ${props => props.$active ? 'rgba(13, 146, 118, 0.9)' : 'rgba(13, 146, 118, 0.1)'};
     transform: translateX(5px); // Added subtle animation
   }
 `;
@@ -158,6 +158,36 @@ const LogoutButton = styled.button`
   &:hover {
     background-color: #ff3333;
     transform: translateY(-2px);
+  }
+`;
+
+const SidebarContainer = styled.div`
+  width: 26%;
+  transition: transform 0.3s ease;
+  
+  @media (max-width: 991px) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
+  }
+`;
+
+const ContentSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: normal;
+  width: ${props => props.$isSidebarOpen ? '74%' : '100%'};
+  margin-left: ${props => props.$isSidebarOpen ? '20px' : '0'};
+  transition: all 0.3s ease;
+  padding: 20px;
+
+  @media (max-width: 991px) {
+    width: 100%;
+    margin-left: 0;
   }
 `;
 

@@ -110,12 +110,42 @@ const Select = styled.select`
   font-size: 24px;
 `;
 
+const TextArea = styled.textarea`
+  background-color: #f8f8f8;
+  border: 1px solid #000000;
+  box-shadow: inset 0px 4px 4px #00000040;
+  width: 100%;
+  padding: 8px;
+  font-size: 24px;
+  resize: vertical;
+  min-height: 120px;
+  font-family: "Inter-Regular", Helvetica;
+`;
+
+const PasswordSection = styled.div`
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+`;
+
+const SectionTitle = styled.h3`
+  color: #000000;
+  font-family: "Inter-Regular", Helvetica;
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 20px;
+`;
+
 export const ProfileForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     gender: '',
     email: '',
-    phone_number: ''
+    phone_number: '',
+    career_interests: '',
+    password: '',
+    new_password: '',
+    confirm_password: ''
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState('');
@@ -127,19 +157,28 @@ export const ProfileForm = () => {
 
   const fetchUserProfile = async () => {
     try {
+      setIsLoading(true);
+      setError(null);
       const userData = await getUserProfile();
+      
       setFormData({
         name: userData.name || '',
-        gender: userData.gender || '',
         email: userData.email || '',
-        phone_number: userData.phone_number || ''
+        gender: userData.gender || '',
+        phone_number: userData.phone_number || '',
+        career_interests: userData.career_interests || '',
+        password: '',
+        new_password: '',
+        confirm_password: ''
       });
+
       if (userData.profile_image) {
         setPreviewImage(`http://localhost:8000${userData.profile_image}`);
       }
-      setIsLoading(false);
     } catch (err) {
-      setError('Failed to load profile data');
+      setError(err.error || 'Failed to load profile data');
+      console.error('Profile fetch error:', err);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -189,7 +228,16 @@ export const ProfileForm = () => {
   };
 
   if (isLoading) {
-    return <LoadingMessage>Loading profile data...</LoadingMessage>;
+    return <LoadingSpinner>Loading profile data...</LoadingSpinner>;
+  }
+
+  if (error) {
+    return (
+      <ErrorContainer>
+        <ErrorMessage>{error}</ErrorMessage>
+        <RetryButton onClick={fetchUserProfile}>Retry</RetryButton>
+      </ErrorContainer>
+    );
   }
 
   return (
@@ -265,6 +313,53 @@ export const ProfileForm = () => {
           />
         </FormField>
 
+        <FormField>
+          <Label>Career Interests</Label>
+          <TextArea
+            name="career_interests"
+            value={formData.career_interests}
+            onChange={handleChange}
+            placeholder="Tell us about your career interests..."
+            rows="4"
+          />
+        </FormField>
+
+        <PasswordSection>
+          <SectionTitle>Change Password</SectionTitle>
+          <FormField>
+            <Label>Current Password</Label>
+            <Input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter current password"
+            />
+          </FormField>
+
+          <FormField>
+            <Label>New Password</Label>
+            <Input
+              type="password"
+              name="new_password"
+              value={formData.new_password}
+              onChange={handleChange}
+              placeholder="Enter new password"
+            />
+          </FormField>
+
+          <FormField>
+            <Label>Confirm New Password</Label>
+            <Input
+              type="password"
+              name="confirm_password"
+              value={formData.confirm_password}
+              onChange={handleChange}
+              placeholder="Confirm new password"
+            />
+          </FormField>
+        </PasswordSection>
+
         <SaveButton type="submit" disabled={isLoading}>
           {isLoading ? 'Saving...' : 'Save changes'}
         </SaveButton>
@@ -283,11 +378,28 @@ const ErrorMessage = styled.div`
   font-size: 14px;
 `;
 
-const LoadingMessage = styled.div`
+const LoadingSpinner = styled.div`
   text-align: center;
-  color: #0d9276;
   padding: 20px;
-  font-size: 18px;
+  color: #0d9276;
+`;
+
+const ErrorContainer = styled.div`
+  text-align: center;
+  padding: 20px;
+`;
+
+const RetryButton = styled.button`
+  background-color: #0d9276;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #0b7b63;
+  }
 `;
 
 export default ProfileForm;

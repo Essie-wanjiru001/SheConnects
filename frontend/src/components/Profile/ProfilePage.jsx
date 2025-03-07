@@ -15,10 +15,10 @@ const ProfilePage = () => {
     <ProfileWrapper>
       <DashboardHeader toggleSidebar={toggleSidebar} />
       <MainContent>
-        <SidebarContainer isOpen={isSidebarOpen}>
+        <SidebarContainer $isOpen={isSidebarOpen}>
           <Sidebar />
         </SidebarContainer>
-        <ContentSection isSidebarOpen={isSidebarOpen}>
+        <ContentSection $isSidebarOpen={isSidebarOpen}>
           <FormContainer>
             <FormTitle>My Profile</FormTitle>
             <ProfileForm />

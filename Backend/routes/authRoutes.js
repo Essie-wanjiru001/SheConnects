@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const db = require('../config/database'); // Add this import
 
 const router = express.Router();
 
@@ -34,29 +35,42 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findByEmail(email);
+    
+    const [rows] = await db.execute(
+      'SELECT userID, email, password FROM users WHERE email = ?',
+      [email]
+    );
 
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+    if (rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+    const user = rows[0];
+    const isValid = await bcrypt.compare(password, user.password);
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { 
+        id: user.id,
+        email: user.email 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    res.json({ message: 'Login successful', token });
-  } catch (err) {
-    console.error('Login Error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.json({ 
+      token,
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
   }
 });
 
