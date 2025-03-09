@@ -26,4 +26,19 @@ console.log('📊 Database configuration:', {
 const pool = mysql.createPool(config);
 const promisePool = pool.promise();
 
-module.exports = promisePool;
+// Define the testConnection function
+async function testConnection() {
+  try {
+    const connection = await promisePool.getConnection();
+    await connection.ping();
+    connection.release();
+    console.log('✅ Database connection test successful');
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection test failed:', error);
+    return false;
+  }
+}
+
+// Export the promisePool and testConnection function
+module.exports = { promisePool, testConnection };
