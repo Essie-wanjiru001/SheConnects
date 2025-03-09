@@ -2,12 +2,12 @@ const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
-  static async create({ name, email, password, gender, phone_number, is_admin = false }) {
+  static async create({ name, email, password, gender = null, phone_number = null }) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const [result] = await db.query(
-        'INSERT INTO users (name, gender, email, phone_number, password, is_admin) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, gender, email, phone_number, hashedPassword, is_admin]
+      const [result] = await db.execute(
+        'INSERT INTO users (name, email, password, gender, phone_number) VALUES (?, ?, ?, ?, ?)',
+        [name, email, hashedPassword, gender, phone_number]
       );
       return result.insertId;
     } catch (error) {
@@ -18,8 +18,11 @@ class User {
 
   static async findByEmail(email) {
     try {
-      const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-      return rows[0] || null;
+      const [rows] = await db.execute(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
+      );
+      return rows[0];
     } catch (error) {
       console.error('Error finding user:', error);
       throw error;

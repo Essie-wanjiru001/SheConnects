@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../config/multerConfig');
-const User = require('../models/User');
+const User = require('../models/user');
 const db = require('../config/database');
 
 router.put('/profile', auth, upload.single('file'), async (req, res) => {

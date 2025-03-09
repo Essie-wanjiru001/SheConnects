@@ -1,8 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const db = require('../config/database');
+const User = require('../models/user');
 
 const router = express.Router();
 
@@ -17,10 +16,9 @@ router.post('/register', async (req, res) => {
 
     // Check if user exists
     const existingUser = await User.findByEmail(email);
-    if (existingUser !== null) {
-         return res.status(400).json({ error: 'Email already exists' });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
     }
-
 
     // Create user
     const userId = await User.create({ name, email, password });
@@ -36,25 +34,19 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    const [rows] = await db.execute(
-      'SELECT userID, email, password FROM users WHERE email = ?',
-      [email]
-    );
-
-    if (rows.length === 0) {
+    const user = await User.findByEmail(email);
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const user = rows[0];
     const isValid = await bcrypt.compare(password, user.password);
-
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
       { 
-        id: user.id,
+        id: user.userID,
         email: user.email 
       },
       process.env.JWT_SECRET,
@@ -64,7 +56,7 @@ router.post('/login', async (req, res) => {
     res.json({ 
       token,
       user: {
-        id: user.id,
+        id: user.userID,
         email: user.email
       }
     });
