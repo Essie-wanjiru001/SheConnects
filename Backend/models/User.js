@@ -52,13 +52,13 @@ class User {
         values.push(profileData.careerInterests);
       }
 
-      // Add userId at the end of values array
       values.push(userId);
 
       const [result] = await db.query(
         `UPDATE users SET ${updateFields.join(', ')} WHERE userID = ?`,
         values
       );
+
       return result.affectedRows > 0;
     } catch (error) {
       console.error('Error updating profile:', error);
