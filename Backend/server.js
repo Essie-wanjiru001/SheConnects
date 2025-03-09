@@ -24,9 +24,10 @@ const PORT = process.env.PORT || 8000;
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app'
-    : 'http://localhost:3000',
+  origin: [
+    'https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app',
+    'http://localhost:3000'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
