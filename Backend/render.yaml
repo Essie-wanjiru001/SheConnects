@@ -4,18 +4,18 @@ services:
     env: node
     buildCommand: npm install
     startCommand: node server.js
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 8000
-      - key: FRONTEND_URL
-        value: "https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app"
       - key: DB_HOST
-        value: "130.211.127.163"
+        value: 130.211.127.163
       - key: DB_USER
-        value: "root"
+        value: root
       - key: DB_NAME
-        value: "sheconnects"
+        value: sheconnects
       - key: DB_PORT
         value: 3306
+    autoDeploy: true

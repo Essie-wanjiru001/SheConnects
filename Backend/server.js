@@ -9,6 +9,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
+const { testConnection } = require('./config/database');
 
 // Route imports
 const authRoutes = require("./routes/authRoutes");
@@ -24,10 +25,7 @@ const PORT = process.env.PORT || 8000;
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: [
-    'https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app',
-    'http://localhost:3000'
-  ],
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -66,6 +64,11 @@ app.get("/", (req, res) => {
   });
 });
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Schedule Scholarship Scraping
 if (process.env.NODE_ENV === 'production') {
   cron.schedule('0 0 * * *', async () => {
@@ -99,31 +102,29 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start Server
-const startServer = async () => {
+// Start Server with connection retry
+async function startServer(retries = 5) {
   try {
-    // Test database connection
-    const connection = await db.getConnection();
-    connection.release();
-    console.log('✅ Successfully connected to MySQL Database');
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      throw new Error('Database connection failed');
+    }
 
-    // Start listening
-    app.listen(PORT, async () => {
-      try {
-        const [result] = await db.execute('SELECT NOW()');
-        console.log('✅ Database connected successfully');
-        console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-      } catch (error) {
-        console.error('❌ Database connection failed:', error.message);
-        process.exit(1);
-      }
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    console.error(`❌ Server start failed:`, error.message);
+    if (retries > 0) {
+      console.log(`⏳ Retrying in 5 seconds... (${retries} attempts left)`);
+      setTimeout(() => startServer(retries - 1), 5000);
+    } else {
+      console.error('❌ Max retries reached. Exiting...');
+      process.exit(1);
+    }
   }
-};
+}
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
