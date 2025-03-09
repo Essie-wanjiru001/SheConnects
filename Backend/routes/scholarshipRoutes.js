@@ -5,7 +5,7 @@ const adminAuth = require('../middleware/adminAuth.js');
 const upload = require('../config/multerConfig');
 const db = require('../config/database');
 
-// Create new scholarship (Admin only)
+// Create scholarship (Admin only)
 router.post('/', 
     adminAuth, 
     upload.single('image'), 
