@@ -1,8 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
-const db = require('../config/database'); // Add this import
+const User = require('../models/User');
+const db = require('../config/database');
 
 const router = express.Router();
 

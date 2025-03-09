@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../config/multerConfig');
-const User = require('../models/user');
+const User = require('../models/User');
 const db = require('../config/database');
 
 router.put('/profile', auth, upload.single('file'), async (req, res) => {
@@ -44,7 +44,7 @@ router.get('/profile', auth, async (req, res) => {
       return res.status(404).json({ error: 'User profile not found' });
     }
 
-    // Transform the response to match frontend expectations
+
     const userProfile = {
       ...rows[0],
       profile_image: rows[0].profilePicture,
