@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 8000;
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? 'https://she-connects.vercel.app'
+    ? 'https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app'
     : 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
