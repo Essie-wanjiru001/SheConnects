@@ -106,30 +106,16 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start Server with connection retry
-async function startServer(retries = 5) {
-  try {
-    const isConnected = await testConnection();
-    if (!isConnected) {
-      throw new Error('Database connection failed');
-    }
+// Start Server without database check
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
 
-    // Explicitly bind to 0.0.0.0
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-    });
-  } catch (error) {
-    console.error(`❌ Server start failed:`, error.message);
-    if (retries > 0) {
-      console.log(`⏳ Retrying in 5 seconds... (${retries} attempts left)`);
-      setTimeout(() => startServer(retries - 1), 5000);
-    } else {
-      console.error('❌ Max retries reached. Exiting...');
-      process.exit(1);
-    }
-  }
-}
+// Handle server errors
+server.on('error', (error) => {
+  console.error('Server error:', error);
+  process.exit(1);
+});
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
@@ -142,6 +128,4 @@ process.on('unhandledRejection', (error) => {
   console.error('❌ Unhandled Rejection:', error);
   process.exit(1);
 });
-
-startServer();
 

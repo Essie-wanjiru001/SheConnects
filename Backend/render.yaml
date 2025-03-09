@@ -1,11 +1,11 @@
 services:
   - type: web
-    name: sheconnects_api
+    name: sheconnects-api
     env: node
     plan: free
     buildCommand: npm install
     startCommand: node server.js
-    healthCheckPath: /health
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
@@ -19,4 +19,6 @@ services:
         value: sheconnects
       - key: DB_PORT
         value: 3306
+      - key: FRONTEND_URL
+        value: https://frontend-esther-wanjirus-projects.vercel.app
     autoDeploy: true
