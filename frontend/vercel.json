@@ -6,6 +6,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://sheconnects_api.onrender.com"
+    "REACT_APP_API_URL": "https://sheconnects-api.onrender.com"
   }
 }
