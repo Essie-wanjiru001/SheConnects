@@ -6,32 +6,24 @@ const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 3306,
   connectTimeout: 60000,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  ssl: {
+  ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
-  }
+  } : false
 };
+
+console.log('📊 Database configuration:', {
+  host: config.host,
+  user: config.user,
+  database: config.database,
+  port: config.port
+});
 
 const pool = mysql.createPool(config);
 const promisePool = pool.promise();
 
-// Test connection function
-async function testConnection() {
-  try {
-    const [result] = await promisePool.query('SELECT 1');
-    console.log('✅ Database connected successfully');
-    return true;
-  } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
-    return false;
-  }
-}
-
-module.exports = {
-  pool: promisePool,
-  testConnection
-};
+module.exports = promisePool;

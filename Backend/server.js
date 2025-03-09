@@ -110,7 +110,8 @@ async function startServer(retries = 5) {
       throw new Error('Database connection failed');
     }
 
-    app.listen(PORT, () => {
+    // Explicitly bind to 0.0.0.0
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     });
