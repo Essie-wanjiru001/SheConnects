@@ -4,54 +4,126 @@ const cors = require("cors");
 const multer = require('multer');
 const upload = multer();
 const db = require("./config/database");
+const cron = require('node-cron');
+const morgan = require('morgan');
+const helmet = require('helmet');
+const compression = require('compression');
+const path = require('path');
+
+// Route imports
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const scholarshipRoutes = require('./routes/scholarshipRoutes');
 const internshipRoutes = require('./routes/internshipRoutes');
 const userRoutes = require('./routes/userRoutes');
-const path = require('path');
+const ScholarshipScraper = require('./services/scholarshipScraper');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Middleware
-app.use(cors());
+// Security Middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
+
+// General Middleware
+app.use(morgan('dev')); // Request logging
+app.use(compression()); // Response compression
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiting
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/users', userRoutes);
 
-// Basic Route
+// Health Check Route
 app.get("/", (req, res) => {
-  res.send("🚀 Express Server is Running & Connected to Database!");
+  res.json({
+    status: "🚀 Server is running",
+    dbConnection: "Connected",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Schedule Scholarship Scraping
+if (process.env.NODE_ENV === 'production') {
+  cron.schedule('0 0 * * *', async () => {
+    console.log('Running scheduled scholarship scraping...');
+    try {
+      await ScholarshipScraper.scrapeScholarships();
+      console.log('Scholarship scraping completed successfully');
+    } catch (error) {
+      console.error('Scholarship scraping failed:', error);
+    }
+  });
+}
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('Error:', {
+    message: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 // Start Server
-app.listen(PORT, async () => {
+const startServer = async () => {
   try {
-    // Test database connection using the pool
+    // Test database connection
     const connection = await db.getConnection();
     connection.release();
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
     console.log('✅ Successfully connected to MySQL Database');
-    console.log('🚀 Database connected');
+
+    // Start listening
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on http://localhost:${PORT}`);
+      console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+    });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
+};
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Internal server error" });
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Unhandled Rejection:', error);
+  process.exit(1);
 });
+
+startServer();
 
