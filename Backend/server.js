@@ -9,7 +9,16 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
-const { testConnection } = require('./config/database');
+const { promisePool, testConnection } = require('./config/database');
+
+// Database configuration
+const dbConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'essie',
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME || 'sheconnects',
+  port: process.env.DB_PORT || 3306
+};
 
 // Route imports
 const authRoutes = require("./routes/authRoutes");
@@ -24,16 +33,16 @@ const PORT = process.env.PORT || 8000;
 
 // Security Middleware
 app.use(helmet());
-app.use(cors({
-  origin: [
-    'https://frontend-esther-wanjirus-projects.vercel.app',
-    'https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app',
-    'http://localhost:3000'
-  ],
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+
+app.use(cors(corsOptions));
 
 // General Middleware
 app.use(morgan('dev')); // Request logging
@@ -106,13 +115,24 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start Server without database check
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// Start Server with database check
+async function startServer() {
+  try {
+    await testConnection();
+    const PORT = process.env.PORT || 8000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 // Handle server errors
-server.on('error', (error) => {
+app.on('error', (error) => {
   console.error('Server error:', error);
   process.exit(1);
 });

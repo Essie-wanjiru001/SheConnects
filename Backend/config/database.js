@@ -16,6 +16,7 @@ const config = {
   }
 };
 
+// Only log non-sensitive configuration details
 console.log('📊 Database configuration:', {
   host: config.host,
   user: config.user,
@@ -26,19 +27,37 @@ console.log('📊 Database configuration:', {
 const pool = mysql.createPool(config);
 const promisePool = pool.promise();
 
-// Define the testConnection function
 async function testConnection() {
   try {
     const connection = await promisePool.getConnection();
     await connection.ping();
-    connection.release();
     console.log('✅ Database connection test successful');
+    connection.release();
     return true;
   } catch (error) {
-    console.error('❌ Database connection test failed:', error);
-    return false;
+    console.error('❌ Database connection test failed:', error.message);
+    throw error; // Propagate the error for better error handling
   }
 }
 
-// Export the promisePool and testConnection function
-module.exports = { promisePool, testConnection };
+// Graceful shutdown handler
+process.on('SIGINT', async () => {
+  try {
+    await pool.end();
+    console.log('👋 Database pool closed gracefully');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Error closing pool:', err.message);
+    process.exit(1);
+  }
+});
+
+module.exports = {
+  promisePool,
+  testConnection,
+  config: {
+    host: config.host,
+    database: config.database,
+    port: config.port
+  }
+};
