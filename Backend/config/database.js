@@ -25,6 +25,17 @@ console.log('📊 Database configuration:', {
 });
 
 const pool = mysql.createPool(config);
+pool.on('connection', (connection) => {
+  console.log('✅ New database connection established');
+});
+
+pool.on('error', (err) => {
+  console.error('Database connection error:', err);
+  if (err.code === 'ECONNREFUSED') {
+    console.error('🚫 Connection refused. Check authorized networks.');
+  }
+});
+
 const promisePool = pool.promise();
 
 async function testConnection() {
