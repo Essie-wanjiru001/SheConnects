@@ -37,8 +37,7 @@ app.use(helmet());
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://frontend-git-main-esther-wanjirus-projects.vercel.app',
-    'https://frontend-9wda2ezcv-esther-wanjirus-projects.vercel.app',
+    'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app',
     'http://localhost:3000'
   ],
   credentials: true,
