@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sheconnects-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: "https://frontend-gbu9z7ko6-esther-wanjirus-projects.vercel.app/"

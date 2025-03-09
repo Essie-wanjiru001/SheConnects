@@ -10,7 +10,8 @@ class ScholarshipScraper {
         deadline: "2025-08-15",
         degree_level: "Undergraduate",
         eligibility: "Female Kenyan students in STEM fields, minimum B grade",
-        link: "https://example.com/kenya-stem"
+        link: "https://example.com/kenya-stem",
+        image: "/uploads/scholarships/stem-scholarship.jpg" // Added image field
       },
       {
         title: "African Leadership Masters Fellowship",
@@ -18,7 +19,8 @@ class ScholarshipScraper {
         deadline: "2025-09-30",
         degree_level: "Masters",
         eligibility: "Kenyan residents with Bachelor's degree, 2 years work experience",
-        link: "https://example.com/masters-fellowship"
+        link: "https://example.com/masters-fellowship",
+        image: "/uploads/scholarships/masters-fellowship.jpg" // Added image field
       }
     ];
 
@@ -30,6 +32,7 @@ class ScholarshipScraper {
         type: item.degree_level,
         eligibility: item.eligibility,
         apply_link: item.link,
+        image: item.image, // Added image field
         created_at: new Date(),
         updated_at: new Date()
       }));
@@ -46,8 +49,8 @@ class ScholarshipScraper {
   static async saveScholarships(scholarships) {
     const query = `
       INSERT INTO scholarships 
-      (name, description, application_deadline, type, eligibility, apply_link, created_at, updated_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      (name, description, application_deadline, type, eligibility, apply_link, image, created_at, updated_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     for (const scholarship of scholarships) {
@@ -59,6 +62,7 @@ class ScholarshipScraper {
           scholarship.type,
           scholarship.eligibility,
           scholarship.apply_link,
+          scholarship.image,
           scholarship.created_at,
           scholarship.updated_at
         ]);

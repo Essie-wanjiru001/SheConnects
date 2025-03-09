@@ -24,8 +24,12 @@ const PORT = process.env.PORT || 8000;
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://she-connects.vercel.app'
+    : 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // General Middleware
@@ -103,9 +107,16 @@ const startServer = async () => {
     console.log('✅ Successfully connected to MySQL Database');
 
     // Start listening
-    app.listen(PORT, () => {
-      console.log(`🚀 Server is running on http://localhost:${PORT}`);
-      console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+    app.listen(PORT, async () => {
+      try {
+        const [result] = await db.execute('SELECT NOW()');
+        console.log('✅ Database connected successfully');
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+      } catch (error) {
+        console.error('❌ Database connection failed:', error.message);
+        process.exit(1);
+      }
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
