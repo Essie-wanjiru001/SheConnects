@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:8000/api/scholarships';
 export const getScholarships = async () => {
   try {
     const response = await axios.get(API_URL);
-    console.log('API Response:', response.data); // Add response logging
+    console.log('API Response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Service error details:', error.response || error); // Improved error logging
