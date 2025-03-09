@@ -32,7 +32,7 @@ export const getUserProfile = async () => {
         'Content-Type': 'application/json'
       }
     });
-    console.log('Profile Response:', response.data); // Debug log
+    console.log('Profile Response:', response.data); 
     return response.data;
   } catch (error) {
     console.error('Profile Service Error:', error.response || error); // Debug log
