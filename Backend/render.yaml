@@ -5,7 +5,7 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: node server.js
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -21,4 +21,8 @@ services:
         value: 3306
       - key: FRONTEND_URL
         value: https://frontend-esther-wanjirus-projects.vercel.app
+      - key: JWT_SECRET
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
     autoDeploy: true
