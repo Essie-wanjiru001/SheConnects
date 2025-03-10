@@ -9,7 +9,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const compression = require('compression');
 const path = require('path');
-const { promisePool, testConnection } = require('./config/database');
+const { pool, testConnection } = require('./config/database');
 
 // Database configuration
 const dbConfig = {
@@ -36,13 +36,10 @@ app.use(helmet());
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app',
-    'http://localhost:3000'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app'
+    : 'http://localhost:3000',
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -64,6 +61,9 @@ app.use('/api/', limiter);
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Add before routes
+app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -81,8 +81,39 @@ app.get("/", (req, res) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  try {
+    await testConnection();
+    res.json({ 
+      status: 'healthy',
+      database: 'connected',
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'unhealthy',
+      error: error.message 
+    });
+  }
+});
+
+// Test database connection
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT COUNT(*) as count FROM users');
+    res.json({
+      status: 'success',
+      dbConnected: true,
+      data: rows[0]
+    });
+  } catch (error) {
+    console.error('Database test failed:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
 });
 
 // Schedule Scholarship Scraping
@@ -113,42 +144,49 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+// Add after your routes
+app.use((err, req, res, next) => {
+  console.error('API Error:', {
+    path: req.path,
+    method: req.method,
+    error: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+  
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message
+  });
 });
 
-// Start Server with database check
-async function startServer() {
+// Single server initialization
+const startServer = async () => {
   try {
     await testConnection();
-    const PORT = process.env.PORT || 8000;
-    app.listen(PORT, '0.0.0.0', () => {
+    console.log('✅ Database connection verified');
+    
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     });
+
+    // Graceful shutdown
+    ['SIGINT', 'SIGTERM'].forEach(signal => {
+      process.on(signal, async () => {
+        console.log(`\n${signal} received. Shutting down gracefully...`);
+        server.close(() => {
+          console.log('🔌 HTTP server closed');
+          process.exit(0);
+        });
+      });
+    });
+
   } catch (error) {
-    console.error('Failed to start server:', error.message);
+    console.error('❌ Server initialization failed:', error);
     process.exit(1);
   }
-}
+};
 
+// Start server
 startServer();
-
-// Handle server errors
-app.on('error', (error) => {
-  console.error('Server error:', error);
-  process.exit(1);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-  process.exit(1);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (error) => {
-  console.error('❌ Unhandled Rejection:', error);
-  process.exit(1);
-});
 

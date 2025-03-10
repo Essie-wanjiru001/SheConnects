@@ -3,7 +3,7 @@ const router = express.Router();
 const scholarshipController = require('../controllers/scholarshipController');
 const adminAuth = require('../middleware/adminAuth.js');
 const upload = require('../config/multerConfig');
-const db = require('../config/database');
+const { pool } = require('../config/database');
 
 // Create scholarship (Admin only)
 router.post('/', 
@@ -15,20 +15,21 @@ router.post('/',
 // Get all scholarships
 router.get('/', async (req, res) => {
   try {
-    const { type } = req.query;
-    let query = 'SELECT * FROM scholarships';
-    
-    if (type) {
-      query += ` WHERE type = ?`;
-      const [scholarships] = await db.execute(query, [type]); // Changed from pool to db
-      res.json({ success: true, scholarships });
-    } else {
-      const [scholarships] = await db.execute(query); // Changed from pool to db
-      res.json({ success: true, scholarships });
-    }
+    const [scholarships] = await pool.query(`
+      SELECT * FROM scholarships 
+      WHERE is_active = 1 
+      ORDER BY application_deadline DESC
+    `);
+
+    console.log('Fetched scholarships:', scholarships); // Debug log
+
+    res.json({ scholarships }); // Return object with scholarships array
   } catch (error) {
-    console.error('Database error:', error); // Add error logging
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Scholarship fetch error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch scholarships',
+      details: error.message 
+    });
   }
 });
 

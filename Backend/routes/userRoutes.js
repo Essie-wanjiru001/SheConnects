@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const upload = require('../config/multerConfig');
+const { pool } = require('../config/database');
 const User = require('../models/user');
-const db = require('../config/database');
 
 router.put('/profile', auth, upload.single('file'), async (req, res) => {
   try {
@@ -31,24 +31,32 @@ router.put('/profile', auth, upload.single('file'), async (req, res) => {
 
 router.get('/profile', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
-    
-    const [rows] = await db.execute(
-      `SELECT userID, name, email, gender, phone_number, 
-       profilePicture, careerInterests 
-       FROM users WHERE userID = ?`,
-      [userId]
+    const [rows] = await pool.query(
+      'SELECT userID, name, email, gender, phone_number FROM users WHERE userID = ?',
+      [req.user.id]
     );
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({ error: 'User profile not found' });
+      // Return empty profile structure instead of 404
+      return res.json({
+        id: req.user.id,
+        name: '',
+        email: req.user.email,
+        gender: '',
+        phone_number: '',
+        profilePicture: null,
+        careerInterests: ''
+      });
     }
 
-
     const userProfile = {
-      ...rows[0],
-      profile_image: rows[0].profilePicture,
-      career_interests: rows[0].careerInterests
+      id: rows[0].userID,
+      name: rows[0].name || '',
+      email: rows[0].email,
+      gender: rows[0].gender || '',
+      phone_number: rows[0].phone_number || '',
+      profilePicture: rows[0].profilePicture || null,
+      careerInterests: rows[0].careerInterests || ''
     };
 
     res.json(userProfile);

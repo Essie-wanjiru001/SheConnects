@@ -1,55 +1,49 @@
-require('dotenv').config();
 const mysql = require('mysql2');
+require('dotenv').config();
 
+const isProd = process.env.NODE_ENV === 'production';
 const config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
+  host: isProd ? '130.211.127.163' : 'localhost',
+  user: isProd ? 'root' : 'essie',
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  database: 'sheconnects',
   port: parseInt(process.env.DB_PORT) || 3306,
+  ssl: isProd ? {
+    rejectUnauthorized: false
+  } : false,
   connectTimeout: 60000,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  queueLimit: 0
 };
 
-// Only log non-sensitive configuration details
-console.log('📊 Database configuration:', {
-  host: config.host,
-  user: config.user,
-  database: config.database,
-  port: config.port
-});
+const pool = mysql.createPool(config).promise();
 
-const pool = mysql.createPool(config);
+// Add connection monitoring
 pool.on('connection', (connection) => {
   console.log('✅ New database connection established');
+  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 });
 
 pool.on('error', (err) => {
-  console.error('Database connection error:', err);
-  if (err.code === 'ECONNREFUSED') {
-    console.error('🚫 Connection refused. Check authorized networks.');
-  }
+  console.error('Database error:', err.message);
 });
 
-const promisePool = pool.promise();
-
-async function testConnection() {
+const testConnection = async () => {
   try {
-    const connection = await promisePool.getConnection();
-    await connection.ping();
-    console.log('✅ Database connection test successful');
-    connection.release();
+    const [result] = await pool.query('SELECT NOW() as time');
+    console.log('✅ Database connected:', result[0].time);
     return true;
   } catch (error) {
-    console.error('❌ Database connection test failed:', error.message);
-    throw error; // Propagate the error for better error handling
+    console.error('❌ Database connection failed:', {
+      error: error.message,
+      code: error.code,
+      host: config.host,
+      database: config.database
+    });
+    throw error;
   }
-}
+};
 
 // Graceful shutdown handler
 process.on('SIGINT', async () => {
@@ -63,12 +57,4 @@ process.on('SIGINT', async () => {
   }
 });
 
-module.exports = {
-  promisePool,
-  testConnection,
-  config: {
-    host: config.host,
-    database: config.database,
-    port: config.port
-  }
-};
+module.exports = { pool, testConnection, config };
