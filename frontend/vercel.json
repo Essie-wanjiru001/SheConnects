@@ -1,21 +1,24 @@
 {
-  "buildCommand": "CI=false npm run build",
-  "installCommand": "npm install",
-  "framework": "create-react-app",
-  "outputDirectory": "build",
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "buildCommand": "CI=false npm run build",
+        "installCommand": "npm install",
+        "framework": "create-react-app",
+        "outputDirectory": "build"
+      }
+    }
+  ],
   "env": {
     "REACT_APP_API_URL": "https://sheconnects-api.onrender.com",
     "NODE_ENV": "production"
   },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
-      ]
+  "git": {
+    "deploymentEnabled": {
+      "main": true
     }
-  ]
+  }
 }
