@@ -1,24 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node",
-      "config": {
-        "buildCommand": "CI=false npm run build",
-        "installCommand": "npm install",
-        "framework": "create-react-app",
-        "outputDirectory": "build"
-      }
-    }
-  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "create-react-app",
+  "outputDirectory": "build",
   "env": {
-    "REACT_APP_API_URL": "https://sheconnects-api.onrender.com",
-    "NODE_ENV": "production"
-  },
-  "git": {
-    "deploymentEnabled": {
-      "main": true
-    }
+    "REACT_APP_API_URL": "https://sheconnects-api.onrender.com"
   }
 }
