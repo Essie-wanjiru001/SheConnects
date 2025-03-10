@@ -1,16 +1,11 @@
-import axios from 'axios';
-
-const API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://sheconnects-api.onrender.com/api/scholarships'
-  : 'http://localhost:8000/api/scholarships';
+import api, { endpoints } from '../config/api';
 
 export const getScholarships = async () => {
   try {
-    const response = await axios.get(API_URL);
-    console.log('API Response:', response.data);
-    return response.data; // Should contain { scholarships: [...] }
+    const response = await api.get(endpoints.scholarships);
+    return response.data;
   } catch (error) {
-    console.error('Service error details:', error);
+    console.error('Failed to fetch scholarships:', error);
     throw error;
   }
 };

@@ -18,4 +18,8 @@ services:
       - key: DB_PORT
         value: 3306
       - key: FRONTEND_URL
-        value: https://frontend-git-main-esther-wanjirus-projects.vercel.app
+        value: https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app
+      - key: JWT_SECRET
+        sync: false
+      - key: DB_PASSWORD
+        sync: false

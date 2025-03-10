@@ -2,6 +2,7 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const isProd = process.env.NODE_ENV === 'production';
+
 const config = {
   host: isProd ? '130.211.127.163' : 'localhost',
   user: isProd ? 'root' : 'essie',
@@ -19,14 +20,18 @@ const config = {
 
 const pool = mysql.createPool(config).promise();
 
-// Add connection monitoring
-pool.on('connection', (connection) => {
-  console.log('✅ New database connection established');
-  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+// Add detailed logging for production
+pool.on('connection', () => {
+  console.log('✅ New database connection established:', {
+    host: config.host,
+    user: config.user,
+    database: config.database,
+    environment: process.env.NODE_ENV
+  });
 });
 
 pool.on('error', (err) => {
-  console.error('Database error:', err.message);
+  console.error('Database error:', err);
 });
 
 const testConnection = async () => {
