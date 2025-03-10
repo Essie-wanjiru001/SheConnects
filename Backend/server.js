@@ -35,11 +35,23 @@ const PORT = process.env.PORT || 8000;
 app.use(helmet());
 
 // CORS configuration
+const allowedOrigins = [
+  'https://she-connects.vercel.app',
+  'http://localhost:3000',
+  'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app'
+];
+
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app'
-    : 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
