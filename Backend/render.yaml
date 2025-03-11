@@ -4,6 +4,7 @@ services:
     env: node
     buildCommand: npm install
     startCommand: node server.js
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -18,8 +19,12 @@ services:
       - key: DB_PORT
         value: 3306
       - key: FRONTEND_URL
-        value: https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app
+        value: https://she-connects-5id5zlsle-esther-wanjirus-projects.vercel.app/
       - key: JWT_SECRET
         sync: false
       - key: DB_PASSWORD
         sync: false
+    healthCheckPath: /health
+    scaling:
+      minInstances: 1
+      maxInstances: 1

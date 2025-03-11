@@ -182,15 +182,29 @@ const startServer = async () => {
       console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     });
 
-    // Graceful shutdown
-    ['SIGINT', 'SIGTERM'].forEach(signal => {
+    // Graceful shutdown handling
+    ['SIGTERM', 'SIGINT'].forEach(signal => {
       process.on(signal, async () => {
         console.log(`\n${signal} received. Shutting down gracefully...`);
+        
         server.close(() => {
           console.log('🔌 HTTP server closed');
-          process.exit(0);
         });
+
+        try {
+          await pool.end();
+          console.log('📊 Database connection closed');
+          process.exit(0);
+        } catch (error) {
+          console.error('Error during shutdown:', error);
+          process.exit(1);
+        }
       });
+    });
+
+    // Keep process alive
+    process.on('uncaughtException', (error) => {
+      console.error('Uncaught Exception:', error);
     });
 
   } catch (error) {
