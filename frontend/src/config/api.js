@@ -13,9 +13,14 @@ const api = axios.create({
   withCredentials: true
 });
 
-// Request interceptor for adding auth token
+// Add request interceptor for debugging
 api.interceptors.request.use(
   (config) => {
+    console.log('API Request:', {
+      url: config.url,
+      baseURL: config.baseURL,
+      method: config.method
+    });
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -28,17 +33,18 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for handling errors
+// Add response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      console.error('API Error:', {
-        status: error.response.status,
-        data: error.response.data,
-        endpoint: error.config.url
-      });
+    console.error('API Error:', {
+      endpoint: error.config?.url,
+      baseURL: error.config?.baseURL,
+      status: error.response?.status,
+      data: error.response?.data
+    });
 
+    if (error.response) {
       // Handle 401 Unauthorized
       if (error.response.status === 401) {
         localStorage.removeItem('token');

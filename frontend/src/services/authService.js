@@ -1,33 +1,32 @@
-import axios from 'axios';
+import api from '../config/api';
 
-const API_URL = 'http://localhost:8000/api/auth';
-
-export const loginUser = async (credentials) => {
+export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, credentials);
+    const response = await api.post('/api/auth/login', credentials);
     if (response.data.token) {
-      localStorage.setItem('userToken', response.data.token);
-      return response.data;
+      localStorage.setItem('token', response.data.token);
     }
-    throw new Error('No token received');
+    return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'An error occurred' };
+    console.error('Login error:', error);
+    throw error;
   }
 };
 
-export const registerUser = async (userData) => {
+export const register = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, userData);
+    const response = await api.post('/api/auth/register', userData);
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'An error occurred' };
+    console.error('Registration error:', error);
+    throw error;
   }
 };
 
 export const isAuthenticated = () => {
-  return localStorage.getItem('userToken') !== null;
+  return localStorage.getItem('token') !== null;
 };
 
 export const logout = () => {
-  localStorage.removeItem('userToken');
+  localStorage.removeItem('token');
 };

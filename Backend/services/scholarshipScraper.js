@@ -1,49 +1,101 @@
 const axios = require('axios');
-const db = require('../config/database');
+const { pool } = require('../config/database');
+const cheerio = require('cheerio');
 
 class ScholarshipScraper {
   static async fetchScholarships() {
-    const mockScholarships = [
-      {
-        title: "Kenya Women in STEM Scholarship",
-        description: "Full scholarship for Kenyan women pursuing STEM degrees",
-        deadline: "2025-08-15",
-        degree_level: "Undergraduate",
-        eligibility: "Female Kenyan students in STEM fields, minimum B grade",
-        link: "https://example.com/kenya-stem",
-        image: "/uploads/scholarships/stem-scholarship.jpg" // Added image field
-      },
-      {
-        title: "African Leadership Masters Fellowship",
-        description: "Full funding for Masters studies in Business or Technology",
-        deadline: "2025-09-30",
-        degree_level: "Masters",
-        eligibility: "Kenyan residents with Bachelor's degree, 2 years work experience",
-        link: "https://example.com/masters-fellowship",
-        image: "/uploads/scholarships/masters-fellowship.jpg" // Added image field
-      }
-    ];
-
     try {
-      const scholarships = mockScholarships.map(item => ({
-        name: item.title,
-        description: item.description,
-        application_deadline: new Date(item.deadline),
-        type: item.degree_level,
-        eligibility: item.eligibility,
-        apply_link: item.link,
-        image: item.image, // Added image field
-        created_at: new Date(),
-        updated_at: new Date()
-      }));
+      // Fetch from multiple sources
+      const scholarships = [
+        ...(await this.fetchFromStudyportals()),
+        ...(await this.fetchFromScholarshipsAds()),
+        ...(await this.fetchFromOpportunityDesk())
+      ];
 
       await this.saveScholarships(scholarships);
-      console.log(`✅ Successfully added ${scholarships.length} scholarships`);
-      
+      console.log(`✅ Successfully scraped ${scholarships.length} scholarships`);
     } catch (error) {
-      console.error('❌ API Error:', error.message);
+      console.error('❌ Scraping Error:', error.message);
       throw error;
     }
+  }
+
+  static async fetchFromStudyportals() {
+    try {
+      const response = await axios.get('https://www.scholarshipportal.com/scholarships/kenya');
+      const $ = cheerio.load(response.data);
+      const scholarships = [];
+
+      $('.scholarship-item').each((_, element) => {
+        scholarships.push({
+          name: $(element).find('.title').text().trim(),
+          description: $(element).find('.description').text().trim(),
+          application_deadline: this.parseDeadline($(element).find('.deadline').text()),
+          type: $(element).find('.degree-level').text().trim(),
+          eligibility: $(element).find('.eligibility').text().trim(),
+          apply_link: $(element).find('.apply-link').attr('href'),
+          image: $(element).find('.scholarship-image').attr('src') || '/uploads/scholarships/default.jpg',
+          created_at: new Date(),
+          updated_at: new Date()
+        });
+      });
+
+      return scholarships;
+    } catch (error) {
+      console.error('❌ Studyportals scraping failed:', error.message);
+      return [];
+    }
+  }
+
+  static async fetchFromScholarshipsAds() {
+    try {
+      const response = await axios.get('https://www.scholarshipsads.com/kenya-scholarships/');
+      const $ = cheerio.load(response.data);
+      const scholarships = [];
+
+      $('.scholarship-post').each((_, element) => {
+        scholarships.push({
+          name: $(element).find('h2').text().trim(),
+          description: $(element).find('.entry-content p').first().text().trim(),
+          application_deadline: this.parseDeadline($(element).find('.deadline').text()),
+          type: this.getDegreeLevel($(element).find('.scholarship-type').text()),
+          eligibility: $(element).find('.eligibility-criteria').text().trim(),
+          apply_link: $(element).find('.apply-button').attr('href'),
+          image: $(element).find('.featured-image').attr('src') || '/uploads/scholarships/default.jpg',
+          created_at: new Date(),
+          updated_at: new Date()
+        });
+      });
+
+      return scholarships;
+    } catch (error) {
+      console.error('❌ ScholarshipsAds scraping failed:', error.message);
+      return [];
+    }
+  }
+
+  static parseDeadline(dateString) {
+    try {
+      return new Date(dateString);
+    } catch {
+      return new Date();
+    }
+  }
+
+  static getDegreeLevel(text) {
+    const levels = {
+      'undergraduate': ['bachelor', 'undergraduate', 'BS', 'BA'],
+      'masters': ['master', 'MS', 'MA', 'graduate'],
+      'phd': ['phd', 'doctorate', 'doctoral']
+    };
+
+    text = text.toLowerCase();
+    for (const [level, keywords] of Object.entries(levels)) {
+      if (keywords.some(keyword => text.includes(keyword))) {
+        return level;
+      }
+    }
+    return 'all';
   }
 
   static async saveScholarships(scholarships) {
@@ -51,11 +103,15 @@ class ScholarshipScraper {
       INSERT INTO scholarships 
       (name, description, application_deadline, type, eligibility, apply_link, image, created_at, updated_at) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+      description = VALUES(description),
+      application_deadline = VALUES(application_deadline),
+      updated_at = VALUES(updated_at)
     `;
 
     for (const scholarship of scholarships) {
       try {
-        await db.execute(query, [
+        const [result] = await pool.query(query, [
           scholarship.name,
           scholarship.description,
           scholarship.application_deadline,
@@ -66,6 +122,7 @@ class ScholarshipScraper {
           scholarship.created_at,
           scholarship.updated_at
         ]);
+        console.log(`✅ Saved scholarship: ${scholarship.name}`);
       } catch (error) {
         console.error(`❌ Failed to save scholarship: ${scholarship.name}`, error);
       }
