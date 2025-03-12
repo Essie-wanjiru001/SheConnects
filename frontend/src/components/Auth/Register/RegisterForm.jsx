@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../../../services/authService';
+import { register } from '../../../services/authService';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -35,15 +35,18 @@ const RegisterForm = () => {
     }
 
     try {
-      const response = await registerUser({
+      const response = await register({
         name: formData.name,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
       });
-      console.log('Registration successful:', response);
-      navigate('/login'); // Redirect to login page after successful registration
-    } catch (err) {
-      setError(err.error || 'Registration failed. Please try again.');
+      // Handle successful registration
+      if (response.success) {
+        navigate('/login');
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }

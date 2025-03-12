@@ -1,14 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const scholarshipController = require('../controllers/scholarshipController');
-const adminAuth = require('../middleware/adminAuth.js');
+const adminAuth = require('../middleware/adminAuth');
 const { pool } = require('../config/database');
 
 // Create scholarship (Admin only)
-router.post('/', 
-    adminAuth, 
-    scholarshipController.createScholarship
-);
+router.post('/', adminAuth, scholarshipController.createScholarship);
 
 // Get all scholarships
 router.get('/', async (req, res) => {
@@ -37,16 +34,9 @@ router.get('/:id',
 );
 
 // Update scholarship (Admin only)
-router.put('/:id', 
-    adminAuth, 
-    upload.single('image'), 
-    scholarshipController.updateScholarship
-);
+router.put('/:id', adminAuth, scholarshipController.updateScholarship);
 
 // Delete scholarship (Admin only)
-router.delete('/:id', 
-    adminAuth, 
-    scholarshipController.deleteScholarship
-);
+router.delete('/:id', adminAuth, scholarshipController.deleteScholarship);
 
 module.exports = router;

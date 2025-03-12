@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../../services/authService";
+import { login } from "../../../services/authService";
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -27,16 +27,16 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await loginUser(formData);
+      const response = await login(formData);
       console.log('Login successful:', response);
       
       // Store the token
-      localStorage.setItem('userToken', response.token);
+      localStorage.setItem('token', response.token);
       
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
-      setError(err.error || 'Login failed. Please try again.');
+      setError('Invalid credentials');
     } finally {
       setIsLoading(false);
     }
