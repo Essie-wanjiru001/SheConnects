@@ -10,8 +10,7 @@ exports.createScholarship = async (req, res) => {
             eligibility: req.body.eligibility,
             application_deadline: req.body.application_deadline,
             apply_link: req.body.apply_link,
-            type: req.body.type,
-            image: req.file ? `/uploads/scholarships/${req.file.filename}` : null
+            type: req.body.type
         };
 
         const scholarshipId = await Scholarship.createScholarship(scholarshipData);
