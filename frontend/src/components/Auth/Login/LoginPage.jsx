@@ -4,6 +4,7 @@ import Logo from "../../Home/Logo";
 import NavigationMenu from "../../Home/NavigationMenu";
 import LoginForm from "./LoginForm";
 import { CommonWrapper, CommonHeader, ContentContainer } from '../../../styles/CommonStyles';
+import { login } from '../../../services/authService';
 
 const LoginPage = () => {
   return (
@@ -17,6 +18,16 @@ const LoginPage = () => {
       </ContentContainer>
     </LoginWrapper>
   );
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const response = await login({ email, password });
+    // ...rest of your code...
+  } catch (error) {
+    setError('Invalid credentials');
+  }
 };
 
 const LoginWrapper = styled(CommonWrapper)``;
