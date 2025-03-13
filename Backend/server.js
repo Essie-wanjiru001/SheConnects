@@ -25,8 +25,9 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const scholarshipRoutes = require('./routes/scholarshipRoutes');
 const internshipRoutes = require('./routes/internshipRoutes');
+const eventRoutes = require('./routes/eventRoutes'); // Add this line
 const userRoutes = require('./routes/userRoutes');
-const ScholarshipScraper = require('./services/scholarshipScraper');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -81,7 +82,9 @@ app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/internships', internshipRoutes);
+app.use('/api/events', eventRoutes); 
 app.use('/api/users', userRoutes);
+app.use('/api/search', searchRoutes);
 
 // Health Check Route
 app.get("/", (req, res) => {
@@ -143,31 +146,18 @@ if (process.env.NODE_ENV === 'production') {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('Error:', {
-    message: err.message,
-    stack: err.stack,
-    timestamp: new Date().toISOString()
-  });
-
-  res.status(err.status || 500).json({
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message
-  });
-});
-
-// Add after your routes
-app.use((err, req, res, next) => {
   console.error('API Error:', {
     path: req.path,
     method: req.method,
     error: err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    timestamp: new Date().toISOString()
   });
   
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: err.message
+  res.status(err.status || 500).json({
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal Server Error' 
+      : err.message
   });
 });
 

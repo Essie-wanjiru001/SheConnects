@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ScholarshipCard from './ScholarshipCard';
 import { getScholarships } from '../../services/scholarshipService';
 
-const ScholarshipList = ({ filters }) => {
+const ScholarshipList = ({ isDashboard }) => {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,68 +12,88 @@ const ScholarshipList = ({ filters }) => {
     const fetchScholarships = async () => {
       try {
         setLoading(true);
-        const data = await getScholarships();
-        
-        // Ensure we have the scholarships array
-        const allScholarships = data?.scholarships || [];
-        console.log('All scholarships:', allScholarships);
-
-        // Apply filters
-        const filteredScholarships = filters.scholarshipLevel
-          ? allScholarships.filter(s => s.type === filters.scholarshipLevel)
-          : allScholarships;
-        
-        console.log('Filtered scholarships:', filteredScholarships);
-        setScholarships(filteredScholarships);
-      } catch (err) {
-        console.error('Error fetching scholarships:', err);
-        setError(err.message || 'Failed to fetch scholarships');
+        const response = await getScholarships();
+        if (response && response.scholarships) {
+          setScholarships(response.scholarships);
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching scholarships:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchScholarships();
-  }, [filters]);
+  }, []);
 
-  if (loading) return <LoadingMessage>Loading scholarships...</LoadingMessage>;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
-  if (!scholarships || scholarships.length === 0) {
-    return <NoDataMessage>No scholarships found for the selected filters</NoDataMessage>;
-  }
+  if (loading) return <Loading>Loading scholarships...</Loading>;
+  if (error) return <Error>{error}</Error>;
 
   return (
-    <ListContainer>
-      {scholarships.map(scholarship => (
-        <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
-      ))}
-    </ListContainer>
+    <Container isDashboard={isDashboard}>
+      {isDashboard && (
+        <Header>
+          <h1>Scholarships</h1>
+          <SearchBar onSearch={handleSearch} />
+        </Header>
+      )}
+      <ListContainer>
+        {scholarships.length === 0 ? (
+          <NoResults>No scholarships available</NoResults>
+        ) : (
+          scholarships.map(scholarship => (
+            <ScholarshipCard 
+              key={scholarship.id} 
+              scholarship={scholarship}
+              isDashboard={isDashboard}
+            />
+          ))
+        )}
+      </ListContainer>
+    </Container>
   );
 };
 
+const Container = styled.div`
+  padding: ${props => props.isDashboard ? '20px' : '0'};
+  width: 100%;
+`;
+
+const Header = styled.div`
+  margin-bottom: 30px;
+  
+  h1 {
+    color: #154C79;
+    margin-bottom: 20px;
+  }
+`;
+
 const ListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+`;
+
+const Loading = styled.div`
+  text-align: center;
   padding: 20px;
+  color: #ffffff;
 `;
 
-const LoadingMessage = styled.p`
+const Error = styled.div`
   text-align: center;
-  color: #0d9276;
-  font: 500 18px 'Inter', sans-serif;
+  padding: 20px;
+  color: #ff4444;
 `;
 
-const ErrorMessage = styled.p`
+const NoResults = styled.div`
   text-align: center;
-  color: #ff0033;
-  font: 500 18px 'Inter', sans-serif;
-`;
-
-const NoDataMessage = styled.p`
-  text-align: center;
-  color: #666;
-  font: 500 18px 'Inter', sans-serif;
+  padding: 20px;
+  color: #ffffff;
 `;
 
 export default ScholarshipList;

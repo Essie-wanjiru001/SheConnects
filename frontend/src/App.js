@@ -8,6 +8,7 @@ import LoginPage from "./components/Auth/Login/LoginPage";
 import RegisterPage from "./components/Auth/Register/RegisterPage";
 import StudentDashboard from "./components/Dashboard/DashboardHome";
 import ProfilePage from "./components/Profile/ProfilePage";
+import ScholarshipList from "./components/Scholarships/ScholarshipList";
 
 function App() {
   return (
@@ -29,6 +30,10 @@ function App() {
         <Route path="/notifications" element={<Navigate to="/dashboard" />} />
         <Route path="/report" element={<Navigate to="/dashboard" />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route 
+          path="/dashboard/scholarships" 
+          element={<ScholarshipList isDashboard={true} />} 
+        />
         
         {/* 404 Route */}
         <Route path="*" element={<Navigate to="/" />} />

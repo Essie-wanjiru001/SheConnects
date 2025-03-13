@@ -1,95 +1,77 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-const SearchBar = ({ onSearch, placeholder = "Search..." }) => {
+const SearchBar = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [category, setCategory] = useState('all');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSearch(searchTerm);
+    onSearch({ term: searchTerm, category });
   };
 
   return (
-    <SearchForm onSubmit={handleSubmit}>
-      <SearchInput
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder={placeholder}
-      />
-      <SearchButton type="submit">
-        <SearchIcon>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"
-              fill="currentColor"
-            />
-          </svg>
-        </SearchIcon>
-      </SearchButton>
-    </SearchForm>
+    <SearchContainer>
+      <Form onSubmit={handleSubmit}>
+        <SearchInput
+          type="text"
+          placeholder="Search opportunities..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <CategorySelect
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="all">All Categories</option>
+          <option value="scholarships">Scholarships</option>
+          <option value="internships">Internships</option>
+          <option value="events">Events</option>
+        </CategorySelect>
+        <SearchButton type="submit">Search</SearchButton>
+      </Form>
+    </SearchContainer>
   );
 };
 
-const SearchForm = styled.form`
+const SearchContainer = styled.div`
+  margin: 20px 0;
+`;
+
+const Form = styled.form`
   display: flex;
-  align-items: center;
-  max-width: 500px;
-  width: 100%;
+  gap: 10px;
+  max-width: 800px;
   margin: 0 auto;
-  background:rgba(255, 246, 233, 0.93);
-  border-radius: 50px;
-  padding: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const SearchInput = styled.input`
   flex: 1;
-  padding: 12px 20px;
-  border: none;
-  background: transparent;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   font-size: 16px;
-  color: #000;
-  font-family: 'Inter', sans-serif;
+`;
 
-  &:focus {
-    outline: none;
-  }
-
-  &::placeholder {
-    color: #666;
-  }
+const CategorySelect = styled.select`
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 `;
 
 const SearchButton = styled.button`
-  background: #0d9276;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 16px;
 
   &:hover {
-    background: #0a7960;
-    transform: scale(1.05);
+    background-color: #0056b3;
   }
-`;
-
-const SearchIcon = styled.span`
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 export default SearchBar;

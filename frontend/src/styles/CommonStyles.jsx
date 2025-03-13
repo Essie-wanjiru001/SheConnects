@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const CommonWrapper = styled.div`
-  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, rgb(170, 208, 223) 0%, rgb(21, 76, 121) 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@ export const CommonHeader = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, rgb(170, 208, 223) 0%, rgb(21, 76, 121) 100%);
   z-index: 1000;
   
   &::after {
@@ -46,7 +46,7 @@ export const ContentContainer = styled.div`
   align-items: center;
   max-width: 1440px;
   width: 100%;
-  margin: 90px auto 0; // Added top margin to account for fixed header
+  margin: 90px auto 0;
   padding: 20px;
   gap: 20px;
 `;

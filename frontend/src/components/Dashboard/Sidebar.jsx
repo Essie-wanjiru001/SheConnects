@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { getUserProfile } from "../../services/profileService";
 import defaultProfileImage from "../../assets/images/profile 1.jpg";
 import { logout } from "../../services/authService";
+import ScholarshipList from '../Scholarships/ScholarshipList';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ const Sidebar = () => {
         <NavItem as={Link} to="/dashboard" $active={isActive('/dashboard')}>
           Dashboard
         </NavItem>
-        <NavItem as={Link} to="/scholarships" $active={isActive('/scholarships')}>
+        <NavItem as={Link} to="/dashboard/scholarships" $active={isActive('/dashboard/scholarships')}>
           Scholarships
         </NavItem>
         <NavItem as={Link} to="/internships" $active={isActive('/internships')}>

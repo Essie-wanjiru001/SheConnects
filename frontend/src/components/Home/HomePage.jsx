@@ -1,103 +1,98 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 import Logo from "./Logo";
 import NavigationMenu from "./NavigationMenu";
 import Footer from "./Footer";
-import SearchBar from "../Search/SearchBar";
-import FilterOptions from "../Search/FilterOptions";
-import ScholarshipList from "../Scholarships/ScholarshipList";
+import SearchBar from '../Search/SearchBar';
+import FilterSection from '../Search/FilterSection';
 import { CommonWrapper, CommonHeader, ContentContainer } from '../../styles/CommonStyles';
+import ScholarshipList from '../Scholarships/ScholarshipList';
+import InternshipList from '../Internships/InternshipList';
+import EventList from '../Events/EventList';
 
 const HomePage = () => {
-  const [filters, setFilters] = useState({
-    scholarshipLevel: '',
-    internshipField: '',
-    eventType: ''
-  });
-
-  const handleSearch = (searchTerm) => {
-    console.log('Searching for:', searchTerm);
-  };
-
-  const handleFilter = (newFilters) => {
-    console.log('Applying filters:', newFilters);
-    setFilters(newFilters);
-  };
-
   return (
-    <HomeWrapper>
+    <CommonWrapper>
       <CommonHeader>
         <Logo />
         <NavigationMenu />
       </CommonHeader>
-      <ContentContainer>
-        <SearchBarContainer>
-          <SearchBar 
-            onSearch={handleSearch}
-            placeholder="Search for scholarships and opportunities..."
-          />
-        </SearchBarContainer>
-        <FilterContainer>
-          <FilterOptions onFilterChange={handleFilter} />
-        </FilterContainer>
-        <ScholarshipList filters={filters} />
-      </ContentContainer>
+      <SearchSection>
+        <SearchBar />
+        <FilterSection />
+      </SearchSection>
+      <MainContent>
+        <CategorySection>
+          <SectionTitle>Scholarships</SectionTitle>
+          <RowContainer>
+            <ScholarshipList />
+          </RowContainer>
+        </CategorySection>
+
+        <CategorySection>
+          <SectionTitle>Internships</SectionTitle>
+          <RowContainer>
+            <InternshipList />
+          </RowContainer>
+        </CategorySection>
+
+        <CategorySection>
+          <SectionTitle>Events</SectionTitle>
+          <RowContainer>
+            <EventList />
+          </RowContainer>
+        </CategorySection>
+      </MainContent>
       <Footer />
-    </HomeWrapper>
+    </CommonWrapper>
   );
 };
 
-const HomeWrapper = styled(CommonWrapper)``;
-
-const SearchBarContainer = styled.div`
+const SearchSection = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  margin-top: 2rem;
   width: 100%;
-  padding: 0 20px;
-  margin-bottom: 20px;
   display: flex;
-  justify-content: center;
-`;
-
-const FilterContainer = styled.div`
-  width: 100%;
-  margin-bottom: 30px;
-`;
-
-const Section = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
   align-items: center;
-  width: 50%; // Set equal width
-  height: 500px; // Set fixed height
-  padding: 20px;
-  background-color: #fff6e9;
-  border-radius: 50px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden; // Add this to contain the image
-
-  @media (max-width: 991px) {
-    width: 100%;
-    height: 400px;
-  }
 `;
 
-const Tagline = styled.p`
-  color: #000;
-  text-align: left;
-  font: 400 42px 'Jomolhari', sans-serif; // Slightly reduced font size
-  line-height: 1.3;
-  margin: 0;
-  padding: 25px;
-  max-width: 100%; // Ensure text stays within container
+const MainContent = styled(ContentContainer)`
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 2rem;
+`;
 
-  @media (max-width: 991px) {
-    font-size: 36px;
-    text-align: center;
-  }
+const CategorySection = styled.section`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  margin-bottom: 2rem;
+  overflow: hidden;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 28px;
-    padding: 15px;
+const SectionTitle = styled.h2`
+  color: #ffffff;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const RowContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  padding: 1rem 0;
+
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 `;
 
