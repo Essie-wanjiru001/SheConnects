@@ -36,3 +36,15 @@ export const getAllScholarships = async () => {
     throw error;
   }
 };
+
+export const getTopScholarships = async () => {
+  try {
+    console.log('Fetching top scholarships...');
+    const response = await api.get('/api/scholarships/top');
+    console.log('Top scholarships response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching top scholarships:', error);
+    throw error;
+  }
+};

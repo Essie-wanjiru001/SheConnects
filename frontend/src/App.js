@@ -9,6 +9,9 @@ import RegisterPage from "./components/Auth/Register/RegisterPage";
 import StudentDashboard from "./components/Dashboard/DashboardHome";
 import ProfilePage from "./components/Profile/ProfilePage";
 import ScholarshipList from "./components/Scholarships/ScholarshipList";
+import AdminLogin from './components/Admin/AdminLogin';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import ProtectedAdminRoute from './components/Routes/ProtectedAdminRoute';
 
 function App() {
   return (
@@ -33,6 +36,16 @@ function App() {
         <Route 
           path="/dashboard/scholarships" 
           element={<ScholarshipList isDashboard={true} />} 
+        />
+        
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          } 
         />
         
         {/* 404 Route */}

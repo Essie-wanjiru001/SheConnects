@@ -154,6 +154,29 @@ class Event {
       throw new Error('Failed to delete event: ' + error.message);
     }
   }
+
+  static async getTopThreeEvents() {
+    try {
+      const [rows] = await pool.query(`
+        SELECT 
+          id, title, description,
+          DATE_FORMAT(event_date, '%Y-%m-%d') as event_date,
+          TIME_FORMAT(start_time, '%H:%i') as start_time,
+          TIME_FORMAT(end_time, '%H:%i') as end_time,
+          location, event_type, isVirtual, isFree,
+          registration_link
+        FROM events 
+        WHERE is_active = 1 
+          AND event_date >= CURDATE()
+        ORDER BY event_date ASC, start_time ASC
+        LIMIT 3
+      `);
+      return rows;
+    } catch (error) {
+      console.error('Database error:', error);
+      throw new Error('Failed to fetch events');
+    }
+  }
 }
 
 module.exports = Event;

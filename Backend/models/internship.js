@@ -140,6 +140,26 @@ class Internship {
       throw new Error('Failed to delete internship: ' + error.message);
     }
   }
+
+  static async getTopThreeInternships() {
+    try {
+      const [rows] = await pool.query(`
+        SELECT 
+          id, title, company, description, location,
+          DATE_FORMAT(deadline, '%Y-%m-%d') as deadline,
+          type, duration, isPaid, apply_link
+        FROM internships 
+        WHERE is_active = 1 
+          AND deadline >= CURDATE()
+        ORDER BY deadline ASC
+        LIMIT 3
+      `);
+      return rows;
+    } catch (error) {
+      console.error('Database error:', error);
+      throw new Error('Failed to fetch internships');
+    }
+  }
 }
 
 module.exports = Internship;

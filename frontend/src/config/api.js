@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseURL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8000'
+  ? 'http://localhost:8000' 
   : 'https://sheconnects-api.onrender.com';
 
 // Add endpoints configuration
@@ -27,11 +27,29 @@ const api = axios.create({
   }
 });
 
-api.interceptors.request.use(request => {
-  console.log('API Request:', request.method.toUpperCase(), request.url);
-  return request;
+// Add request interceptor to handle admin tokens
+api.interceptors.request.use(config => {
+  // Check if it's an admin route
+  if (config.url.startsWith('/api/admin')) {
+    const adminToken = localStorage.getItem('adminToken');
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+      console.log('Sending admin token in request:', adminToken);
+    }
+  } else {
+    const userToken = localStorage.getItem('token');
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
+      console.log('Sending user token in request:', userToken);
+    }
+  }
+  console.log('API Request:', config.method.toUpperCase(), config.url);
+  return config;
+}, error => {
+  return Promise.reject(error);
 });
 
+// Add response interceptor for debugging
 api.interceptors.response.use(
   response => {
     console.log('API Response:', response.status, response.data);

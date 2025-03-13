@@ -3,6 +3,7 @@ const router = express.Router();
 const scholarshipController = require('../controllers/scholarshipController');
 const adminAuth = require('../middleware/adminAuth');
 const { pool } = require('../config/database');
+const Scholarship = require('../models/scholarship'); // Import the Scholarship model
 
 // Create scholarship (Admin only)
 router.post('/', adminAuth, scholarshipController.createScholarship);
@@ -45,6 +46,20 @@ router.get('/', async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to search scholarships',
       details: error.message 
+    });
+  }
+});
+
+// Get top three scholarships
+router.get('/top', async (req, res) => {
+  try {
+    const scholarships = await Scholarship.getTopThreeScholarships();
+    res.json(scholarships);
+  } catch (error) {
+    console.error('Error fetching top scholarships:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch top scholarships' 
     });
   }
 });

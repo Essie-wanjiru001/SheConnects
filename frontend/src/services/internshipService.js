@@ -25,3 +25,15 @@ export const searchInternships = async (searchParams) => {
     throw error;
   }
 };
+
+export const getTopInternships = async () => {
+  try {
+    console.log('Fetching top internships...');
+    const response = await api.get('/api/internships');
+    console.log('Top internships response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching top internships:', error);
+    throw error;
+  }
+};

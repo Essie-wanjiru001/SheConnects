@@ -136,6 +136,31 @@ class Scholarship {
       throw new Error('Failed to delete scholarship: ' + error.message);
     }
   }
+
+  static async getTopThreeScholarships() {
+    try {
+      const [rows] = await pool.query(`
+        SELECT 
+          id, 
+          name,
+          COALESCE(image, '/placeholder-scholarship.jpg') as image,
+          description, 
+          eligibility,
+          DATE_FORMAT(application_deadline, '%Y-%m-%d') as application_deadline,
+          apply_link,
+          type
+        FROM scholarships 
+        WHERE is_active = 1 
+          AND application_deadline >= CURDATE()
+        ORDER BY application_deadline ASC
+        LIMIT 3
+      `);
+      return rows;
+    } catch (error) {
+      console.error('Database error in getTopThreeScholarships:', error);
+      throw new Error('Failed to fetch top scholarships');
+    }
+  }
 }
 
 module.exports = Scholarship;

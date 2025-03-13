@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ScholarshipCard from './ScholarshipCard';
-import { getScholarships } from '../../services/scholarshipService';
+import { getTopScholarships } from '../../services/scholarshipService';
 
-const ScholarshipList = ({ isDashboard }) => {
+const ScholarshipList = () => {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,12 +12,9 @@ const ScholarshipList = ({ isDashboard }) => {
     const fetchScholarships = async () => {
       try {
         setLoading(true);
-        const response = await getScholarships();
-        if (response && response.scholarships) {
-          setScholarships(response.scholarships);
-        } else {
-          throw new Error('Invalid response format');
-        }
+        const data = await getTopScholarships();
+        console.log('Scholarships data:', data);
+        setScholarships(data); // Use the array directly
       } catch (error) {
         console.error('Error fetching scholarships:', error);
         setError(error.message);
@@ -33,43 +30,20 @@ const ScholarshipList = ({ isDashboard }) => {
   if (error) return <Error>{error}</Error>;
 
   return (
-    <Container isDashboard={isDashboard}>
-      {isDashboard && (
-        <Header>
-          <h1>Scholarships</h1>
-          <SearchBar onSearch={handleSearch} />
-        </Header>
+    <ListContainer>
+      {!scholarships || scholarships.length === 0 ? (
+        <NoResults>No scholarships available</NoResults>
+      ) : (
+        scholarships.map(scholarship => (
+          <ScholarshipCard 
+            key={scholarship.id} 
+            scholarship={scholarship} 
+          />
+        ))
       )}
-      <ListContainer>
-        {scholarships.length === 0 ? (
-          <NoResults>No scholarships available</NoResults>
-        ) : (
-          scholarships.map(scholarship => (
-            <ScholarshipCard 
-              key={scholarship.id} 
-              scholarship={scholarship}
-              isDashboard={isDashboard}
-            />
-          ))
-        )}
-      </ListContainer>
-    </Container>
+    </ListContainer>
   );
 };
-
-const Container = styled.div`
-  padding: ${props => props.isDashboard ? '20px' : '0'};
-  width: 100%;
-`;
-
-const Header = styled.div`
-  margin-bottom: 30px;
-  
-  h1 {
-    color: #154C79;
-    margin-bottom: 20px;
-  }
-`;
 
 const ListContainer = styled.div`
   display: grid;

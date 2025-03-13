@@ -39,7 +39,7 @@ const ScholarshipCard = ({ scholarship }) => {
 };
 
 const Card = styled(CardBase)`
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -90,17 +90,17 @@ const CardContent = styled.div`
 `;
 
 const Title = styled.h3`
-  color: #ffffff;
+  color: #333;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   line-height: 1.4;
   letter-spacing: 0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const Description = styled.p`
-  color: rgba(255, 255, 255, 0.9);
+  color: #555;
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
@@ -108,7 +108,7 @@ const Description = styled.p`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 `;
 
 const InfoSection = styled.div`
@@ -117,7 +117,7 @@ const InfoSection = styled.div`
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 `;
 
 const DeadlineInfo = styled.div`
@@ -127,31 +127,31 @@ const DeadlineInfo = styled.div`
 `;
 
 const DeadlineLabel = styled.span`
-  color: rgba(255, 255, 255, 0.7);
+  color: #777;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
 const DeadlineDate = styled.span`
-  color: #ffffff;
+  color: #333;
   font-size: 0.9rem;
   font-weight: 500;
 `;
 
 const ApplyButton = styled.a`
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
   padding: 0.5rem 1.25rem;
   border-radius: 20px;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
   }
 `;

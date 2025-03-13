@@ -11,3 +11,15 @@ export const getEvents = async () => {
     throw error;
   }
 };
+
+export const getTopEvents = async () => {
+  try {
+    console.log('Fetching top events...');
+    const response = await api.get('/api/events');
+    console.log('Top events response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching top events:', error);
+    throw error;
+  }
+};

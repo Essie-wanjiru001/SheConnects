@@ -10,15 +10,25 @@ const register = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already exists' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Email already exists' 
+      });
     }
 
     // Create user
     const userId = await User.create({ name, email, password });
-    res.status(201).json({ message: 'User registered successfully', userId });
+    res.status(201).json({ 
+      success: true,
+      message: 'User registered successfully', 
+      userId 
+    });
   } catch (err) {
     console.error('Registration Error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error' 
+    });
   }
 };
 
@@ -30,26 +40,48 @@ const login = async (req, res) => {
     // Find user by email
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid credentials' 
+      });
     }
 
-    // Generate JWT token
+    // Generate JWT token and send response
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { 
+        id: user.userID, 
+        email: user.email,
+        name: user.name
+      },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' } 
     );
 
-    res.json({ message: 'Login successful', token });
+    res.json({ 
+      success: true,
+      message: 'Login successful', 
+      token,
+      user: {
+        id: user.userID,
+        email: user.email,
+        name: user.name
+      }
+    });
   } catch (err) {
     console.error('Login Error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error' 
+    });
   }
 };
 
