@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import Logo from "./Logo";
 import NavigationMenu from "./NavigationMenu";
 import Footer from "./Footer";
@@ -23,23 +24,32 @@ const HomePage = () => {
       </SearchSection>
       <MainContent>
         <CategorySection>
-          <SectionTitle>Scholarships</SectionTitle>
+          <SectionHeader>
+            <SectionTitle>Scholarships</SectionTitle>
+            <ViewAllButton to="/scholarships">View All</ViewAllButton>
+          </SectionHeader>
           <RowContainer>
-            <ScholarshipList />
+            <ScholarshipList isHomePage={true} />
           </RowContainer>
         </CategorySection>
 
         <CategorySection>
-          <SectionTitle>Internships</SectionTitle>
+          <SectionHeader>
+            <SectionTitle>Internships</SectionTitle>
+            <ViewAllButton to="/internships">View All</ViewAllButton>
+          </SectionHeader>
           <RowContainer>
-            <InternshipList />
+            <InternshipList isHomePage={true} />
           </RowContainer>
         </CategorySection>
 
         <CategorySection>
-          <SectionTitle>Events</SectionTitle>
+          <SectionHeader>
+            <SectionTitle>Events</SectionTitle>
+            <ViewAllButton to="/events">View All</ViewAllButton>
+          </SectionHeader>
           <RowContainer>
-            <EventList />
+            <EventList isHomePage={true} />
           </RowContainer>
         </CategorySection>
       </MainContent>
@@ -74,6 +84,27 @@ const CategorySection = styled.section`
   width: 100%;
   margin-bottom: 2rem;
   overflow: hidden;
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+`;
+
+const ViewAllButton = styled(Link)`
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 const SectionTitle = styled.h2`
