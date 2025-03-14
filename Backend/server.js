@@ -38,22 +38,22 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
   'https://sheconnects-teal.vercel.app',
-  'http://localhost:3000',
-  'https://sheconnects-api.onrender.com',
-  'https://sheconnects-essie-wanjiru001-esther-wanjirus-projects.vercel.app',
   'https://sheconnects-esther-wanjirus-projects.vercel.app',
-  'https://sheconnects-o51qgvj7a-esther-wanjirus-projects.vercel.app'
+  'https://sheconnects-essie-wanjiru001-esther-wanjirus-projects.vercel.app',
+  'https://sheconnects-api.onrender.com',
+  'http://localhost:3000' 
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, postman)
+    // Allow requests with no origin 
     if (!origin) {
       return callback(null, true);
     }
 
-    // Check if origin is allowed
-    if (allowedOrigins.includes(origin)) {
+    // Remove trailing slashes and compare
+    const cleanOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(cleanOrigin)) {
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
