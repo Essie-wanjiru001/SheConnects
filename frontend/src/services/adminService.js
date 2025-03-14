@@ -4,6 +4,7 @@ export const getAdminStats = async () => {
   try {
     console.log('Fetching admin stats...');
     const response = await api.get('/api/admin/stats');
+    console.log('Admin stats response:', response.data);
     
     if (!response.data.success) {
       throw new Error(response.data.error || 'Failed to fetch stats');
@@ -11,8 +12,8 @@ export const getAdminStats = async () => {
     
     return response.data.stats;
   } catch (error) {
-    console.error('Error fetching admin stats:', error);
-    throw error;
+    console.error('Error fetching admin stats:', error.response?.data || error);
+    throw new Error('Failed to load admin statistics');
   }
 };
 
@@ -39,9 +40,12 @@ export const updateUser = async (userId, userData) => {
 export const loginAdmin = async (credentials) => {
   try {
     const response = await api.post('/api/admin/login', credentials);
-    if (response.data.success) {
-      localStorage.setItem('adminToken', response.data.token);
+    console.log('Admin login response:', response.data);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Login failed');
     }
+    
     return response.data;
   } catch (error) {
     console.error('Admin login error:', error);
@@ -51,15 +55,7 @@ export const loginAdmin = async (credentials) => {
 
 export const isAdmin = () => {
   const token = localStorage.getItem('adminToken');
-  if (!token) return false;
-  
-  try {
-    // You might want to decode the token and check if is_admin is true
-    return true;
-  } catch (error) {
-    console.error('Admin token verification failed:', error);
-    return false;
-  }
+  return !!token;
 };
 
 export const deleteUser = async (userId) => {

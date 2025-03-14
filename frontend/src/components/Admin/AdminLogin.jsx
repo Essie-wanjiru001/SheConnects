@@ -6,18 +6,25 @@ import { loginAdmin } from '../../services/adminService';
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
+      setError('');
       const response = await loginAdmin(credentials);
+      
       if (response.success) {
         localStorage.setItem('adminToken', response.token);
-        navigate('/admin');
+        navigate('/admin'); // Redirect to admin dashboard
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError(error.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,7 +51,9 @@ const AdminLogin = () => {
             required
           />
         </InputGroup>
-        <LoginButton type="submit">Login</LoginButton>
+        <LoginButton type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </LoginButton>
       </LoginForm>
     </LoginContainer>
   );
@@ -104,6 +113,11 @@ const LoginButton = styled.button`
 
   &:hover {
     background: #45a049;
+  }
+
+  &:disabled {
+    background: #9E9E9E;
+    cursor: not-allowed;
   }
 `;
 

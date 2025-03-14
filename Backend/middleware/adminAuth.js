@@ -14,10 +14,7 @@ const adminAuth = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('Verifying admin token');
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded token:', decoded);
 
     // Check if user exists and is an admin
     const [users] = await pool.query(
@@ -26,7 +23,6 @@ const adminAuth = async (req, res, next) => {
     );
 
     if (users.length === 0) {
-      console.log('User not found or not admin');
       throw new Error('Not authorized as admin');
     }
 
@@ -36,7 +32,6 @@ const adminAuth = async (req, res, next) => {
       isAdmin: true
     };
 
-    console.log('Admin authenticated:', req.user);
     next();
   } catch (error) {
     console.error('Admin Auth Error:', error);

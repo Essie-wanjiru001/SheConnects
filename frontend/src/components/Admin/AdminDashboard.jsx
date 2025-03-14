@@ -4,10 +4,10 @@ import { getAdminStats } from '../../services/adminService';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    activeScholarships: 0,
-    activeInternships: 0,
-    upcomingEvents: 0
+    totalUsers: '-',
+    activeScholarships: '-',
+    activeInternships: '-',
+    upcomingEvents: '-'
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,8 +20,8 @@ const AdminDashboard = () => {
         const data = await getAdminStats();
         setStats(data);
       } catch (error) {
-        console.error('Error fetching admin stats:', error);
-        setError('Failed to load dashboard statistics');
+        console.error('Dashboard Error:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -30,8 +30,13 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <LoadingSpinner>Loading stats...</LoadingSpinner>;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
+  if (loading) {
+    return <LoadingContainer>Loading dashboard statistics...</LoadingContainer>;
+  }
+
+  if (error) {
+    return <ErrorContainer>{error}</ErrorContainer>;
+  }
 
   return (
     <DashboardContainer>
@@ -80,15 +85,18 @@ const AdminDashboard = () => {
   );
 };
 
-const LoadingSpinner = styled.div`
-  text-align: center;
+const LoadingContainer = styled.div`
   padding: 2rem;
+  text-align: center;
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin: 1rem;
 `;
 
-const ErrorMessage = styled.div`
-  text-align: center;
+const ErrorContainer = styled.div`
   padding: 2rem;
+  text-align: center;
   color: #ff4444;
   background: rgba(255, 0, 0, 0.1);
   border-radius: 8px;

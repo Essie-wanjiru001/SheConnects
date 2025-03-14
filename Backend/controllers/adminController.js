@@ -3,49 +3,54 @@ const { pool } = require('../config/database');
 const adminController = {
   async getStats(req, res) {
     try {
-      // Add error checking for each query
-      const [totalUsers] = await pool.query(
-        'SELECT COUNT(*) as count FROM users WHERE is_active = 1'
-      ).catch(err => {
-        console.error('Error counting users:', err);
-        return [[{ count: 0 }]];
-      });
+      console.log('Starting getStats...');
 
-      const [activeScholarships] = await pool.query(
-        'SELECT COUNT(*) as count FROM scholarships WHERE is_active = 1'
-      ).catch(err => {
-        console.error('Error counting scholarships:', err);
-        return [[{ count: 0 }]];
-      });
+      // Get total users count
+      const [users] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM users 
+        WHERE is_active = 1
+      `);
+      console.log('Users count:', users[0].count);
 
-      const [activeInternships] = await pool.query(
-        'SELECT COUNT(*) as count FROM internships WHERE is_active = 1'
-      ).catch(err => {
-        console.error('Error counting internships:', err);
-        return [[{ count: 0 }]];
-      });
+      // Get scholarships count
+      const [scholarships] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM scholarships 
+        WHERE is_active = 1
+      `);
+      console.log('Scholarships count:', scholarships[0].count);
 
-      const [upcomingEvents] = await pool.query(
-        'SELECT COUNT(*) as count FROM events WHERE is_active = 1 AND event_date >= CURDATE()'
-      ).catch(err => {
-        console.error('Error counting events:', err);
-        return [[{ count: 0 }]];
-      });
+      // Get internships count
+      const [internships] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM internships 
+        WHERE is_active = 1
+      `);
+      console.log('Internships count:', internships[0].count);
 
-      // Send response with stats
+      // Get events count
+      const [events] = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM events 
+        WHERE is_active = 1 
+        AND event_date >= CURDATE()
+      `);
+      console.log('Events count:', events[0].count);
+
       res.json({
         success: true,
         stats: {
-          totalUsers: totalUsers[0].count,
-          activeScholarships: activeScholarships[0].count,
-          activeInternships: activeInternships[0].count,
-          upcomingEvents: upcomingEvents[0].count
+          totalUsers: users[0].count || 0,
+          activeScholarships: scholarships[0].count || 0,
+          activeInternships: internships[0].count || 0,
+          upcomingEvents: events[0].count || 0
         }
       });
     } catch (error) {
       console.error('Error in getStats:', error);
-      res.status(500).json({ 
-        success: false, 
+      res.status(500).json({
+        success: false,
         error: 'Failed to fetch stats',
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
       });
