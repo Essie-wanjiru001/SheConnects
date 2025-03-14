@@ -20,7 +20,10 @@ export const getAdminStats = async () => {
 export const getUsers = async () => {
   try {
     const response = await api.get('/api/admin/users');
-    return response.data;
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch users');
+    }
+    return response.data.users;
   } catch (error) {
     console.error('Error fetching users:', error);
     throw error;
@@ -69,9 +72,30 @@ export const deleteUser = async (userId) => {
 };
 
 // Scholarship Management
-export const createScholarship = async (data) => {
+export const getScholarships = async () => {
   try {
-    const response = await api.post('/api/admin/scholarships', data);
+    console.log('Fetching scholarships from API...');
+    const response = await api.get('/api/admin/scholarships');
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to fetch scholarships');
+    }
+
+    return response.data.scholarships;
+  } catch (error) {
+    console.error('Error fetching scholarships:', error);
+    throw error;
+  }
+};
+
+export const createScholarship = async (scholarshipData) => {
+  try {
+    const response = await api.post('/api/admin/scholarships', scholarshipData);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to create scholarship');
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error creating scholarship:', error);
@@ -95,16 +119,6 @@ export const deleteScholarship = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting scholarship:', error);
-    throw error;
-  }
-};
-
-export const getScholarships = async () => {
-  try {
-    const response = await api.get('/api/admin/scholarships');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching scholarships:', error);
     throw error;
   }
 };
@@ -143,7 +157,7 @@ export const deleteInternship = async (id) => {
 export const getInternships = async () => {
   try {
     const response = await api.get('/api/admin/internships');
-    return response.data;
+    return response.data.internships;
   } catch (error) {
     console.error('Error fetching internships:', error);
     throw error;
@@ -184,7 +198,7 @@ export const deleteEvent = async (id) => {
 export const getEvents = async () => {
   try {
     const response = await api.get('/api/admin/events');
-    return response.data;
+    return response.data.events;
   } catch (error) {
     console.error('Error fetching events:', error);
     throw error;

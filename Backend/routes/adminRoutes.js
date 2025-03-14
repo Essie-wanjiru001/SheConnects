@@ -95,53 +95,23 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Protect all admin routes
+// Apply admin middleware to all routes
 router.use(adminAuth);
 
-// Dashboard stats
-router.get('/stats', async (req, res) => {
-  try {
-    const [users] = await pool.query('SELECT COUNT(*) as count FROM users WHERE is_active = 1');
-    const [scholarships] = await pool.query('SELECT COUNT(*) as count FROM scholarships WHERE is_active = 1');
-    const [internships] = await pool.query('SELECT COUNT(*) as count FROM internships WHERE is_active = 1');
-    const [events] = await pool.query('SELECT COUNT(*) as count FROM events WHERE is_active = 1');
+// Stats route
+router.get('/stats', adminController.getStats);
 
-    res.json({
-      success: true,
-      stats: {
-        totalUsers: users[0].count,
-        activeScholarships: scholarships[0].count,
-        activeInternships: internships[0].count,
-        upcomingEvents: events[0].count
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch stats' 
-    });
-  }
-});
-
-// User management
+// User routes
 router.get('/users', adminController.getUsers);
-router.put('/users/:id', adminController.updateUser);
-router.delete('/users/:id', adminController.deleteUser);
 
-// Scholarships Management
+// Internship routes
+router.get('/internships', adminController.getInternships);
+
+// Event routes  
+router.get('/events', adminController.getEvents);
+
+// Scholarship routes
+router.get('/scholarships', adminController.getScholarships);
 router.post('/scholarships', adminController.createScholarship);
-router.put('/scholarships/:id', adminController.updateScholarship);
-router.delete('/scholarships/:id', adminController.deleteScholarship);
-
-// Internships Management
-router.post('/internships', adminController.createInternship);
-router.put('/internships/:id', adminController.updateInternship);
-router.delete('/internships/:id', adminController.deleteInternship);
-
-// Events Management
-router.post('/events', adminController.createEvent);
-router.put('/events/:id', adminController.updateEvent);
-router.delete('/events/:id', adminController.deleteEvent);
 
 module.exports = router;

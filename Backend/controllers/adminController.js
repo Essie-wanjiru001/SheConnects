@@ -1,168 +1,119 @@
 const { pool } = require('../config/database');
 
 const adminController = {
-  async getStats(req, res) {
+  // Stats endpoint
+  getStats: async (req, res) => {
     try {
-      console.log('Starting getStats...');
-
-      // Get total users count
-      const [users] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM users 
-        WHERE is_active = 1
-      `);
-      console.log('Users count:', users[0].count);
-
-      // Get scholarships count
-      const [scholarships] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM scholarships 
-        WHERE is_active = 1
-      `);
-      console.log('Scholarships count:', scholarships[0].count);
-
-      // Get internships count
-      const [internships] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM internships 
-        WHERE is_active = 1
-      `);
-      console.log('Internships count:', internships[0].count);
-
-      // Get events count
-      const [events] = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM events 
-        WHERE is_active = 1 
-        AND event_date >= CURDATE()
-      `);
-      console.log('Events count:', events[0].count);
+      // Get counts from database
+      const [[userCount]] = await pool.query('SELECT COUNT(*) as count FROM users');
+      const [[scholarshipCount]] = await pool.query('SELECT COUNT(*) as count FROM scholarships');
+      const [[internshipCount]] = await pool.query('SELECT COUNT(*) as count FROM internships');
+      const [[eventCount]] = await pool.query('SELECT COUNT(*) as count FROM events');
 
       res.json({
         success: true,
         stats: {
-          totalUsers: users[0].count || 0,
-          activeScholarships: scholarships[0].count || 0,
-          activeInternships: internships[0].count || 0,
-          upcomingEvents: events[0].count || 0
+          totalUsers: userCount.count,
+          activeScholarships: scholarshipCount.count,
+          activeInternships: internshipCount.count,
+          upcomingEvents: eventCount.count
         }
       });
     } catch (error) {
-      console.error('Error in getStats:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch stats',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      console.error('Stats Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch stats' });
     }
   },
 
-  async getUsers(req, res) {
+  // User Management
+  getUsers: async (req, res) => {
     try {
-      const [users] = await pool.query(
-        'SELECT userID, name, email, gender, is_admin, createdAt FROM users WHERE is_active = 1'
-      );
+      const [users] = await pool.query('SELECT * FROM users');
       res.json({ success: true, users });
     } catch (error) {
       console.error('Error fetching users:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch users' });
+      res.status(500).json({ success: false, message: 'Failed to fetch users' });
     }
   },
 
-  async updateUser(req, res) {
+  // Internship Management  
+  getInternships: async (req, res) => {
     try {
-      const { id } = req.params;
-      const { name, email, is_admin } = req.body;
-
-      const [result] = await pool.query(
-        'UPDATE users SET name = ?, email = ?, is_admin = ? WHERE userID = ?',
-        [name, email, is_admin, id]
-      );
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ success: false, error: 'User not found' });
-      }
-
-      res.json({ success: true, message: 'User updated successfully' });
+      const [internships] = await pool.query('SELECT * FROM internships');
+      res.json({ success: true, internships });
     } catch (error) {
-      console.error('Error updating user:', error);
-      res.status(500).json({ success: false, error: 'Failed to update user' });
+      console.error('Error fetching internships:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch internships' });
     }
   },
 
-  // Content Management Methods
-  async createScholarship(req, res) {
+  // Event Management
+  getEvents: async (req, res) => {
     try {
-      const result = await pool.query(
-        'INSERT INTO scholarships SET ?',
-        req.body
-      );
-      res.status(201).json({
-        success: true,
-        id: result.insertId,
-        message: 'Scholarship created successfully'
-      });
+      const [events] = await pool.query('SELECT * FROM events');
+      res.json({ success: true, events });
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: 'Failed to create scholarship'
-      });
+      console.error('Error fetching events:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch events' });
     }
   },
 
-  async updateScholarship(req, res) {
-    // Add scholarship update logic
-  },
-
-  async deleteScholarship(req, res) {
-    // Add scholarship delete logic
-  },
-
-  async createInternship(req, res) {
-    // Add internship create logic
-  },
-
-  async updateInternship(req, res) {
-    // Add internship update logic
-  },
-
-  async deleteInternship(req, res) {
-    // Add internship delete logic
-  },
-
-  async createEvent(req, res) {
-    // Add event create logic
-  },
-
-  async updateEvent(req, res) {
-    // Add event update logic
-  },
-
-  async deleteEvent(req, res) {
-    // Add event delete logic
-  },
-
-  async deleteUser(req, res) {
+  // Scholarship Management
+  async getScholarships(req, res) {
     try {
-      const { id } = req.params;
-      const [result] = await pool.query(
-        'UPDATE users SET is_active = 0 WHERE userID = ?',
-        [id]
-      );
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          error: 'User not found'
-        });
-      }
+      console.log('Fetching scholarships...');
+      const [scholarships] = await pool.query(`
+        SELECT 
+          id, name, type, amount, location,
+          application_deadline, is_active,
+          funding_type, description, eligibility,
+          apply_link, source
+        FROM scholarships 
+        WHERE is_active = 1
+        ORDER BY application_deadline DESC
+      `);
+
+      console.log(`Found ${scholarships.length} scholarships`);
       res.json({
         success: true,
-        message: 'User deleted successfully'
+        scholarships
       });
     } catch (error) {
+      console.error('Error fetching scholarships:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to delete user'
+        message: 'Failed to fetch scholarships'
+      });
+    }
+  },
+
+  async createScholarship(req, res) {
+    try {
+      const {
+        name, description, eligibility, application_deadline,
+        apply_link, amount, source, source_url, type,
+        funding_type, location, image
+      } = req.body;
+
+      const [result] = await pool.query(`
+        INSERT INTO scholarships SET ?
+      `, {
+        name, description, eligibility, application_deadline,
+        apply_link, amount, source, source_url, type,
+        funding_type, location, image,
+        is_active: 1
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Scholarship created successfully',
+        id: result.insertId
+      });
+    } catch (error) {
+      console.error('Error creating scholarship:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create scholarship'
       });
     }
   }
