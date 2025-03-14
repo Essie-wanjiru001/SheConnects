@@ -27,6 +27,8 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 }).promise();
 
+let server; // Add this at the top level
+
 // Improved connection monitoring
 pool.on('connection', (connection) => {
   console.log('New database connection established:', {
@@ -70,12 +72,8 @@ const testConnection = async () => {
 const shutdown = async (signal) => {
   try {
     console.log(`\n${signal} received. Shutting down gracefully...`);
-    console.log('Closing HTTP server...');
-    if (server) {
-      await new Promise(resolve => server.close(resolve));
-      console.log('✅ HTTP server closed');
-    }
     
+    // Close database connections first
     console.log('Closing database connections...');
     await pool.end();
     console.log('✅ Database connections closed');
@@ -87,7 +85,12 @@ const shutdown = async (signal) => {
   }
 };
 
+// Export setServer function to be called from main application file
+const setServer = (httpServer) => {
+  server = httpServer;
+};
+
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-module.exports = { pool, testConnection, config };
+module.exports = { pool, testConnection, config, setServer };
