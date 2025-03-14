@@ -37,25 +37,37 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = [
-  'https://she-connects.vercel.app',
+  'https://sheconnects-teal.vercel.app/',
   'http://localhost:3000',
-  'https://she-connects-ny8mvt8d2-esther-wanjirus-projects.vercel.app'
+  'https://sheconnects-api.onrender.com'  // Add your Render domain
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization',
+    'X-Requested-With',
+    'Accept'
+  ],
+  optionsSuccessStatus: 200
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// Add CORS preflight
+app.options('*', cors(corsOptions));
 
 // General Middleware
 app.use(morgan('dev')); // Request logging
@@ -149,10 +161,18 @@ app.use((err, req, res, next) => {
   console.error('API Error:', {
     path: req.path,
     method: req.method,
+    origin: req.headers.origin,
     error: err.message,
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
     timestamp: new Date().toISOString()
   });
+  
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      error: 'CORS error',
+      message: 'Origin not allowed'
+    });
+  }
   
   res.status(err.status || 500).json({
     error: process.env.NODE_ENV === 'production' 
