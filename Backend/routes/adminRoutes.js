@@ -129,15 +129,17 @@ router.get('/users', adminController.getUsers);
 router.put('/users/:id', adminController.updateUser);
 router.delete('/users/:id', adminController.deleteUser);
 
-// Content management
+// Scholarships Management
 router.post('/scholarships', adminController.createScholarship);
 router.put('/scholarships/:id', adminController.updateScholarship);
 router.delete('/scholarships/:id', adminController.deleteScholarship);
 
+// Internships Management
 router.post('/internships', adminController.createInternship);
 router.put('/internships/:id', adminController.updateInternship);
 router.delete('/internships/:id', adminController.deleteInternship);
 
+// Events Management
 router.post('/events', adminController.createEvent);
 router.put('/events/:id', adminController.updateEvent);
 router.delete('/events/:id', adminController.deleteEvent);

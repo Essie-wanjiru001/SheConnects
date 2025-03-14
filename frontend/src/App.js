@@ -12,6 +12,10 @@ import ScholarshipList from "./components/Scholarships/ScholarshipList";
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import ProtectedAdminRoute from './components/Routes/ProtectedAdminRoute';
+import ManageScholarships from './components/Admin/ManageScholarships';
+import ManageInternships from './components/Admin/ManageInternships';
+import ManageEvents from './components/Admin/ManageEvents';
+import ManageUsers from './components/Admin/ManageUsers';
 
 function App() {
   return (
@@ -26,27 +30,47 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<StudentDashboard />} />
         
-        {/* Temporary Redirects */}
-        <Route path="/scholarships" element={<Navigate to="/dashboard" />} />
-        <Route path="/internships" element={<Navigate to="/dashboard" />} />
-        <Route path="/events" element={<Navigate to="/dashboard" />} />
-        <Route path="/notifications" element={<Navigate to="/dashboard" />} />
-        <Route path="/report" element={<Navigate to="/dashboard" />} />
+        {/* Protected Routes */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route 
           path="/dashboard/scholarships" 
           element={<ScholarshipList isDashboard={true} />} 
         />
         
+        {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route 
-          path="/admin/*" 
-          element={
-            <ProtectedAdminRoute>
-              <AdminDashboard />
-            </ProtectedAdminRoute>
-          } 
-        />
+        <Route path="/admin" element={
+          <ProtectedAdminRoute>
+            <AdminDashboard />
+          </ProtectedAdminRoute>
+        } />
+        <Route path="/admin/users" element={
+          <ProtectedAdminRoute>
+            <ManageUsers />
+          </ProtectedAdminRoute>
+        } />
+        <Route path="/admin/scholarships" element={
+          <ProtectedAdminRoute>
+            <ManageScholarships />
+          </ProtectedAdminRoute>
+        } />
+        <Route path="/admin/internships" element={
+          <ProtectedAdminRoute>
+            <ManageInternships />
+          </ProtectedAdminRoute>
+        } />
+        <Route path="/admin/events" element={
+          <ProtectedAdminRoute>
+            <ManageEvents />
+          </ProtectedAdminRoute>
+        } />
+        
+        {/* Temporary Redirects */}
+        <Route path="/scholarships" element={<Navigate to="/dashboard" />} />
+        <Route path="/internships" element={<Navigate to="/dashboard" />} />
+        <Route path="/events" element={<Navigate to="/dashboard" />} />
+        <Route path="/notifications" element={<Navigate to="/dashboard" />} />
+        <Route path="/report" element={<Navigate to="/dashboard" />} />
         
         {/* 404 Route */}
         <Route path="*" element={<Navigate to="/" />} />

@@ -59,4 +59,127 @@ export const deleteUser = async (userId) => {
   }
 };
 
+// Scholarship Management
+export const createScholarship = async (data) => {
+  try {
+    const response = await api.post('/api/admin/scholarships', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating scholarship:', error);
+    throw error;
+  }
+};
+
+export const updateScholarship = async (id, data) => {
+  try {
+    const response = await api.put(`/api/admin/scholarships/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating scholarship:', error);
+    throw error;
+  }
+};
+
+export const deleteScholarship = async (id) => {
+  try {
+    const response = await api.delete(`/api/admin/scholarships/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting scholarship:', error);
+    throw error;
+  }
+};
+
+export const getScholarships = async () => {
+  try {
+    const response = await api.get('/api/admin/scholarships');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching scholarships:', error);
+    throw error;
+  }
+};
+
+// Internship Management
+export const createInternship = async (data) => {
+  try {
+    const response = await api.post('/api/admin/internships', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating internship:', error);
+    throw error;
+  }
+};
+
+export const updateInternship = async (id, data) => {
+  try {
+    const response = await api.put(`/api/admin/internships/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating internship:', error);
+    throw error;
+  }
+};
+
+export const deleteInternship = async (id) => {
+  try {
+    const response = await api.delete(`/api/admin/internships/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting internship:', error);
+    throw error;
+  }
+};
+
+export const getInternships = async () => {
+  try {
+    const response = await api.get('/api/admin/internships');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching internships:', error);
+    throw error;
+  }
+};
+
+// Event Management
+export const createEvent = async (data) => {
+  try {
+    const response = await api.post('/api/admin/events', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating event:', error);
+    throw error;
+  }
+};
+
+export const updateEvent = async (id, data) => {
+  try {
+    const response = await api.put(`/api/admin/events/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating event:', error);
+    throw error;
+  }
+};
+
+export const deleteEvent = async (id) => {
+  try {
+    const response = await api.delete(`/api/admin/events/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    throw error;
+  }
+};
+
+export const getEvents = async () => {
+  try {
+    const response = await api.get('/api/admin/events');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    throw error;
+  }
+};
+
 // Add other admin service methods for managing content
