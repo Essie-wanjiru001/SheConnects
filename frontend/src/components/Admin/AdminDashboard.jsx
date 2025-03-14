@@ -9,19 +9,29 @@ const AdminDashboard = () => {
     activeInternships: 0,
     upcomingEvents: 0
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const data = await getAdminStats();
         setStats(data);
       } catch (error) {
         console.error('Error fetching admin stats:', error);
+        setError('Failed to load dashboard statistics');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchStats();
   }, []);
+
+  if (loading) return <LoadingSpinner>Loading stats...</LoadingSpinner>;
+  if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
   return (
     <DashboardContainer>
@@ -69,6 +79,21 @@ const AdminDashboard = () => {
     </DashboardContainer>
   );
 };
+
+const LoadingSpinner = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #ffffff;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #ff4444;
+  background: rgba(255, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 1rem;
+`;
 
 const DashboardContainer = styled.div`
   padding: 2rem;

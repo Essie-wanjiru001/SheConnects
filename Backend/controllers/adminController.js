@@ -3,21 +3,52 @@ const { pool } = require('../config/database');
 const adminController = {
   async getStats(req, res) {
     try {
-      const [totalUsers] = await pool.query('SELECT COUNT(*) as count FROM users WHERE is_active = 1');
-      const [activeScholarships] = await pool.query('SELECT COUNT(*) as count FROM scholarships WHERE is_active = 1');
-      const [activeInternships] = await pool.query('SELECT COUNT(*) as count FROM internships WHERE is_active = 1');
-      const [upcomingEvents] = await pool.query('SELECT COUNT(*) as count FROM events WHERE is_active = 1 AND event_date >= CURDATE()');
+      // Add error checking for each query
+      const [totalUsers] = await pool.query(
+        'SELECT COUNT(*) as count FROM users WHERE is_active = 1'
+      ).catch(err => {
+        console.error('Error counting users:', err);
+        return [[{ count: 0 }]];
+      });
 
+      const [activeScholarships] = await pool.query(
+        'SELECT COUNT(*) as count FROM scholarships WHERE is_active = 1'
+      ).catch(err => {
+        console.error('Error counting scholarships:', err);
+        return [[{ count: 0 }]];
+      });
+
+      const [activeInternships] = await pool.query(
+        'SELECT COUNT(*) as count FROM internships WHERE is_active = 1'
+      ).catch(err => {
+        console.error('Error counting internships:', err);
+        return [[{ count: 0 }]];
+      });
+
+      const [upcomingEvents] = await pool.query(
+        'SELECT COUNT(*) as count FROM events WHERE is_active = 1 AND event_date >= CURDATE()'
+      ).catch(err => {
+        console.error('Error counting events:', err);
+        return [[{ count: 0 }]];
+      });
+
+      // Send response with stats
       res.json({
         success: true,
-        totalUsers: totalUsers[0].count,
-        activeScholarships: activeScholarships[0].count,
-        activeInternships: activeInternships[0].count,
-        upcomingEvents: upcomingEvents[0].count
+        stats: {
+          totalUsers: totalUsers[0].count,
+          activeScholarships: activeScholarships[0].count,
+          activeInternships: activeInternships[0].count,
+          upcomingEvents: upcomingEvents[0].count
+        }
       });
     } catch (error) {
-      console.error('Error fetching admin stats:', error);
-      res.status(500).json({ success: false, error: 'Failed to fetch stats' });
+      console.error('Error in getStats:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch stats',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   },
 

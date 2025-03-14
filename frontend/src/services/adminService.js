@@ -4,7 +4,12 @@ export const getAdminStats = async () => {
   try {
     console.log('Fetching admin stats...');
     const response = await api.get('/api/admin/stats');
-    return response.data;
+    
+    if (!response.data.success) {
+      throw new Error(response.data.error || 'Failed to fetch stats');
+    }
+    
+    return response.data.stats;
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     throw error;
