@@ -37,15 +37,23 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = [
-  'https://sheconnects-teal.vercel.app/',
+  'https://sheconnects-teal.vercel.app',
   'http://localhost:3000',
-  'https://sheconnects-api.onrender.com'  // Add your Render domain
+  'https://sheconnects-api.onrender.com',
+  'https://sheconnects-essie-wanjiru001-esther-wanjirus-projects.vercel.app',
+  'https://sheconnects-esther-wanjirus-projects.vercel.app',
+  'https://sheconnects-o51qgvj7a-esther-wanjirus-projects.vercel.app'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
@@ -63,10 +71,10 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware
+// Apply CORS middleware before routes
 app.use(cors(corsOptions));
 
-// Add CORS preflight
+// Add CORS preflight for all routes
 app.options('*', cors(corsOptions));
 
 // General Middleware
