@@ -26,24 +26,39 @@ const pool = mysql.createPool(config).promise();
 
 async function testConnection() {
   try {
-    const [result] = await pool.execute('SELECT NOW() as time');
-    console.log('✅ Successfully connected to database at:', result[0].time);
+    const [result] = await pool.execute('SELECT 1 as connection_test');
+    if (result[0].connection_test === 1) {
+      console.log('✅ Database connection test successful');
+      
+      // Test table access
+      const [tables] = await pool.execute('SHOW TABLES');
+      console.log('📋 Available tables:', tables.map(t => Object.values(t)[0]));
+      
+      return true;
+    }
   } catch (err) {
-    console.error('❌ Connection failed');
-    console.error('Error details:', {
+    console.error('❌ Database connection test failed:', {
       message: err.message,
       code: err.code,
-      errno: err.errno,
-      sqlMessage: err.sqlMessage,
-      sqlState: err.sqlState,
-      host: config.host
+      state: err.sqlState
     });
     
-    console.log('\n🔍 Troubleshooting steps:');
-    console.log('1. Check Google Cloud SQL instance status');
-    console.log('2. Verify authorized networks includes your IP');
-    console.log('3. Confirm instance public IP:', config.host);
-    console.log('4. Ensure firewall allows port 3306');
+    // Additional diagnostics
+    if (err.code === 'ECONNREFUSED') {
+      console.log('\n🔍 Connection refused. Please check:');
+      console.log('1. Database server is running');
+      console.log('2. Correct host and port:', config.host, config.port);
+      console.log('3. Firewall settings');
+    }
+    
+    if (err.code === 'ER_ACCESS_DENIED_ERROR') {
+      console.log('\n🔑 Access denied. Please verify:');
+      console.log('1. Username is correct');
+      console.log('2. Password is correct');
+      console.log('3. User has proper permissions');
+    }
+    
+    return false;
   } finally {
     await pool.end();
     process.exit();

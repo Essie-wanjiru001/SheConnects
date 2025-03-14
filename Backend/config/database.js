@@ -19,22 +19,30 @@ const config = {
 };
 
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  ...config,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 }).promise();
 
-// Add detailed logging for production
-pool.on('connection', () => {
-  console.log('✅ New database connection established:', {
+// Improved connection monitoring
+pool.on('connection', (connection) => {
+  console.log('New database connection established:', {
+    threadId: connection.threadId,
     host: config.host,
-    user: config.user,
-    database: config.database,
-    environment: process.env.NODE_ENV
+    database: config.database
+  });
+  
+  connection.on('error', (err) => {
+    console.error('Database connection error:', {
+      code: err.code,
+      fatal: err.fatal
+    });
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.log('Attempting to reconnect...');
+    }
   });
 });
 
@@ -58,16 +66,28 @@ const testConnection = async () => {
   }
 };
 
-// Graceful shutdown handler
-process.on('SIGINT', async () => {
+// Enhanced graceful shutdown
+const shutdown = async (signal) => {
   try {
+    console.log(`\n${signal} received. Shutting down gracefully...`);
+    console.log('Closing HTTP server...');
+    if (server) {
+      await new Promise(resolve => server.close(resolve));
+      console.log('✅ HTTP server closed');
+    }
+    
+    console.log('Closing database connections...');
     await pool.end();
-    console.log('👋 Database pool closed gracefully');
+    console.log('✅ Database connections closed');
+    
     process.exit(0);
   } catch (err) {
-    console.error('❌ Error closing pool:', err.message);
+    console.error('❌ Error during shutdown:', err);
     process.exit(1);
   }
-});
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 module.exports = { pool, testConnection, config };
