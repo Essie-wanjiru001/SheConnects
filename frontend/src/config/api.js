@@ -29,12 +29,13 @@ const api = axios.create({
 
 // Add request interceptor to handle admin tokens
 api.interceptors.request.use(config => {
+  console.log('Request URL:', config.url);
   // Check if it's an admin route
   if (config.url.startsWith('/api/admin')) {
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
       config.headers.Authorization = `Bearer ${adminToken}`;
-      console.log('Sending admin token in request:', adminToken);
+      console.log('Using admin token for request');
     }
   } else {
     const userToken = localStorage.getItem('token');
@@ -56,7 +57,11 @@ api.interceptors.response.use(
     return response;
   },
   error => {
-    console.error('API Error:', error.response?.status, error.response?.data);
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      config: error.config
+    });
     return Promise.reject(error);
   }
 );

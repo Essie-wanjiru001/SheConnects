@@ -85,4 +85,60 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if user exists and is admin
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE email = ? AND is_admin = 1',
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    const user = users[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Generate admin token
+    const token = jwt.sign(
+      { 
+        email: user.email,
+        is_admin: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.userID,
+        email: user.email,
+        name: user.name,
+        isAdmin: true
+      }
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+module.exports = { register, login, loginAdmin };

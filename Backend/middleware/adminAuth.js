@@ -14,14 +14,15 @@ const adminAuth = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Verifying admin token');
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Decoded token:', decoded);
 
     // Check if user exists and is an admin
     const [users] = await pool.query(
-      'SELECT userID, email, is_admin FROM users WHERE userID = ? AND is_admin = 1',
-      [decoded.id]
+      'SELECT userID, email, is_admin FROM users WHERE email = ? AND is_admin = 1',
+      [decoded.email]
     );
 
     if (users.length === 0) {
@@ -32,7 +33,7 @@ const adminAuth = async (req, res, next) => {
     req.user = {
       id: users[0].userID,
       email: users[0].email,
-      isAdmin: users[0].is_admin === 1
+      isAdmin: true
     };
 
     console.log('Admin authenticated:', req.user);
