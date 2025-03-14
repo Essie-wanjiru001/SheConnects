@@ -1,9 +1,16 @@
 {
   "version": 2,
   "framework": "create-react-app",
-  "buildCommand": "CI=false npm run build",
-  "outputDirectory": "build",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ],
   "env": {
     "REACT_APP_API_URL": "https://sheconnects-api.onrender.com"
+  },
+  "build": {
+    "env": {
+      "CI": "false"
+    }
   }
 }
