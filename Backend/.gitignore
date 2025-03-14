@@ -4,3 +4,12 @@ node_modules/
 .env.local
 .env.development
 uploads/
+
+# Admin scripts
+scripts/createAdmin.js
+scripts/updateProdAdmin.js
+scripts/createProdAdmin.js
+
+# Environment files
+.env
+.env.*

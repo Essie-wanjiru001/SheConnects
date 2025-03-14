@@ -1,70 +1,175 @@
-# Getting Started with Create React App
+# SheConnects
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A platform for empowering women through education and career opportunities.
 
-## Available Scripts
+## Description
 
-In the project directory, you can run:
+SheConnects is a web application that connects women with educational and professional opportunities including scholarships, internships, and networking events. The platform aims to bridge the gender gap in education and careers by providing easy access to valuable resources and opportunities.
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Before you begin, ensure you have the following installed:
+- Node.js (version 18.x or higher)
+- MySQL (version 8.0 or higher)
+- Git
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+### 1. Clone the Repository
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone https://github.com/Essie-wanjiru001/SheConnects.git
+cd SheConnects
+```
 
-### `npm run build`
+### 2. Set Up Backend
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+# Navigate to backend directory
+cd Backend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Install dependencies
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Create .env file and configure environment variables
+cp .env.example .env
 
-### `npm run eject`
+# Update .env with your database credentials
+DB_HOST=localhost
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=sheconnects
+JWT_SECRET=your_secret_key
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 3. Set Up Database
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# Create database
+mysql -u root -p
+CREATE DATABASE sheconnects;
+USE sheconnects;
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Import database schema
+mysql -u root -p sheconnects < database/schema.sql
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 4. Set Up Frontend
 
-## Learn More
+```bash
+# Navigate to frontend directory
+cd ../frontend
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Install dependencies
+npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Create .env file for frontend
+cp .env.example .env
 
-### Code Splitting
+# Update REACT_APP_API_URL in .env
+REACT_APP_API_URL=http://localhost:8000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Running the Application
 
-### Analyzing the Bundle Size
+### Start Backend Server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+# In Backend directory
+npm start
+```
 
-### Making a Progressive Web App
+The backend server will start on http://localhost:8000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Start Frontend Development Server
 
-### Advanced Configuration
+```bash
+# In frontend directory
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The frontend application will start on http://localhost:3000
 
-### Deployment
+## Admin Access
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+To access the admin dashboard:
+1. Navigate to `/admin/login`
+2. Login with admin credentials:
+   - Email: admin@sheconnects.com
+   - Password: SheconnectsAdmin@123
 
-### `npm run build` fails to minify
+## Admin Setup (Internal Use Only)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+To create or update an admin user, use the admin management scripts (not included in repository for security):
+
+1. Create `.env.production` with required credentials
+2. Run the appropriate script:
+   ```bash
+   # For local development
+   node scripts/createAdmin.js <email> <password> <name>
+   
+   # For production
+   node scripts/updateProdAdmin.js
+   ```
+
+Note: Admin management scripts are kept private and not included in the repository.
+
+## Project Structure
+
+```
+SheConnects/
+├── Backend/             # Backend server code
+│   ├── config/         # Database and other configurations
+│   ├── controllers/    # Request handlers
+│   ├── middleware/     # Custom middleware
+│   ├── routes/        # API routes
+│   └── server.js      # Server entry point
+├── frontend/           # Frontend React application
+│   ├── public/        # Static files
+│   ├── src/           # Source files
+│   │   ├── components/# React components
+│   │   ├── services/  # API services
+│   │   ├── styles/    # Global styles
+│   │   └── App.js     # Main component
+│   └── package.json   # Frontend dependencies
+└── README.md          # Project documentation
+```
+
+## API Documentation
+
+The API endpoints are available at:
+- Scholarships: `/api/scholarships`
+- Internships: `/api/internships`
+- Events: `/api/events`
+- Users: `/api/users`
+
+## Deployment
+
+The application is deployed at:
+- Frontend: https://sheconnects-esther-wanjirus-projects.vercel.app/
+- Backend: https://sheconnects-api.onrender.com
+
+## Technologies Used
+
+- Frontend: React, Styled-Components
+- Backend: Node.js, Express
+- Database: MySQL
+- Authentication: JWT
+- Deployment: Vercel (frontend), Render (backend)
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details
+
+## Contact
+
+Esther Wanjiru - essiewanjiru001@gmail.com
+Project Link: https://github.com/Essie-wanjiru001/SheConnects
