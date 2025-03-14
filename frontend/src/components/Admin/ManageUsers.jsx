@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getUsers } from '../../services/adminService';
+import { getUsers, deleteUser } from '../../services/adminService';
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -8,23 +8,38 @@ const ManageUsers = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const data = await getUsers();
-        setUsers(data || []);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        setError('Failed to load users');
-        setUsers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getUsers();
+      setUsers(data || []);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to load users');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      await deleteUser(userId);
+      await fetchUsers(); // Refresh the list
+      alert('User deleted successfully');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user');
+    }
+  };
 
   if (loading) return <LoadingContainer>Loading users...</LoadingContainer>;
   if (error) return <ErrorContainer>{error}</ErrorContainer>;
@@ -46,15 +61,18 @@ const ManageUsers = () => {
             </tr>
           </thead>
           <tbody>
-            {users && users.map(user => (
-              <tr key={user.id}>
+            {users.map(user => (
+              <tr key={user.userID}>
                 <Td>{user.name}</Td>
                 <Td>{user.email}</Td>
                 <Td>{user.is_admin ? 'Admin' : 'User'}</Td>
                 <Td>
                   <ButtonGroup>
-                    <ActionButton>Edit</ActionButton>
-                    <DeleteButton>Delete</DeleteButton>
+                    {!user.is_admin && (
+                      <DeleteButton onClick={() => handleDelete(user.userID)}>
+                        Delete
+                      </DeleteButton>
+                    )}
                   </ButtonGroup>
                 </Td>
               </tr>

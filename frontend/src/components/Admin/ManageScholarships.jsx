@@ -1,44 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getScholarships, createScholarship, updateScholarship, deleteScholarship } from '../../services/adminService';
+import ScholarshipForm from './ScholarshipForm';
 
 const ManageScholarships = () => {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingItem, setEditingItem] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingScholarship, setEditingScholarship] = useState(null);
 
   useEffect(() => {
-    const fetchScholarships = async () => {
-      try {
-        setLoading(true);
-        const data = await getScholarships();
-        setScholarships(data || []);
-      } catch (error) {
-        console.error('Error:', error);
-        setError('Failed to load scholarships');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchScholarships();
   }, []);
 
+  const fetchScholarships = async () => {
+    try {
+      setLoading(true);
+      const data = await getScholarships();
+      setScholarships(data || []);
+      setError(null);
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to load scholarships');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (formData) => {
+    try {
+      setLoading(true);
+      await createScholarship(formData);
+      await fetchScholarships(); 
+      setShowForm(false);
+      alert('Scholarship created successfully');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to create scholarship');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEdit = (scholarship) => {
-    setEditingItem(scholarship);
+    setEditingScholarship(scholarship);
     setShowForm(true);
   };
 
+  const handleUpdate = async (formData) => {
+    try {
+      await updateScholarship(editingScholarship.id, formData);
+      setShowForm(false);
+      setEditingScholarship(null);
+      await fetchScholarships();
+    } catch (error) {
+      console.error('Error updating scholarship:', error);
+      setError('Failed to update scholarship');
+    }
+  };
+
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this scholarship?')) {
-      try {
-        await deleteScholarship(id);
-        fetchScholarships();
-      } catch (error) {
-        console.error('Error deleting scholarship:', error);
-      }
+    if (!window.confirm('Are you sure you want to delete this scholarship?')) {
+      return;
+    }
+
+    try {
+      await deleteScholarship(id);
+      await fetchScholarships();
+    } catch (error) {
+      console.error('Error deleting scholarship:', error);
+      setError('Failed to delete scholarship');
     }
   };
 
@@ -76,8 +108,12 @@ const ManageScholarships = () => {
                 <Td>{scholarship.location || 'Not specified'}</Td>
                 <Td>
                   <ButtonGroup>
-                    <ActionButton onClick={() => handleEdit(scholarship)}>Edit</ActionButton>
-                    <DeleteButton onClick={() => handleDelete(scholarship.id)}>Delete</DeleteButton>
+                    <ActionButton onClick={() => handleEdit(scholarship)}>
+                      Edit
+                    </ActionButton>
+                    <DeleteButton onClick={() => handleDelete(scholarship.id)}>
+                      Delete
+                    </DeleteButton>
                   </ButtonGroup>
                 </Td>
               </tr>
@@ -87,26 +123,13 @@ const ManageScholarships = () => {
       </TableWrapper>
 
       {showForm && (
-        <ScholarshipForm 
-          scholarship={editingItem}
+        <ScholarshipForm
+          scholarship={editingScholarship}
           onClose={() => {
             setShowForm(false);
-            setEditingItem(null);
+            setEditingScholarship(null);
           }}
-          onSubmit={async (data) => {
-            try {
-              if (editingItem) {
-                await updateScholarship(editingItem.id, data);
-              } else {
-                await createScholarship(data);
-              }
-              fetchScholarships();
-              setShowForm(false);
-              setEditingItem(null);
-            } catch (error) {
-              console.error('Error saving scholarship:', error);
-            }
-          }}
+          onSubmit={editingScholarship ? handleUpdate : handleCreate}
         />
       )}
     </Container>

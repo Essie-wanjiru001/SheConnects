@@ -3,41 +3,40 @@ const { pool } = require('../config/database');
 
 const adminAuth = async (req, res, next) => {
   try {
-    const authHeader = req.header('Authorization');
-    
+    // Get token from header
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('No token provided');
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
       });
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.split(' ')[1];
+
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if user exists and is an admin
+    // Check if user exists and is admin
     const [users] = await pool.query(
-      'SELECT userID, email, is_admin FROM users WHERE email = ? AND is_admin = 1',
-      [decoded.email]
+      'SELECT * FROM users WHERE userID = ? AND is_admin = 1',
+      [decoded.id]
     );
 
     if (users.length === 0) {
-      throw new Error('Not authorized as admin');
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized as admin'
+      });
     }
 
-    req.user = {
-      id: users[0].userID,
-      email: users[0].email,
-      isAdmin: true
-    };
-
+    req.user = users[0];
     next();
   } catch (error) {
-    console.error('Admin Auth Error:', error);
-    res.status(403).json({ 
-      success: false, 
-      message: 'Not authorized as admin' 
+    console.error('Auth Error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Not authorized'
     });
   }
 };

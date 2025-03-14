@@ -11,6 +11,7 @@ import ProfilePage from "./components/Profile/ProfilePage";
 import ScholarshipList from "./components/Scholarships/ScholarshipList";
 import AdminLogin from './components/Admin/AdminLogin';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import AdminLayout from './components/Admin/AdminLayout';
 import ProtectedAdminRoute from './components/Routes/ProtectedAdminRoute';
 import ManageScholarships from './components/Admin/ManageScholarships';
 import ManageInternships from './components/Admin/ManageInternships';
@@ -37,31 +38,46 @@ function App() {
           element={<ScholarshipList isDashboard={true} />} 
         />
         
-        {/* Admin Routes */}
+        {/* Admin Routes - All wrapped with AdminLayout */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        
         <Route path="/admin" element={
           <ProtectedAdminRoute>
-            <AdminDashboard />
+            <AdminLayout>
+              <AdminDashboard />
+            </AdminLayout>
           </ProtectedAdminRoute>
         } />
+        
         <Route path="/admin/users" element={
           <ProtectedAdminRoute>
-            <ManageUsers />
+            <AdminLayout>
+              <ManageUsers />
+            </AdminLayout>
           </ProtectedAdminRoute>
         } />
+        
         <Route path="/admin/scholarships" element={
           <ProtectedAdminRoute>
-            <ManageScholarships />
+            <AdminLayout>
+              <ManageScholarships />
+            </AdminLayout>
           </ProtectedAdminRoute>
         } />
+        
         <Route path="/admin/internships" element={
           <ProtectedAdminRoute>
-            <ManageInternships />
+            <AdminLayout>
+              <ManageInternships />
+            </AdminLayout>
           </ProtectedAdminRoute>
         } />
+        
         <Route path="/admin/events" element={
           <ProtectedAdminRoute>
-            <ManageEvents />
+            <AdminLayout>
+              <ManageEvents />
+            </AdminLayout>
           </ProtectedAdminRoute>
         } />
         

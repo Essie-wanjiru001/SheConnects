@@ -103,15 +103,24 @@ router.get('/stats', adminController.getStats);
 
 // User routes
 router.get('/users', adminController.getUsers);
-
-// Internship routes
-router.get('/internships', adminController.getInternships);
-
-// Event routes  
-router.get('/events', adminController.getEvents);
+router.delete('/users/:id', adminController.deleteUser);
 
 // Scholarship routes
 router.get('/scholarships', adminController.getScholarships);
 router.post('/scholarships', adminController.createScholarship);
+router.put('/scholarships/:id', adminController.updateScholarship);
+router.delete('/scholarships/:id', adminController.deleteScholarship);
+
+// Internship routes
+router.get('/internships', adminController.getInternships);
+router.post('/internships', adminController.createInternship);
+router.put('/internships/:id', adminController.updateInternship);
+router.delete('/internships/:id', adminController.deleteInternship);
+
+// Event routes
+router.get('/events', adminController.getEvents);
+router.post('/events', adminController.createEvent);
+router.put('/events/:id', adminController.updateEvent);
+router.delete('/events/:id', adminController.deleteEvent);
 
 module.exports = router;

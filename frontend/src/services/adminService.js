@@ -42,11 +42,15 @@ export const updateUser = async (userId, userData) => {
 
 export const loginAdmin = async (credentials) => {
   try {
-    const response = await api.post('/api/admin/login', credentials);
-    console.log('Admin login response:', response.data);
+    const response = await api.post('/api/auth/admin/login', credentials);
     
     if (!response.data.success) {
       throw new Error(response.data.message || 'Login failed');
+    }
+    
+    if (response.data.token) {
+      localStorage.setItem('adminToken', response.data.token);
+      localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
     }
     
     return response.data;
@@ -88,14 +92,12 @@ export const getScholarships = async () => {
   }
 };
 
-export const createScholarship = async (scholarshipData) => {
+export const createScholarship = async (data) => {
   try {
-    const response = await api.post('/api/admin/scholarships', scholarshipData);
-    
+    const response = await api.post('/api/admin/scholarships', data);
     if (!response.data.success) {
-      throw new Error(response.data.message || 'Failed to create scholarship');
+      throw new Error(response.data.message);
     }
-
     return response.data;
   } catch (error) {
     console.error('Error creating scholarship:', error);
@@ -105,7 +107,13 @@ export const createScholarship = async (scholarshipData) => {
 
 export const updateScholarship = async (id, data) => {
   try {
+    console.log('Updating scholarship:', id, data);
     const response = await api.put(`/api/admin/scholarships/${id}`, data);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to update scholarship');
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error updating scholarship:', error);
@@ -115,7 +123,13 @@ export const updateScholarship = async (id, data) => {
 
 export const deleteScholarship = async (id) => {
   try {
+    console.log('Deleting scholarship:', id);
     const response = await api.delete(`/api/admin/scholarships/${id}`);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete scholarship');
+    }
+
     return response.data;
   } catch (error) {
     console.error('Error deleting scholarship:', error);
@@ -127,6 +141,9 @@ export const deleteScholarship = async (id) => {
 export const createInternship = async (data) => {
   try {
     const response = await api.post('/api/admin/internships', data);
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
     return response.data;
   } catch (error) {
     console.error('Error creating internship:', error);
@@ -168,6 +185,9 @@ export const getInternships = async () => {
 export const createEvent = async (data) => {
   try {
     const response = await api.post('/api/admin/events', data);
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
     return response.data;
   } catch (error) {
     console.error('Error creating event:', error);

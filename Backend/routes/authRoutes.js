@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { pool } = require('../config/database');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -66,6 +67,63 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+// Admin login route
+router.post('/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find admin user
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE email = ? AND is_admin = 1',
+      [email]
+    );
+
+    if (users.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid admin credentials'
+      });
+    }
+
+    const admin = users[0];
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid admin credentials'
+      });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { 
+        id: admin.userID,
+        email: admin.email,
+        is_admin: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      admin: {
+        id: admin.userID,
+        name: admin.name,
+        email: admin.email
+      }
+    });
+  } catch (error) {
+    console.error('Admin Login Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
   }
 });
 

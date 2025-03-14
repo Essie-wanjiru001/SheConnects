@@ -36,71 +36,200 @@ const adminController = {
     }
   },
 
-  // Internship Management  
-  getInternships: async (req, res) => {
+  // Delete User
+  async deleteUser(req, res) {
     try {
-      const [internships] = await pool.query('SELECT * FROM internships');
+      const { id } = req.params;
+
+      // Check if trying to delete an admin
+      const [user] = await pool.query(
+        'SELECT is_admin FROM users WHERE userID = ?',
+        [id]
+      );
+
+      if (user[0]?.is_admin) {
+        return res.status(403).json({
+          success: false,
+          message: 'Cannot delete admin users'
+        });
+      }
+
+      const [result] = await pool.query(
+        'DELETE FROM users WHERE userID = ?',
+        [id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'User deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to delete user'
+      });
+    }
+  },
+
+  // Internship Management  
+  async getInternships(req, res) {
+    try {
+      const [internships] = await pool.query('SELECT * FROM internships WHERE is_active = 1');
       res.json({ success: true, internships });
     } catch (error) {
-      console.error('Error fetching internships:', error);
+      console.error('Error:', error);
       res.status(500).json({ success: false, message: 'Failed to fetch internships' });
     }
   },
 
-  // Event Management
-  getEvents: async (req, res) => {
+  async createInternship(req, res) {
     try {
-      const [events] = await pool.query('SELECT * FROM events');
+      const [result] = await pool.query('INSERT INTO internships SET ?', {
+        ...req.body,
+        created_at: new Date(),
+        updated_at: new Date(),
+        is_active: 1
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Internship created successfully',
+        id: result.insertId
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to create internship' });
+    }
+  },
+
+  async updateInternship(req, res) {
+    try {
+      const [result] = await pool.query(
+        'UPDATE internships SET ?, updated_at = NOW() WHERE id = ? AND is_active = 1',
+        [req.body, req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Internship not found' });
+      }
+
+      res.json({ success: true, message: 'Internship updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to update internship' });
+    }
+  },
+
+  async deleteInternship(req, res) {
+    try {
+      const [result] = await pool.query(
+        'UPDATE internships SET is_active = 0 WHERE id = ?',
+        [req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Internship not found' });
+      }
+
+      res.json({ success: true, message: 'Internship deleted successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete internship' });
+    }
+  },
+
+  // Event Management
+  async getEvents(req, res) {
+    try {
+      const [events] = await pool.query('SELECT * FROM events WHERE is_active = 1');
       res.json({ success: true, events });
     } catch (error) {
-      console.error('Error fetching events:', error);
+      console.error('Error:', error);
       res.status(500).json({ success: false, message: 'Failed to fetch events' });
+    }
+  },
+
+  async createEvent(req, res) {
+    try {
+      const [result] = await pool.query('INSERT INTO events SET ?', {
+        ...req.body,
+        created_at: new Date(),
+        updated_at: new Date(),
+        is_active: 1
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Event created successfully',
+        id: result.insertId
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to create event' });
+    }
+  },
+
+  async updateEvent(req, res) {
+    try {
+      const [result] = await pool.query(
+        'UPDATE events SET ?, updated_at = NOW() WHERE id = ? AND is_active = 1',
+        [req.body, req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Event not found' });
+      }
+
+      res.json({ success: true, message: 'Event updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to update event' });
+    }
+  },
+
+  async deleteEvent(req, res) {
+    try {
+      const [result] = await pool.query(
+        'UPDATE events SET is_active = 0 WHERE id = ?',
+        [req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Event not found' });
+      }
+
+      res.json({ success: true, message: 'Event deleted successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to delete event' });
     }
   },
 
   // Scholarship Management
   async getScholarships(req, res) {
     try {
-      console.log('Fetching scholarships...');
-      const [scholarships] = await pool.query(`
-        SELECT 
-          id, name, type, amount, location,
-          application_deadline, is_active,
-          funding_type, description, eligibility,
-          apply_link, source
-        FROM scholarships 
-        WHERE is_active = 1
-        ORDER BY application_deadline DESC
-      `);
-
-      console.log(`Found ${scholarships.length} scholarships`);
-      res.json({
-        success: true,
-        scholarships
-      });
+      const [scholarships] = await pool.query('SELECT * FROM scholarships WHERE is_active = 1');
+      res.json({ success: true, scholarships });
     } catch (error) {
-      console.error('Error fetching scholarships:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch scholarships'
-      });
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to fetch scholarships' });
     }
   },
 
   async createScholarship(req, res) {
     try {
-      const {
-        name, description, eligibility, application_deadline,
-        apply_link, amount, source, source_url, type,
-        funding_type, location, image
-      } = req.body;
-
-      const [result] = await pool.query(`
-        INSERT INTO scholarships SET ?
-      `, {
-        name, description, eligibility, application_deadline,
-        apply_link, amount, source, source_url, type,
-        funding_type, location, image,
+      const [result] = await pool.query('INSERT INTO scholarships SET ?', {
+        ...req.body,
+        created_at: new Date(),
+        updated_at: new Date(),
         is_active: 1
       });
 
@@ -110,10 +239,53 @@ const adminController = {
         id: result.insertId
       });
     } catch (error) {
-      console.error('Error creating scholarship:', error);
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to create scholarship' });
+    }
+  },
+
+  async updateScholarship(req, res) {
+    try {
+      const [result] = await pool.query(
+        'UPDATE scholarships SET ?, updated_at = NOW() WHERE id = ? AND is_active = 1',
+        [req.body, req.params.id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, message: 'Scholarship not found' });
+      }
+
+      res.json({ success: true, message: 'Scholarship updated successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to update scholarship' });
+    }
+  },
+
+  async deleteScholarship(req, res) {
+    try {
+      const { id } = req.params;
+      const [result] = await pool.query(
+        'UPDATE scholarships SET is_active = 0 WHERE id = ?',
+        [id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Scholarship not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Scholarship deleted successfully'
+      });
+    } catch (error) {
+      console.error('Error deleting scholarship:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create scholarship'
+        message: 'Failed to delete scholarship'
       });
     }
   }
