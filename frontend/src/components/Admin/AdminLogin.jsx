@@ -14,7 +14,7 @@ const AdminLogin = () => {
       const response = await loginAdmin(credentials);
       if (response.success) {
         localStorage.setItem('adminToken', response.token);
-        navigate('/admin/dashboard');
+        navigate('/admin');
       }
     } catch (error) {
       setError(error.response?.data?.message || 'Login failed');

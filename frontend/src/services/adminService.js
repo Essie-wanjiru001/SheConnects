@@ -34,7 +34,7 @@ export const updateUser = async (userId, userData) => {
 export const loginAdmin = async (credentials) => {
   try {
     const response = await api.post('/api/admin/login', credentials);
-    if (response.data.token) {
+    if (response.data.success) {
       localStorage.setItem('adminToken', response.data.token);
     }
     return response.data;
@@ -46,7 +46,15 @@ export const loginAdmin = async (credentials) => {
 
 export const isAdmin = () => {
   const token = localStorage.getItem('adminToken');
-  return !!token;
+  if (!token) return false;
+  
+  try {
+    // You might want to decode the token and check if is_admin is true
+    return true;
+  } catch (error) {
+    console.error('Admin token verification failed:', error);
+    return false;
+  }
 };
 
 export const deleteUser = async (userId) => {
