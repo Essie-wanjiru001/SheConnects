@@ -26,7 +26,7 @@ services:
       - key: DB_PORT
         value: 3306
       - key: FRONTEND_URL
-        value: https://she-connects.vercel.app/
+        value: https://sheconnects-teal.vercel.app/
       - key: JWT_SECRET
         sync: false
       - key: DB_PASSWORD
