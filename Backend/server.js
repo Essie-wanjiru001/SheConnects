@@ -1,31 +1,20 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const multer = require('multer');
-const upload = multer();
-const db = require("./config/database");
-const cron = require('node-cron');
-const morgan = require('morgan');
+const express = require('express');
+const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const morgan = require('morgan');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 const { pool, testConnection } = require('./config/database');
+const cron = require('node-cron');
 
-// Database configuration
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'essie',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'sheconnects',
-  port: process.env.DB_PORT || 3306
-};
-
-// Route imports
+// Remove the describe block that was causing the issue
+// Import routes
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
 const scholarshipRoutes = require('./routes/scholarshipRoutes');
 const internshipRoutes = require('./routes/internshipRoutes');
-const eventRoutes = require('./routes/eventRoutes'); // Add this line
+const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 
@@ -84,7 +73,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
-const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
@@ -189,48 +177,24 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Single server initialization
-const startServer = async () => {
-  try {
-    await testConnection();
-    console.log('✅ Database connection verified');
-    
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-    });
+// Export the app before starting the server
+module.exports = app;
 
-    // Graceful shutdown handling
-    ['SIGTERM', 'SIGINT'].forEach(signal => {
-      process.on(signal, async () => {
-        console.log(`\n${signal} received. Shutting down gracefully...`);
-        
-        server.close(() => {
-          console.log('🔌 HTTP server closed');
-        });
-
-        try {
-          await pool.end();
-          console.log('📊 Database connection closed');
-          process.exit(0);
-        } catch (error) {
-          console.error('Error during shutdown:', error);
-          process.exit(1);
-        }
+// Only start the server if this file is run directly
+if (require.main === module) {
+  const startServer = async () => {
+    try {
+      await testConnection();
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
       });
-    });
-
-    // Keep process alive
-    process.on('uncaughtException', (error) => {
-      console.error('Uncaught Exception:', error);
-    });
-
-  } catch (error) {
-    console.error('❌ Server initialization failed:', error);
-    process.exit(1);
-  }
-};
-
-// Start server
-startServer();
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    }
+  };
+  
+  startServer();
+}
 
