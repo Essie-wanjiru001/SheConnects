@@ -11,17 +11,29 @@ const testConfig = {
 const setupTestDb = async () => {
   let connection;
   try {
-    // Create initial connection without database
     connection = await mysql.createConnection({
       host: testConfig.host,
       user: testConfig.user,
       password: testConfig.password
     });
 
-    // Create and use test database
-    await connection.query(`DROP DATABASE IF EXISTS ${testConfig.database}`);
-    await connection.query(`CREATE DATABASE ${testConfig.database}`);
+    await connection.query(`CREATE DATABASE IF NOT EXISTS ${testConfig.database}`);
     await connection.query(`USE ${testConfig.database}`);
+
+    // Create users table with all required fields
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        name VARCHAR(255),
+        university VARCHAR(255),
+        user_type ENUM('student', 'admin') DEFAULT 'student',
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
 
     // Create tables with full schema
     await connection.query(`
@@ -72,6 +84,18 @@ const setupTestDb = async () => {
         is_active TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Add password_reset table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS password_resets (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT,
+        token VARCHAR(255) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
 
@@ -131,6 +155,8 @@ const setupTestDb = async () => {
   } catch (error) {
     console.error('Test DB Setup Error:', error);
     throw error;
+  } finally {
+    if (connection) await connection.end();
   }
 };
 
