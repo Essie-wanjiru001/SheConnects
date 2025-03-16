@@ -65,6 +65,12 @@ export const isAdmin = () => {
   return !!token;
 };
 
+export const logoutAdmin = () => {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminUser');
+  window.location.href = '/admin/login';
+};
+
 export const deleteUser = async (userId) => {
   try {
     const response = await api.delete(`/api/admin/users/${userId}`);

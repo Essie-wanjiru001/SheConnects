@@ -1,10 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUsers, FaGraduationCap, FaBriefcase, FaCalendarAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaUsers, FaGraduationCap, FaBriefcase, FaCalendarAlt, FaTachometerAlt, FaSignOutAlt } from 'react-icons/fa';
+import { logoutAdmin } from '../../services/adminService';
 
 const AdminSidebar = () => {
   const location = useLocation();
+
+  const handleLogout = () => {
+    logoutAdmin();
+  };
 
   return (
     <Sidebar>
@@ -47,6 +52,11 @@ const AdminSidebar = () => {
             <span>Events</span>
           </NavLink>
         </NavItem>
+
+        <LogoutItem onClick={handleLogout}>
+          <FaSignOutAlt />
+          <span>Logout</span>
+        </LogoutItem>
       </NavLinks>
     </Sidebar>
   );
@@ -76,10 +86,12 @@ const LogoSection = styled.div`
   }
 `;
 
-const NavLinks = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
+// Modify the NavLinks component to include flex properties
+const NavLinks = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 80px); // Adjust based on your LogoSection height
+  padding: 20px 0;
 `;
 
 const NavItem = styled.li`
@@ -108,6 +120,30 @@ const NavLink = styled(Link)`
 
   span {
     font-size: 1rem;
+  }
+`;
+
+// Add these new styled components at the end of the file
+const LogoutItem = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+  color: #ff4d4d;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+
+  svg {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background-color: rgba(255, 77, 77, 0.1);
   }
 `;
 

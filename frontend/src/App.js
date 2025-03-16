@@ -1,5 +1,6 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import ReactGA from "react-ga4";
 import HomePage from "./components/Home/HomePage";
 import About from "./components/About/About";
 import GlobalStyles from "./styles/GlobalStyles";
@@ -9,19 +10,20 @@ import RegisterPage from "./components/Auth/Register/RegisterPage";
 import StudentDashboard from "./components/Dashboard/DashboardHome";
 import ProfilePage from "./components/Profile/ProfilePage";
 import ScholarshipList from "./components/Scholarships/ScholarshipList";
-import AdminLogin from './components/Admin/AdminLogin';
-import AdminDashboard from './components/Admin/AdminDashboard';
-import AdminLayout from './components/Admin/AdminLayout';
-import ProtectedAdminRoute from './components/Routes/ProtectedAdminRoute';
-import ManageScholarships from './components/Admin/ManageScholarships';
-import ManageInternships from './components/Admin/ManageInternships';
-import ManageEvents from './components/Admin/ManageEvents';
-import ManageUsers from './components/Admin/ManageUsers';
+import AdminLogin from "./components/Admin/AdminLogin";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import AdminLayout from "./components/Admin/AdminLayout";
+import ProtectedAdminRoute from "./components/Routes/ProtectedAdminRoute";
+import ManageScholarships from "./components/Admin/ManageScholarships";
+import ManageInternships from "./components/Admin/ManageInternships";
+import ManageEvents from "./components/Admin/ManageEvents";
+import ManageUsers from "./components/Admin/ManageUsers";
 
 function App() {
   return (
     <Router>
       <GlobalStyles />
+      <AnalyticsTracker /> {/* Track route changes */}
       <Routes>
         {/* Main Routes */}
         <Route path="/" element={<HomePage />} />
@@ -30,17 +32,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<StudentDashboard />} />
-        
-        {/* Protected Routes */}
         <Route path="/profile" element={<ProfilePage />} />
-        <Route 
-          path="/dashboard/scholarships" 
-          element={<ScholarshipList isDashboard={true} />} 
-        />
+        <Route path="/dashboard/scholarships" element={<ScholarshipList isDashboard={true} />} />
         
         {/* Admin Routes - All wrapped with AdminLayout */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        
         <Route path="/admin" element={
           <ProtectedAdminRoute>
             <AdminLayout>
@@ -48,7 +44,6 @@ function App() {
             </AdminLayout>
           </ProtectedAdminRoute>
         } />
-        
         <Route path="/admin/users" element={
           <ProtectedAdminRoute>
             <AdminLayout>
@@ -56,7 +51,6 @@ function App() {
             </AdminLayout>
           </ProtectedAdminRoute>
         } />
-        
         <Route path="/admin/scholarships" element={
           <ProtectedAdminRoute>
             <AdminLayout>
@@ -64,7 +58,6 @@ function App() {
             </AdminLayout>
           </ProtectedAdminRoute>
         } />
-        
         <Route path="/admin/internships" element={
           <ProtectedAdminRoute>
             <AdminLayout>
@@ -72,7 +65,6 @@ function App() {
             </AdminLayout>
           </ProtectedAdminRoute>
         } />
-        
         <Route path="/admin/events" element={
           <ProtectedAdminRoute>
             <AdminLayout>
@@ -93,6 +85,18 @@ function App() {
       </Routes>
     </Router>
   );
+}
+
+// Track page views when route changes
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.initialize("G-WE39823J39"); 
+    ReactGA.send({ hitType: "pageview", page: location.pathname });
+  }, [location]);
+
+  return null;
 }
 
 export default App;
