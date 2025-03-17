@@ -1,41 +1,36 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api/users';
+import api from '../config/api';
 
 export const updateProfile = async (formData) => {
   try {
-    const token = localStorage.getItem('userToken');
-    const response = await axios.put(`${API_URL}/profile`, formData, {
+    const response = await api.put('/api/users/profile', formData, { 
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
       }
     });
+    
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+    
     return response.data;
   } catch (error) {
-    throw error.response?.data || { error: 'Failed to update profile' };
+    console.error('Profile update error:', error);
+    throw error.response?.data || { 
+      success: false,
+      message: 'Failed to update profile' 
+    };
   }
 };
 
 export const getUserProfile = async () => {
-  const token = localStorage.getItem('userToken');
-  console.log('Auth Token:', token); // Debug log
-
-  if (!token) {
-    throw new Error('No authentication token found');
-  }
-
   try {
-    const response = await axios.get(`${API_URL}/profile`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    console.log('Profile Response:', response.data); 
+    const response = await api.get('/api/users/profile');  // Add /api prefix
     return response.data;
   } catch (error) {
-    console.error('Profile Service Error:', error.response || error); // Debug log
-    throw error.response?.data || { error: 'Failed to fetch profile data' };
+    console.error('Get profile error:', error);
+    throw error.response?.data || { 
+      success: false,
+      message: 'Failed to fetch profile' 
+    };
   }
 };

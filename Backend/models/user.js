@@ -34,34 +34,36 @@ class User {
       const updateFields = [];
       const values = [];
 
-      if (profileData.name) {
-        updateFields.push('name = ?');
-        values.push(profileData.name);
-      }
-      if (profileData.gender) {
-        updateFields.push('gender = ?');
-        values.push(profileData.gender);
-      }
-      if (profileData.phone_number) {
-        updateFields.push('phone_number = ?');
-        values.push(profileData.phone_number);
-      }
-      if (profileData.profilePicture) {
-        updateFields.push('profilePicture = ?');
-        values.push(profileData.profilePicture);
-      }
-      if (profileData.careerInterests) {
-        updateFields.push('careerInterests = ?');
-        values.push(profileData.careerInterests);
+      // Map form fields to database columns
+      const fieldMappings = {
+        name: 'name',
+        gender: 'gender',
+        phone_number: 'phone_number',
+        career_interests: 'career_interests',
+        profile_image: 'profile_image'
+      };
+
+      // Build dynamic update query
+      Object.entries(profileData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && fieldMappings[key]) {
+          updateFields.push(`${fieldMappings[key]} = ?`);
+          values.push(value);
+        }
+      });
+
+      if (updateFields.length === 0) {
+        return true; // No fields to update
       }
 
       values.push(userId);
 
-      const [result] = await pool.query(
-        `UPDATE users SET ${updateFields.join(', ')} WHERE userID = ?`,
-        values
-      );
+      const query = `
+        UPDATE users 
+        SET ${updateFields.join(', ')} 
+        WHERE userID = ?
+      `;
 
+      const [result] = await pool.query(query, values);
       return result.affectedRows > 0;
     } catch (error) {
       console.error('Error updating profile:', error);

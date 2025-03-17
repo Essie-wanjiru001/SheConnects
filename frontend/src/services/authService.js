@@ -2,26 +2,30 @@ import api from '../config/api';
 
 export const login = async (credentials) => {
   try {
-    const response = await api.post('/auth/login', credentials);
+    const response = await api.post('/api/auth/login', credentials);
     if (response.data.token) {
-      // Store token and user data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response.data;
   } catch (error) {
     console.error('Login error:', error);
-    throw error;
+    throw error.response?.data || { message: 'Login failed' };
   }
 };
 
 export const register = async (userData) => {
   try {
-    const response = await api.post('/api/auth/register', userData);
+    const response = await api.post('/api/auth/register', { 
+      name: userData.name.trim(),
+      email: userData.email.trim().toLowerCase(),
+      password: userData.password
+    });
+    
     return response.data;
   } catch (error) {
     console.error('Registration error:', error);
-    throw error;
+    throw error.response?.data || { message: 'Registration failed' };
   }
 };
 
@@ -50,4 +54,35 @@ export const getAuthToken = () => {
 export const getCurrentUser = () => {
   const userStr = localStorage.getItem('user');
   return userStr ? JSON.parse(userStr) : null;
+};
+
+export const resetPassword = async (data) => {
+  try {
+    const response = await api.post('/auth/reset-password', {
+      email: data.email,
+      newPassword: data.newPassword
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Password reset error:', error);
+    throw error.response?.data || { message: 'Failed to reset password' };
+  }
+};
+
+export const loginAdmin = async (credentials) => {
+  try {
+    const response = await api.post('/auth/admin/login', credentials);
+    if (response.data.token) {
+      localStorage.setItem('adminToken', response.data.token);
+      localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
+    }
+    return response.data;
+  } catch (error) {
+    console.error('Admin login error:', error);
+    throw error.response?.data || error;
+  }
+};
+
+export const getAdminToken = () => {
+  return localStorage.getItem('adminToken');
 };

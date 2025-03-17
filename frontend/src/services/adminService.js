@@ -1,19 +1,32 @@
 import api from '../config/api';
 
+// Add request interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear admin data and redirect to login
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/admin/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const getAdminStats = async () => {
   try {
-    console.log('Fetching admin stats...');
     const response = await api.get('/api/admin/stats');
-    console.log('Admin stats response:', response.data);
-    
-    if (!response.data.success) {
-      throw new Error(response.data.error || 'Failed to fetch stats');
-    }
-    
     return response.data.stats;
   } catch (error) {
-    console.error('Error fetching admin stats:', error.response?.data || error);
-    throw new Error('Failed to load admin statistics');
+    console.error('Error fetching admin stats:', error);
+    if (error.response?.status === 401) {
+      // Clear admin data on auth error
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/admin/login';
+    }
+    throw error;
   }
 };
 
@@ -44,19 +57,18 @@ export const loginAdmin = async (credentials) => {
   try {
     const response = await api.post('/api/auth/admin/login', credentials);
     
-    if (!response.data.success) {
-      throw new Error(response.data.message || 'Login failed');
-    }
-    
-    if (response.data.token) {
+    if (response.data.success && response.data.token) {
       localStorage.setItem('adminToken', response.data.token);
       localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
+      
+      // Set default auth header
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     }
     
     return response.data;
   } catch (error) {
     console.error('Admin login error:', error);
-    throw error;
+    throw error.response?.data || { message: 'Login failed' };
   }
 };
 

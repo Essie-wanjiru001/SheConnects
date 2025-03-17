@@ -4,11 +4,12 @@ const baseURL = process.env.NODE_ENV === 'development'
   ? 'http://localhost:8000' 
   : 'https://sheconnects-api.onrender.com';
 
+
 // Add endpoints configuration
 export const endpoints = {
   auth: {
-    login: '/auth/login',
-    register: '/auth/register'
+    login: '/api/auth/login',
+    register: '/api/auth/register'
   },
   internships: '/internships',
   events: '/events',
@@ -27,22 +28,16 @@ const api = axios.create({
   }
 });
 
-// Add request interceptor to handle admin tokens
 api.interceptors.request.use(config => {
   console.log('Request URL:', config.url);
-  // Check if it's an admin route
-  if (config.url.includes('/admin')) {
-    const adminToken = localStorage.getItem('adminToken');
-    if (adminToken) {
-      config.headers.Authorization = `Bearer ${adminToken}`;
-      console.log('Using admin token for request');
-    }
-  } else {
-    const userToken = localStorage.getItem('token');
-    if (userToken) {
-      config.headers.Authorization = `Bearer ${userToken}`;
-      console.log('Sending user token in request:', userToken);
-    }
+  if (config.url.includes('/auth/register') || config.url.includes('/auth/login')) {
+    return config;
+  }
+  
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('Sending user token in request:', token);
   }
   console.log('API Request:', config.method.toUpperCase(), config.url);
   return config;

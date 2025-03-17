@@ -76,7 +76,9 @@ function LoginForm() {
             required
           />
         </InputField>
-        <ForgotPassword>forgot password?</ForgotPassword>
+        <StyledLink to="/reset-password">
+          <ForgotPassword>forgot password?</ForgotPassword>
+        </StyledLink>
         <ButtonGroup>
           <SubmitButton type="submit" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}

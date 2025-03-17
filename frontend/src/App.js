@@ -18,6 +18,7 @@ import ManageScholarships from "./components/Admin/ManageScholarships";
 import ManageInternships from "./components/Admin/ManageInternships";
 import ManageEvents from "./components/Admin/ManageEvents";
 import ManageUsers from "./components/Admin/ManageUsers";
+import ResetPassword from "./components/Auth/ResetPassword"; // Import ResetPassword component
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/dashboard" element={<StudentDashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/dashboard/scholarships" element={<ScholarshipList isDashboard={true} />} />
+        <Route path="/reset-password" element={<ResetPassword />} /> {/* Add this to your routes */}
         
         {/* Admin Routes - All wrapped with AdminLayout */}
         <Route path="/admin/login" element={<AdminLogin />} />

@@ -13,42 +13,28 @@ const auth = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Check if user exists
+    const [users] = await pool.query(
+      'SELECT userID, email, name FROM users WHERE userID = ?',
+      [decoded.id]
+    );
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // Check if user exists
-      const [users] = await pool.query(
-        'SELECT userID, email, name FROM users WHERE userID = ?',
-        [decoded.id]
-      );
-
-      if (users.length === 0) {
-        throw new Error('User not found');
-      }
-
-      req.user = {
-        id: users[0].userID,
-        email: users[0].email,
-        name: users[0].name
-      };
-      req.token = token;
-      
-      next();
-    } catch (jwtError) {
-      console.error('JWT Error:', jwtError);
-      if (jwtError.name === 'TokenExpiredError') {
-        return res.status(401).json({ 
-          success: false,
-          message: 'Token expired, please login again' 
-        });
-      }
-      throw jwtError;
+    if (users.length === 0) {
+      throw new Error('User not found');
     }
+
+    req.user = {
+      id: users[0].userID,
+      email: users[0].email,
+      name: users[0].name
+    };
+    
+    next();
   } catch (error) {
-    console.error('Auth Middleware Error:', error);
     res.status(401).json({ 
-      success: false,
+      success: false, 
       message: 'Please authenticate' 
     });
   }

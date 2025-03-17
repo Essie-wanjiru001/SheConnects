@@ -10,22 +10,29 @@ router.put('/profile', auth, upload.single('file'), async (req, res) => {
     const userId = req.user.id;
     const profileData = {
       ...req.body,
-      profilePicture: req.file ? `/uploads/profiles/${req.file.filename}` : undefined
+      profile_image: req.file ? `/uploads/profiles/${req.file.filename}` : undefined
     };
 
     const success = await User.updateProfile(userId, profileData);
     
     if (!success) {
-      return res.status(400).json({ error: 'Failed to update profile' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Failed to update profile' 
+      });
     }
 
     res.json({ 
+      success: true,
       message: 'Profile updated successfully',
-      profilePicture: profileData.profilePicture
+      profile_image: profileData.profile_image
     });
   } catch (error) {
     console.error('Error updating profile:', error);
-    res.status(500).json({ error: 'Failed to update profile' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while updating profile' 
+    });
   }
 });
 

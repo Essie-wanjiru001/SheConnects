@@ -28,7 +28,6 @@ export const searchScholarships = async (searchParams) => {
 
 export const getAllScholarships = async () => {
   try {
-    console.log('Fetching all scholarships...');
     const response = await api.get('/api/scholarships');
     return response.data;
   } catch (error) {

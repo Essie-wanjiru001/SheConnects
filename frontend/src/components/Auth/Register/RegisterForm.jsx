@@ -28,25 +28,26 @@ const RegisterForm = () => {
     setIsLoading(true);
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
     try {
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+
       const response = await register({
         name: formData.name,
         email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword
+        password: formData.password
       });
-      // Handle successful registration
+
       if (response.success) {
-        navigate('/login');
+        navigate('/login', { 
+          state: { message: 'Registration successful! Please login.' } 
+        });
+      } else {
+        setError(response.message || 'Registration failed');
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Registration failed');
+      setError(error.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
