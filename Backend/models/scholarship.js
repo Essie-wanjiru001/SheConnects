@@ -62,7 +62,7 @@ class Scholarship {
       console.log('Fetching scholarship with ID:', id);
       const [rows] = await pool.query(
         `SELECT 
-          id, 
+          scholarshipID, 
           name, 
           image, 
           description, 
@@ -71,7 +71,7 @@ class Scholarship {
           apply_link, 
           created_at 
         FROM scholarships 
-        WHERE id = ? AND is_active = 1`,
+        WHERE scholarshipID = ? AND is_active = 1`,
         [id]
       );
       return rows[0];
@@ -88,7 +88,7 @@ class Scholarship {
         `UPDATE scholarships 
          SET name = ?, image = ?, description = ?, 
              eligibility = ?, application_deadline = ?, apply_link = ? 
-         WHERE id = ? AND is_active = 1`,
+         WHERE scholarshipID = ? AND is_active = 1`,
         [
           scholarshipData.name, 
           scholarshipData.image, 
@@ -121,7 +121,7 @@ class Scholarship {
 
       // Soft delete by updating is_active flag
       const [result] = await pool.query(
-        'UPDATE scholarships SET is_active = 0 WHERE id = ?',
+        'UPDATE scholarships SET is_active = 0 WHERE scholarshipID = ?',
         [id]
       );
 
@@ -141,7 +141,7 @@ class Scholarship {
     try {
       const [rows] = await pool.query(`
         SELECT 
-          id, 
+          scholarshipID, 
           name,
           COALESCE(image, '/placeholder-scholarship.jpg') as image,
           description, 

@@ -247,7 +247,7 @@ const adminController = {
   async updateScholarship(req, res) {
     try {
       const [result] = await pool.query(
-        'UPDATE scholarships SET ?, updated_at = NOW() WHERE id = ? AND is_active = 1',
+        'UPDATE scholarships SET ?, updated_at = NOW() WHERE scholarshipID = ? AND is_active = 1',
         [req.body, req.params.id]
       );
 

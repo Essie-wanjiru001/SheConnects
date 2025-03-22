@@ -98,7 +98,7 @@ const ManageScholarships = () => {
           </thead>
           <tbody>
             {scholarships.map(scholarship => (
-              <tr key={scholarship.id}>
+              <tr key={scholarship.scholarshipID}>
                 <Td>{scholarship.name}</Td>
                 <Td>{scholarship.type}</Td>
                 <Td>{scholarship.amount || 'Variable'}</Td>
@@ -111,7 +111,7 @@ const ManageScholarships = () => {
                     <ActionButton onClick={() => handleEdit(scholarship)}>
                       Edit
                     </ActionButton>
-                    <DeleteButton onClick={() => handleDelete(scholarship.id)}>
+                    <DeleteButton onClick={() => handleDelete(scholarship.scholarshipID)}>
                       Delete
                     </DeleteButton>
                   </ButtonGroup>

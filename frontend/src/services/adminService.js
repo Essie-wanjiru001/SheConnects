@@ -123,10 +123,10 @@ export const createScholarship = async (data) => {
   }
 };
 
-export const updateScholarship = async (id, data) => {
+export const updateScholarship = async (scholarshipID, data) => {
   try {
-    console.log('Updating scholarship:', id, data);
-    const response = await api.put(`/api/admin/scholarships/${id}`, data);
+    console.log('Updating scholarship:', scholarshipID, data);
+    const response = await api.put(`/api/admin/scholarships/${scholarshipID}`, data);
     
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to update scholarship');
@@ -139,10 +139,10 @@ export const updateScholarship = async (id, data) => {
   }
 };
 
-export const deleteScholarship = async (id) => {
+export const deleteScholarship = async (scholarshipID) => {
   try {
-    console.log('Deleting scholarship:', id);
-    const response = await api.delete(`/api/admin/scholarships/${id}`);
+    console.log('Deleting scholarship:', scholarshipID);
+    const response = await api.delete(`/api/admin/scholarships/${scholarshipID}`);
     
     if (!response.data.success) {
       throw new Error(response.data.message || 'Failed to delete scholarship');

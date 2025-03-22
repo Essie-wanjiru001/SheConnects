@@ -3,7 +3,7 @@ const router = express.Router();
 const scholarshipController = require('../controllers/scholarshipController');
 const adminAuth = require('../middleware/adminAuth');
 const { pool } = require('../config/database');
-const Scholarship = require('../models/scholarship'); // Import the Scholarship model
+const Scholarship = require('../models/scholarship'); 
 
 // Create scholarship (Admin only)
 router.post('/', adminAuth, scholarshipController.createScholarship);
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   try {
     const { search, type } = req.query;
     let query = `
-      SELECT id, name, description, eligibility, 
+      SELECT scholarshipID, name, description, eligibility, 
              application_deadline, apply_link, type 
       FROM scholarships 
       WHERE is_active = 1

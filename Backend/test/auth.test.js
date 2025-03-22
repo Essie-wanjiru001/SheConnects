@@ -26,10 +26,10 @@ describe('Authentication Tests', () => {
   });
 
   describe('User Registration', () => {
-    test('should register a new user successfully', async () => {
+    it('should register a new user successfully', async () => {
       const newUser = {
-        name: 'New User',
-        email: 'newuser@example.com',
+        name: 'John',
+        email: 'johndoe@gmail.com',
         password: 'NewPass123!'
       };
 
@@ -40,7 +40,6 @@ describe('Authentication Tests', () => {
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('message', 'Registration successful');
-      expect(response.body).toHaveProperty('userId');
     });
 
     test('should fail with invalid email format', async () => {

@@ -36,7 +36,7 @@ const ScholarshipList = () => {
       ) : (
         scholarships.map(scholarship => (
           <ScholarshipCard 
-            key={scholarship.id} 
+            key={scholarship.scholarshipID} 
             scholarship={scholarship} 
           />
         ))
