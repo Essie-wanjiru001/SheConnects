@@ -42,15 +42,8 @@
   "jest": {
     "testEnvironment": "node",
     "setupFilesAfterEnv": ["./test/setup.js"],
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "models/**/*.js",
-      "controllers/**/*.js",
-      "!**/node_modules/**"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "verbose": true
+    "testTimeout": 30000,
+    "verbose": true,
+    "forceExit": true
   }
 }

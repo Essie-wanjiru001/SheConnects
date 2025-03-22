@@ -3,60 +3,37 @@ const { pool } = require('../config/database');
 
 const adminAuth = async (req, res, next) => {
   try {
-    console.log('Verifying admin token');
-    const authHeader = req.headers.authorization;
+    const token = req.headers.authorization?.split(' ')[1];
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'No token provided'
       });
     }
 
-    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Decoded token:', decoded);
+    // Use pool.execute instead of pool.query for parameterized queries
+    const [users] = await pool.execute(
+      'SELECT userID, email, name, is_admin FROM users WHERE userID = ? AND is_admin = 1',
+      [decoded.id]
+    );
 
-      if (!decoded.is_admin) {
-        return res.status(403).json({
-          success: false,
-          message: 'Not authorized as admin'
-        });
-      }
-
-      // Check if user exists and is admin
-      const [users] = await pool.query(
-        'SELECT userID, email, name, is_admin FROM users WHERE userID = ? AND is_admin = 1',
-        [decoded.id]
-      );
-
-      if (users.length === 0) {
-        return res.status(401).json({
-          success: false,
-          message: 'Admin not found'
-        });
-      }
-
-      req.user = users[0];
-      next();
-
-    } catch (error) {
-      console.error('Admin Auth Error:', error);
-      if (error.name === 'TokenExpiredError') {
-        return res.status(401).json({
-          success: false,
-          message: 'Token expired, please login again'
-        });
-      }
-      throw error;
+    if (users.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized as admin'
+      });
     }
+
+    req.user = users[0];
+    next();
   } catch (error) {
-    console.error('Admin Auth Error:', error);
-    res.status(401).json({
+    console.error('Admin auth error:', error);
+    res.status(403).json({
       success: false,
-      message: 'Authentication failed'
+      message: 'Not authorized as admin'
     });
   }
 };

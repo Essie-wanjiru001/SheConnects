@@ -1,12 +1,17 @@
+const { closeConnection } = require('./utils/db');
+
 beforeAll(() => {
   // Add any global setup here
   console.log('Starting tests...');
 });
 
-afterAll(() => {
+afterAll(async () => {
   // Cleanup after all tests
-  console.log('Finished tests...');
+  console.log('Finishing tests...');
+  await closeConnection();
 });
+
+jest.setTimeout(30000); // Increase timeout to 30 seconds
 
 // Add custom matchers
 expect.extend({

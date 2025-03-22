@@ -2,42 +2,49 @@ const request = require('supertest');
 const app = require('../server');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../config/database');
+const { cleanupDatabase } = require('./utils/db');
 
 describe('Admin Features Tests', () => {
   let adminToken;
   let testUserId;
 
   beforeAll(async () => {
-    // Create admin user
-    const hashedPassword = await bcrypt.hash('TestPass123!', 10);
-    const [result] = await pool.query(`
-      INSERT INTO users (name, email, password, is_admin) VALUES 
-      ('Admin User', 'admin@example.com', ?, 1)
-    `, [hashedPassword]);
+    try {
+      // Clean up before tests
+      await cleanupDatabase();
 
-    // Login as admin
-    const loginResponse = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'admin@example.com',
-        password: 'TestPass123!'
-      });
-    
-    adminToken = loginResponse.body.token;
+      // Create admin user
+      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
+      const [adminResult] = await pool.execute(
+        'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, ?)',
+        ['Admin User', 'admin@example.com', hashedPassword, 1]
+      );
 
-    // Create a test regular user
-    const [userResult] = await pool.query(`
-      INSERT INTO users (name, email, password, is_admin) VALUES
-      ('Test User', 'test@example.com', ?, 0)
-    `, [hashedPassword]);
-    
-    testUserId = userResult.insertId;
+      // Create test user
+      const [userResult] = await pool.execute(
+        'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, ?)',
+        ['Test User', 'test@example.com', hashedPassword, 0]
+      );
+      
+      testUserId = userResult.insertId;
+
+      // Login to get admin token
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'admin@example.com',
+          password: 'TestPass123!'
+        });
+
+      adminToken = response.body.token;
+    } catch (error) {
+      console.error('Test setup error:', error);
+      throw error;
+    }
   });
 
   afterAll(async () => {
-    // Clean up test data
-    await pool.query('DELETE FROM users WHERE email IN (?, ?)', 
-      ['admin@example.com', 'test@example.com']);
+    await cleanupDatabase();
   });
 
   describe('Admin Authentication', () => {

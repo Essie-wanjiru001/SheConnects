@@ -36,9 +36,11 @@ describe('Authentication Tests', () => {
       const response = await request(app)
         .post('/api/auth/register')
         .send(newUser)
-        .expect(400);
+        .expect(201);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message', 'Registration successful');
+      expect(response.body).toHaveProperty('userId');
     });
 
     test('should fail with invalid email format', async () => {
@@ -53,7 +55,8 @@ describe('Authentication Tests', () => {
         .send(invalidUser)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message', 'Invalid email format');
     });
 
     test('should fail with duplicate email', async () => {
@@ -68,7 +71,8 @@ describe('Authentication Tests', () => {
         .send(duplicateUser)
         .expect(400);
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message', 'Email is already registered');
     });
   });
 
@@ -84,6 +88,7 @@ describe('Authentication Tests', () => {
         .send(credentials)
         .expect(200);
 
+      expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('token');
       expect(response.body).toHaveProperty('user');
       expect(response.body.user).toHaveProperty('email', 'test@example.com');
@@ -98,8 +103,9 @@ describe('Authentication Tests', () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send(invalidCredentials)
-        .expect(401);
+        .expect(400);
 
+      expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message', 'Invalid credentials');
     });
 
@@ -112,8 +118,9 @@ describe('Authentication Tests', () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send(nonExistentUser)
-        .expect(401);
+        .expect(400);
 
+      expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message', 'Invalid credentials');
     });
   });

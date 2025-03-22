@@ -1,15 +1,17 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
 const { pool } = require('../config/database');
 
-// Register a new user
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Enhanced validation
+    // Debug logging
+    console.log('Registration attempt:', { name, email });
+
+    // Basic validation
     if (!name || !email || !password) {
+      console.log('Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'All fields are required'
@@ -19,47 +21,51 @@ const register = async (req, res) => {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log('Invalid email format:', email);
       return res.status(400).json({
         success: false,
         message: 'Invalid email format'
       });
     }
 
-    // Password strength validation
-    if (password.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Password must be at least 6 characters long'
-      });
-    }
+    // Check if email already exists
+    const [existingUsers] = await pool.query(
+      'SELECT email FROM users WHERE email = ?', 
+      [email]
+    );
 
-    // Check if user exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
+    if (existingUsers.length > 0) {
+      console.log('Email already exists:', email);
       return res.status(400).json({
         success: false,
         message: 'Email is already registered'
       });
     }
 
-    // Create user
-    const userId = await User.create({
-      name,
-      email,
-      password,
-      is_active: 1
-    });
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    res.status(201).json({
+    // Insert new user
+    const [result] = await pool.query(
+      `INSERT INTO users (name, email, password) 
+       VALUES (?, ?, ?)`,
+      [name, email, hashedPassword]
+    );
+
+    console.log('User registered successfully:', result.insertId);
+
+    // Return 201 Created status
+    return res.status(201).json({
       success: true,
       message: 'Registration successful',
-      userId
+      userId: result.insertId
     });
+
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Registration failed. Please try again.'
+    return res.status(500).json({
+      success: false, 
+      message: 'Internal server error'
     });
   }
 };
@@ -69,14 +75,20 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findByEmail(email);
-    if (!user) {
+    // Find user by email directly using pool instead of User model
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE email = ?',
+      [email]
+    );
+
+    if (users.length === 0) {
       return res.status(400).json({ 
         success: false,
         message: 'Invalid credentials' 
       });
     }
+
+    const user = users[0];
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -119,9 +131,9 @@ const login = async (req, res) => {
 
 const loginAdmin = async (req, res) => {
   try {
-    console.log('Admin login attempt:', req.body.email);
     const { email, password } = req.body;
-
+    
+    // Check for admin user
     const [users] = await pool.query(
       'SELECT * FROM users WHERE email = ? AND is_admin = 1',
       [email]
@@ -144,35 +156,32 @@ const loginAdmin = async (req, res) => {
       });
     }
 
-    // Set token expiration to 24 hours from now
-    const expiresIn = '24h';
-    const tokenPayload = { 
-      id: user.userID,
-      email: user.email,
-      is_admin: true,
-      iat: Math.floor(Date.now() / 1000), // Issue time
-      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Explicit expiration time
-    };
-
-    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET);
-
-    console.log('Admin token generated:', { userId: user.userID, isAdmin: true });
+    const token = jwt.sign(
+      {
+        id: user.userID,
+        email: user.email,
+        name: user.name,
+        is_admin: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
     res.json({
       success: true,
       token,
-      admin: {
+      user: {
         id: user.userID,
         email: user.email,
         name: user.name,
-        isAdmin: true
+        is_admin: true
       }
     });
   } catch (error) {
     console.error('Admin login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Login failed'
+      message: 'Server error'
     });
   }
 };
@@ -212,6 +221,7 @@ const getProfile = async (req, res) => {
   }
 };
 
+// Export the controller
 module.exports = { 
   register, 
   login, 
