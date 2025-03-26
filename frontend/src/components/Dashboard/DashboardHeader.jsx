@@ -1,19 +1,24 @@
 import React from "react";
 import styled from "styled-components";
 import menuIcon from "../../assets/icons/menu.png";
+import { useSidebar } from "../../contexts/SidebarContext";
 
-const Header = ({ toggleSidebar }) => (
-  <HeaderWrapper>
-    <MenuIcon 
-      src={menuIcon} 
-      alt="Menu" 
-      onClick={toggleSidebar}
-      role="button"
-      aria-label="Toggle sidebar"
-    />
-    <Title>SheConnects</Title>
-  </HeaderWrapper>
-);
+const Header = () => {
+  const { toggleSidebar } = useSidebar();
+
+  return (
+    <HeaderWrapper>
+      <MenuIcon 
+        src={menuIcon} 
+        alt="Menu" 
+        onClick={toggleSidebar}
+        role="button"
+        aria-label="Toggle sidebar"
+      />
+      <Title>SheConnects</Title>
+    </HeaderWrapper>
+  );
+};
 
 const HeaderWrapper = styled.header`
   display: flex;

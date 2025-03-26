@@ -19,6 +19,8 @@ import ManageInternships from "./components/Admin/ManageInternships";
 import ManageEvents from "./components/Admin/ManageEvents";
 import ManageUsers from "./components/Admin/ManageUsers";
 import ResetPassword from "./components/Auth/ResetPassword"; // Import ResetPassword component
+import ScholarshipManager from './components/Scholarships/ScholarshipManager'; // Import ScholarshipManager component
+import { SidebarProvider } from './contexts/SidebarContext';
 
 function App() {
   return (
@@ -26,16 +28,25 @@ function App() {
       <GlobalStyles />
       <AnalyticsTracker /> {/* Track route changes */}
       <Routes>
-        {/* Main Routes */}
+        {/* Public routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<About />} />
         <Route path="/user-guide" element={<UserGuide />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<StudentDashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/dashboard/scholarships" element={<ScholarshipList isDashboard={true} />} />
-        <Route path="/reset-password" element={<ResetPassword />} /> {/* Add this to your routes */}
+        <Route path="/reset-password" element={<ResetPassword />} /> 
+
+        {/* Dashboard routes wrapped with SidebarProvider */}
+        <Route path="/dashboard/*" element={
+          <SidebarProvider>
+            <Routes>
+              <Route index element={<StudentDashboard />} />
+              <Route path="scholarships" element={<ScholarshipManager />} />
+              <Route path="profile" element={<ProfilePage />} />
+              {/* Add other dashboard routes here */}
+            </Routes>
+          </SidebarProvider>
+        } />
         
         {/* Admin Routes - All wrapped with AdminLayout */}
         <Route path="/admin/login" element={<AdminLogin />} />

@@ -1,42 +1,23 @@
 const jwt = require('jsonwebtoken');
 const { pool } = require('../config/database');
 
-const auth = async (req, res, next) => {
+const auth = (req, res, next) => {
   try {
-    const authHeader = req.header('Authorization');
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Authentication required' 
-      });
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    console.log('Auth token:', token); // Debug log
+
+    if (!token) {
+      throw new Error('No token provided');
     }
 
-    const token = authHeader.replace('Bearer ', '');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Check if user exists
-    const [users] = await pool.query(
-      'SELECT userID, email, name FROM users WHERE userID = ?',
-      [decoded.id]
-    );
+    console.log('Decoded user:', decoded); // Debug log
 
-    if (users.length === 0) {
-      throw new Error('User not found');
-    }
-
-    req.user = {
-      id: users[0].userID,
-      email: users[0].email,
-      name: users[0].name
-    };
-    
+    req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ 
-      success: false, 
-      message: 'Please authenticate' 
-    });
+    console.error('Auth error:', error); // Debug log
+    res.status(401).json({ error: 'Please authenticate' });
   }
 };
 

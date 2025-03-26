@@ -1,5 +1,19 @@
 import api from '../config/api';
 
+// Add token refresh interceptor
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 403 && error.response?.data?.message === 'Token expired') {
+      // Clear admin token
+      localStorage.removeItem('adminToken');
+      // Redirect to admin login
+      window.location.href = '/admin/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Add request interceptor to handle token expiration
 api.interceptors.response.use(
   (response) => response,
@@ -14,18 +28,22 @@ api.interceptors.response.use(
   }
 );
 
+export const checkAdminToken = () => {
+  const token = localStorage.getItem('adminToken');
+  if (!token) {
+    window.location.href = '/admin/login';
+    return false;
+  }
+  return true;
+};
+
 export const getAdminStats = async () => {
+  if (!checkAdminToken()) return;
   try {
     const response = await api.get('/api/admin/stats');
-    return response.data.stats;
+    return response.data;
   } catch (error) {
     console.error('Error fetching admin stats:', error);
-    if (error.response?.status === 401) {
-      // Clear admin data on auth error
-      localStorage.removeItem('adminToken');
-      localStorage.removeItem('adminUser');
-      window.location.href = '/admin/login';
-    }
     throw error;
   }
 };

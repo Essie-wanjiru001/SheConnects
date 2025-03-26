@@ -5,10 +5,12 @@ import { getUserProfile } from "../../services/profileService";
 import defaultProfileImage from "../../assets/images/profile 1.jpg";
 import { logout } from "../../services/authService";
 import ScholarshipList from '../Scholarships/ScholarshipList';
+import { useSidebar } from "../../contexts/SidebarContext";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isSidebarOpen } = useSidebar();
   const [userData, setUserData] = useState({
     name: '',
     profilePicture: null
@@ -45,7 +47,7 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarWrapper>
+    <SidebarWrapper $isOpen={isSidebarOpen}>
       <ProfileContainer>
         <ProfileImageWrapper>
           <ProfileImage 
@@ -96,9 +98,9 @@ const SidebarWrapper = styled.aside`
   position: fixed;
   left: 0;
   top: 70px;
-  color: #ffffff;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 999;
+  transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
+  transition: transform 0.3s ease;
+  z-index: 1000;
   overflow-y: scroll;
   scrollbar-width: none; // Firefox
   -ms-overflow-style: none;  // IE and Edge

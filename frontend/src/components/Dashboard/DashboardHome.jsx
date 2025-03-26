@@ -1,25 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Sidebar from "./Sidebar";
 import DashboardHeader from "./DashboardHeader";
 import DeadlineSection from "./DeadlineSection";
 import EventsSection from "./EventsSection";
+import { useSidebar } from "../../contexts/SidebarContext";
 
 const StudentDashboard = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
+  const { isSidebarOpen } = useSidebar();
 
   return (
     <DashboardWrapper>
-      <DashboardHeader toggleSidebar={toggleSidebar} />
+      <DashboardHeader />
       <MainContent>
-        <SidebarContainer isOpen={isSidebarOpen}>
-          <Sidebar />
-        </SidebarContainer>
-        <ContentSection isSidebarOpen={isSidebarOpen}>
+        <Sidebar />
+        <ContentSection $isSidebarOpen={isSidebarOpen}>
           <ContentWrapper>
             <DeadlineSection />
             <Divider />
@@ -51,28 +46,11 @@ const MainContent = styled.main`
   }
 `;
 
-const SidebarContainer = styled.div`
-  width: 26%;
-  transition: transform 0.3s ease;
-  
-  @media (max-width: 991px) {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    z-index: 1000;
-    transform: translateX(${props => props.isOpen ? '0' : '-100%'});
-  }
-`;
-
 const ContentSection = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  line-height: normal;
-  width: ${props => props.isSidebarOpen ? '74%' : '100%'};
-  margin-left: ${props => props.isSidebarOpen ? '20px' : '0'};
+  margin-left: ${props => props.$isSidebarOpen ? '280px' : '0'};
+  width: ${props => props.$isSidebarOpen ? 'calc(100% - 280px)' : '100%'};
   transition: all 0.3s ease;
+  padding: 20px;
 
   @media (max-width: 991px) {
     width: 100%;

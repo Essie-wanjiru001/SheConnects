@@ -156,6 +156,7 @@ const loginAdmin = async (req, res) => {
       });
     }
 
+    // Generate JWT token and send response
     const token = jwt.sign(
       {
         id: user.userID,
@@ -164,7 +165,7 @@ const loginAdmin = async (req, res) => {
         is_admin: true
       },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
 
     res.json({
