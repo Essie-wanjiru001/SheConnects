@@ -329,6 +329,51 @@ router.post('/applications/:id/conversations', auth, upload.single('attachment')
   }
 });
 
+// Delete application
+router.delete('/applications/:id', auth, async (req, res) => {
+  try {
+    const applicationId = req.params.id;
+    const userId = req.user.id;
+
+    // Check if application exists and belongs to user
+    const [applications] = await pool.query(
+      'SELECT * FROM scholarship_applications WHERE id = ? AND userID = ? AND status = "IN_PROGRESS"',
+      [applicationId, userId]
+    );
+
+    if (applications.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Application not found or cannot be deleted'
+      });
+    }
+
+    // Delete related conversations first (if they exist)
+    await pool.query(
+      'DELETE FROM scholarship_conversations WHERE scholarship_application_id = ?',
+      [applicationId]
+    );
+
+    // Delete the application
+    await pool.query(
+      'DELETE FROM scholarship_applications WHERE id = ?',
+      [applicationId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Application deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete application'
+    });
+  }
+});
+
 // Get scholarship by ID
 router.get('/:id', 
     scholarshipController.getScholarshipById

@@ -147,3 +147,25 @@ export const addConversationMessage = async (applicationId, formData) => {
     throw new Error(error.response?.data?.error || 'Failed to add message');
   }
 };
+
+export const deleteScholarshipApplication = async (applicationId) => {
+  try {
+    if (!applicationId) {
+      throw new Error('Application ID is required');
+    }
+
+    const response = await api.delete(`/api/scholarships/applications/${applicationId}`);
+    
+    if (!response.data.success) {
+      throw new Error(response.data.error || 'Failed to delete application');
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    throw new Error(
+      error.response?.data?.error || 
+      'Failed to delete application'
+    );
+  }
+};

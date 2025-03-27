@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { getScholarships, getMyScholarships, updateApplicationStatus, createScholarshipApplication, updateApplicationNotes } from '../../services/scholarshipService';
+import { getScholarships, getMyScholarships, updateApplicationStatus, createScholarshipApplication, updateApplicationNotes, deleteScholarshipApplication } from '../../services/scholarshipService';
 import { useSidebar } from '../../contexts/SidebarContext';
 import DashboardHeader from '../Dashboard/DashboardHeader';
 import Sidebar from '../Dashboard/Sidebar';
@@ -17,6 +17,7 @@ const ScholarshipManager = () => {
   const [noteText, setNoteText] = useState('');
   const [isConversationModalOpen, setConversationModalOpen] = useState(false);
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
     fetchData();
@@ -49,28 +50,51 @@ const ScholarshipManager = () => {
   const handleStatusUpdate = async (scholarshipID, newStatus) => {
     try {
       setError(null);
+      
+      // Find existing application
       const application = myApplications.find(app => app.scholarshipID === scholarshipID);
       
       if (!application) {
-        throw new Error('Application not found');
+        // This is a new application
+        if (newStatus === 'IN_PROGRESS') {
+          try {
+            await createScholarshipApplication(scholarshipID, newStatus);
+            await fetchData(); // Refresh the list
+            alert('Application created successfully');
+          } catch (error) {
+            console.error('Create application error:', error);
+            throw new Error(error.message || 'Failed to create application');
+          }
+          return;
+        }
+      } else {
+        // Handle existing application updates
+        if (newStatus === 'DELETE') {
+          if (window.confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+            try {
+              await deleteScholarshipApplication(application.id);
+              await fetchData();
+              alert('Application deleted successfully');
+            } catch (error) {
+              console.error('Delete error:', error);
+              throw new Error(error.message || 'Failed to delete application');
+            }
+          } else {
+            // Reset the select to previous value if user cancels
+            const select = document.querySelector(`select[data-scholarship-id="${scholarshipID}"]`);
+            if (select) select.value = application.status;
+          }
+          return;
+        }
+
+        // Handle other status updates for existing applications
+        await updateApplicationStatus(application.id, newStatus);
+        await fetchData();
+        alert('Application status updated successfully');
       }
-
-      console.log('Updating status:', { 
-        applicationId: application.id, 
-        oldStatus: application.status,
-        newStatus 
-      });
-
-      await updateApplicationStatus(application.id, newStatus);
-      
-      // Refresh the data
-      await fetchData();
-      
-      // Show success message
-      alert('Application status updated successfully');
     } catch (error) {
       console.error('Status update error:', error);
-      setError(error.message);
+      setError(error.message || 'Failed to update status');
     }
   };
 
@@ -89,9 +113,46 @@ const ScholarshipManager = () => {
     }
   };
 
+  const getSortedAndFilteredApplications = () => {
+    let filtered = [...myApplications];
+
+    // Sort applications (IN_PROGRESS first)
+    filtered.sort((a, b) => {
+      if (a.status === 'IN_PROGRESS' && b.status !== 'IN_PROGRESS') return -1;
+      if (a.status !== 'IN_PROGRESS' && b.status === 'IN_PROGRESS') return 1;
+      return new Date(b.last_updated) - new Date(a.last_updated);
+    });
+
+    // Apply status filter
+    if (statusFilter !== 'ALL') {
+      filtered = filtered.filter(app => app.status === statusFilter);
+    }
+
+    return filtered;
+  };
+
+  const getStatusCounts = () => {
+    const counts = {
+      IN_PROGRESS: 0,
+      SUBMITTED: 0,
+      ACCEPTED: 0,
+      REJECTED: 0
+    };
+    
+    myApplications.forEach(app => {
+      if (counts.hasOwnProperty(app.status)) {
+        counts[app.status]++;
+      }
+    });
+    
+    return counts;
+  };
+
   if (loading) {
     return <LoadingSpinner>Loading scholarships...</LoadingSpinner>;
   }
+
+  const counts = getStatusCounts();
 
   return (
     <DashboardWrapper>
@@ -112,8 +173,31 @@ const ScholarshipManager = () => {
                 <Header>
                   <h1>My Applications</h1>
                 </Header>
+                <FilterSection>
+                  <FilterLabel>Filter by Status:</FilterLabel>
+                  <FilterSelect 
+                    value={statusFilter} 
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="ALL">
+                      All Applications ({myApplications.length})
+                    </option>
+                    <option value="IN_PROGRESS">
+                      In Progress ({counts.IN_PROGRESS})
+                    </option>
+                    <option value="SUBMITTED">
+                      Submitted ({counts.SUBMITTED})
+                    </option>
+                    <option value="ACCEPTED">
+                      Accepted ({counts.ACCEPTED})
+                    </option>
+                    <option value="REJECTED">
+                      Rejected ({counts.REJECTED})
+                    </option>
+                  </FilterSelect>
+                </FilterSection>
                 <ScholarshipGrid>
-                  {myApplications.map((application) => (
+                  {getSortedAndFilteredApplications().map((application) => (
                     <ScholarshipCard key={application.scholarshipID}>
                       <ApplicationStatus status={application.status}>
                         {application.status}
@@ -142,6 +226,7 @@ const ScholarshipManager = () => {
                             <StatusSelect
                               value={application.status}
                               onChange={(e) => handleStatusUpdate(application.scholarshipID, e.target.value)}
+                              data-scholarship-id={application.scholarshipID}
                             >
                               {getStatusOptions(application)}
                             </StatusSelect>
@@ -163,6 +248,12 @@ const ScholarshipManager = () => {
                   ))}
                 </ScholarshipGrid>
               </>
+            )}
+
+            {myApplications.length === 0 && (
+              <EmptyState>
+                <p>You haven't applied to any scholarships yet.</p>
+              </EmptyState>
             )}
 
             <Header style={{ marginTop: myApplications.length ? '3rem' : '0' }}>
@@ -196,6 +287,7 @@ const ScholarshipManager = () => {
                           <StatusSelect
                             value="NOT_STARTED"
                             onChange={(e) => handleStatusUpdate(scholarship.scholarshipID, e.target.value)}
+                            data-scholarship-id={scholarship.scholarshipID}
                           >
                             {getStatusOptions(scholarship, true)}
                           </StatusSelect>
@@ -254,22 +346,32 @@ const ScholarshipManager = () => {
 
 const getStatusOptions = (scholarship, isNewApplication = false) => {
   if (isNewApplication) {
+    // For new applications, only show these options
     return (
       <>
         <option value="NOT_STARTED">Not Started</option>
-        <option value="IN_PROGRESS">In Progress</option>
-        <option value="SUBMITTED">Submitted</option>
+        <option value="IN_PROGRESS">Start Application</option>
       </>
     );
   }
 
-  // For existing applications
+  // For existing applications...
   if (scholarship.status === 'SUBMITTED') {
     return (
       <>
         <option value="SUBMITTED">Submitted</option>
         <option value="ACCEPTED">Accepted</option>
         <option value="REJECTED">Rejected</option>
+      </>
+    );
+  }
+
+  if (scholarship.status === 'IN_PROGRESS') {
+    return (
+      <>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="SUBMITTED">Submit</option>
+        <option value="DELETE">Delete Application</option>
       </>
     );
   }
@@ -598,6 +700,34 @@ const CancelButton = styled.button`
   &:hover {
     background: #e9ecef;
   }
+`;
+
+const FilterSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
+
+const FilterSelect = styled.select`
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-width: 150px;
+`;
+
+const FilterLabel = styled.label`
+  font-weight: 600;
+  color: #1a2a6c;
+`;
+
+const StatusBadge = styled.span`
+  background-color: #f0f0f0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
 `;
 
 export default ScholarshipManager;
