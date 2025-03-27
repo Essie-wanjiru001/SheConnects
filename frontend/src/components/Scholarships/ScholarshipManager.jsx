@@ -4,6 +4,7 @@ import { getScholarships, getMyScholarships, updateApplicationStatus, createScho
 import { useSidebar } from '../../contexts/SidebarContext';
 import DashboardHeader from '../Dashboard/DashboardHeader';
 import Sidebar from '../Dashboard/Sidebar';
+import ConversationModal from './ConversationModal';
 
 const ScholarshipManager = () => {
   const { isSidebarOpen } = useSidebar();
@@ -14,6 +15,8 @@ const ScholarshipManager = () => {
   const [isNotesModalOpen, setNotesModalOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [noteText, setNoteText] = useState('');
+  const [isConversationModalOpen, setConversationModalOpen] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -48,22 +51,32 @@ const ScholarshipManager = () => {
       setError(null);
       const application = myApplications.find(app => app.scholarshipID === scholarshipID);
       
-      if (application) {
-        await updateApplicationStatus(application.id, newStatus);
-      } else {
-        await createScholarshipApplication(scholarshipID, newStatus);
+      if (!application) {
+        throw new Error('Application not found');
       }
+
+      console.log('Updating status:', { 
+        applicationId: application.id, 
+        oldStatus: application.status,
+        newStatus 
+      });
+
+      await updateApplicationStatus(application.id, newStatus);
       
+      // Refresh the data
       await fetchData();
+      
+      // Show success message
+      alert('Application status updated successfully');
     } catch (error) {
+      console.error('Status update error:', error);
       setError(error.message);
     }
   };
 
   const handleNotes = (application) => {
-    setSelectedApplication(application);
-    setNoteText(application.notes || '');
-    setNotesModalOpen(true);
+    setSelectedApplicationId(application.id);
+    setConversationModalOpen(true);
   };
 
   const saveNotes = async () => {
@@ -228,6 +241,12 @@ const ScholarshipManager = () => {
             </ModalFooter>
           </ModalContent>
         </NotesModal>
+      )}
+      {isConversationModalOpen && (
+        <ConversationModal
+          applicationId={selectedApplicationId}
+          onClose={() => setConversationModalOpen(false)}
+        />
       )}
     </DashboardWrapper>
   );

@@ -109,7 +109,7 @@ router.delete('/users/:id', adminController.deleteUser);
 router.get('/scholarships', adminController.getScholarships);
 router.post('/scholarships', adminController.createScholarship);
 router.put('/scholarships/:id', adminController.updateScholarship);
-router.delete('/scholarships/:id', adminController.deleteScholarship);
+router.delete('/scholarships/:id', adminAuth, adminController.deleteScholarship);
 
 // Internship routes
 router.get('/internships', adminController.getInternships);

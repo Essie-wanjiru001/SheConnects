@@ -133,7 +133,7 @@ const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Check for admin user
+    // Get admin user with password
     const [users] = await pool.query(
       'SELECT * FROM users WHERE email = ? AND is_admin = 1',
       [email]
@@ -156,7 +156,7 @@ const loginAdmin = async (req, res) => {
       });
     }
 
-    // Generate JWT token and send response
+    // Generate admin token
     const token = jwt.sign(
       {
         id: user.userID,
@@ -165,8 +165,16 @@ const loginAdmin = async (req, res) => {
         is_admin: true
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
+
+    // Set token in cookie for better security
+    res.cookie('adminToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
 
     res.json({
       success: true,

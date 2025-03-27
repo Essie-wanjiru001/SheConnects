@@ -50,27 +50,40 @@ const ManageScholarships = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      await updateScholarship(editingScholarship.id, formData);
+      if (!editingScholarship?.scholarshipID) {
+        throw new Error('Invalid scholarship ID');
+      }
+      
+      await updateScholarship(editingScholarship.scholarshipID, formData);
       setShowForm(false);
       setEditingScholarship(null);
       await fetchScholarships();
+      alert('Scholarship updated successfully');
     } catch (error) {
       console.error('Error updating scholarship:', error);
-      setError('Failed to update scholarship');
+      setError(error.message || 'Failed to update scholarship');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this scholarship?')) {
+    if (!id || !window.confirm('Are you sure you want to delete this scholarship?')) {
       return;
     }
 
     try {
+      setError(null);
+      setLoading(true);
+      
       await deleteScholarship(id);
       await fetchScholarships();
+      
+      // Show success message
+      alert('Scholarship deleted successfully');
     } catch (error) {
       console.error('Error deleting scholarship:', error);
-      setError('Failed to delete scholarship');
+      setError(error.message || 'Failed to delete scholarship');
+    } finally {
+      setLoading(false);
     }
   };
 

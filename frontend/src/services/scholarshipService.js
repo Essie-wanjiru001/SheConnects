@@ -60,8 +60,11 @@ export const getMyScholarships = async () => {
 
 export const updateApplicationStatus = async (applicationId, status) => {
   try {
+    console.log('Updating application status:', { applicationId, status }); // Debug log
+
     const response = await api.put(`/api/scholarships/applications/${applicationId}`, {
-      status
+      status,
+      updated_at: new Date().toISOString()
     });
 
     if (!response.data.success) {
@@ -70,10 +73,9 @@ export const updateApplicationStatus = async (applicationId, status) => {
 
     return response.data;
   } catch (error) {
-    console.error('Error updating application:', error.response?.data || error);
+    console.error('Error updating application status:', error);
     throw new Error(
       error.response?.data?.error || 
-      error.response?.data?.message || 
       'Failed to update application status'
     );
   }
@@ -116,5 +118,32 @@ export const createScholarshipApplication = async (scholarshipID, status = 'IN_P
   } catch (error) {
     console.error('Application creation error:', error);
     throw new Error(error.response?.data?.error || 'Failed to create application');
+  }
+};
+
+// Add these new functions
+export const getConversations = async (applicationId) => {
+  try {
+    const response = await api.get(`/api/scholarships/applications/${applicationId}/conversations`);
+    return response.data.conversations;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch conversations');
+  }
+};
+
+export const addConversationMessage = async (applicationId, formData) => {
+  try {
+    const response = await api.post(
+      `/api/scholarships/applications/${applicationId}/conversations`, 
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.conversation;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || 'Failed to add message');
   }
 };

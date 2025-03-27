@@ -6,6 +6,22 @@ const auth = require('../middleware/auth');
 const { pool } = require('../config/database');
 const Scholarship = require('../models/scholarship'); 
 
+// Add this after your existing imports
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/scholarship-attachments')
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`)
+  }
+});
+
+const upload = multer({ storage: storage });
+
 // Create scholarship (Admin only)
 router.post('/', adminAuth, scholarshipController.createScholarship);
 
@@ -97,18 +113,50 @@ router.get('/my-applications', auth, async (req, res) => {
 // Update application status
 router.put('/applications/:id', auth, async (req, res) => {
   try {
-    const { status, notes } = req.body;
-    await pool.query(`
-      UPDATE scholarship_applications
-      SET status = ?, notes = ?
-      WHERE id = ? AND userID = ?
-    `, [status, notes, req.params.id, req.user.userID]);
+    const { status } = req.body;
+    const applicationId = req.params.id;
+    const userId = req.user.id;
 
-    res.json({ success: true });
+    // Validate status
+    const validStatuses = ['IN_PROGRESS', 'SUBMITTED', 'ACCEPTED', 'REJECTED'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid status value'
+      });
+    }
+
+    // First check if application exists and belongs to user
+    const [application] = await pool.query(
+      'SELECT * FROM scholarship_applications WHERE id = ? AND userID = ?',
+      [applicationId, userId]
+    );
+
+    if (application.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Application not found'
+      });
+    }
+
+    // Update the status
+    await pool.query(`
+      UPDATE scholarship_applications 
+      SET status = ?, 
+          last_updated = CURRENT_TIMESTAMP
+      WHERE id = ? AND userID = ?
+    `, [status, applicationId, userId]);
+
+    res.json({
+      success: true,
+      message: 'Application status updated successfully'
+    });
+
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to update application' 
+    console.error('Error updating application status:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update application status'
     });
   }
 });
@@ -215,6 +263,69 @@ router.post('/applications', auth, async (req, res) => {
       error: 'Failed to create application',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
+  }
+});
+
+// Get conversation history
+router.get('/applications/:id/conversations', auth, async (req, res) => {
+  try {
+    const [conversations] = await pool.query(`
+      SELECT 
+        sc.*,
+        u.name as user_name,
+        u.is_admin,
+        u.profilePicture
+      FROM scholarship_conversations sc
+      JOIN users u ON sc.user_id = u.userID
+      WHERE sc.scholarship_application_id = ?
+      ORDER BY sc.created_at ASC
+    `, [req.params.id]);
+
+    res.json({ success: true, conversations });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch conversations' });
+  }
+});
+
+// Add new message with optional attachment
+router.post('/applications/:id/conversations', auth, upload.single('attachment'), async (req, res) => {
+  try {
+    const { message } = req.body;
+    const applicationId = req.params.id;
+    const userId = req.user.id;
+
+    // Verify the application belongs to the user or user is admin
+    const [application] = await pool.query(
+      'SELECT * FROM scholarship_applications WHERE id = ? AND (userID = ? OR ? = true)',
+      [applicationId, userId, req.user.is_admin]
+    );
+
+    if (!application.length) {
+      return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+
+    const attachmentUrl = req.file ? `/uploads/scholarship-attachments/${req.file.filename}` : null;
+    const attachmentType = req.file ? req.file.mimetype : null;
+
+    const [result] = await pool.query(
+      'INSERT INTO scholarship_conversations (scholarship_application_id, user_id, message, attachment_url, attachment_type) VALUES (?, ?, ?, ?, ?)',
+      [applicationId, userId, message, attachmentUrl, attachmentType]
+    );
+
+    res.json({
+      success: true,
+      conversation: {
+        id: result.insertId,
+        message,
+        attachment_url: attachmentUrl,
+        attachment_type: attachmentType,
+        user_name: req.user.name,
+        is_admin: req.user.is_admin,
+        created_at: new Date()
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to add message' });
   }
 });
 

@@ -1,4 +1,6 @@
 const { pool } = require('../config/database');
+const path = require('path');
+const fs = require('fs').promises;
 
 const scholarshipSchema = {
   type: {
@@ -83,23 +85,41 @@ class Scholarship {
 
   static async updateScholarship(id, scholarshipData) {
     try {
+      if (!id) {
+        throw new Error('Scholarship ID is required');
+      }
+
       console.log('Updating scholarship with ID:', id);
       const [result] = await pool.query(
         `UPDATE scholarships 
-         SET name = ?, image = ?, description = ?, 
-             eligibility = ?, application_deadline = ?, apply_link = ? 
+         SET name = ?, 
+             type = ?,
+             description = ?, 
+             eligibility = ?, 
+             application_deadline = ?, 
+             apply_link = ?,
+             amount = ?,
+             location = ?,
+             updated_at = NOW()
          WHERE scholarshipID = ? AND is_active = 1`,
         [
-          scholarshipData.name, 
-          scholarshipData.image, 
-          scholarshipData.description, 
-          scholarshipData.eligibility, 
-          scholarshipData.application_deadline, 
-          scholarshipData.apply_link, 
+          scholarshipData.name,
+          scholarshipData.type,
+          scholarshipData.description,
+          scholarshipData.eligibility,
+          scholarshipData.application_deadline,
+          scholarshipData.apply_link,
+          scholarshipData.amount,
+          scholarshipData.location,
           id
         ]
       );
-      return result.affectedRows > 0;
+
+      if (result.affectedRows === 0) {
+        throw new Error('Scholarship not found or no changes made');
+      }
+
+      return true;
     } catch (error) {
       console.error('Database error in updateScholarship:', error);
       throw new Error('Failed to update scholarship: ' + error.message);
@@ -108,32 +128,40 @@ class Scholarship {
 
   static async deleteScholarship(id) {
     try {
-      console.log('Soft deleting scholarship with ID:', id);
-      // First get the scholarship to check if it exists and get image path
-      const [scholarship] = await pool.query(
-        'SELECT image FROM scholarships WHERE id = ? AND is_active = 1', 
+      // First get the scholarship to verify it exists and get image info
+      const [scholarships] = await pool.query(
+        'SELECT scholarshipID, image FROM scholarships WHERE scholarshipID = ? AND is_active = 1',
         [id]
       );
-      
-      if (scholarship.length === 0) {
-        return false;
+
+      if (scholarships.length === 0) {
+        return {
+          success: false,
+          message: 'Scholarship not found or already deleted'
+        };
       }
 
-      // Soft delete by updating is_active flag
+      // Perform soft delete
       const [result] = await pool.query(
-        'UPDATE scholarships SET is_active = 0 WHERE scholarshipID = ?',
+        'UPDATE scholarships SET is_active = 0, updated_at = NOW() WHERE scholarshipID = ?',
         [id]
       );
 
-      // If deletion was successful and there was an image, return the image path
-      if (result.affectedRows > 0 && scholarship[0].image) {
-        return { success: true, imagePath: scholarship[0].image };
+      if (result.affectedRows === 0) {
+        return {
+          success: false,
+          message: 'Failed to delete scholarship'
+        };
       }
 
-      return { success: true, imagePath: null };
+      return {
+        success: true,
+        message: 'Scholarship deleted successfully',
+        data: scholarships[0]
+      };
     } catch (error) {
       console.error('Database error in deleteScholarship:', error);
-      throw new Error('Failed to delete scholarship: ' + error.message);
+      throw error;
     }
   }
 

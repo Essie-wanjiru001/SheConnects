@@ -1,27 +1,15 @@
 import api from '../config/api';
 
-// Add token refresh interceptor
+// Add interceptor to handle token expiration
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 403 && error.response?.data?.message === 'Token expired') {
-      // Clear admin token
-      localStorage.removeItem('adminToken');
-      // Redirect to admin login
-      window.location.href = '/admin/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-// Add request interceptor to handle token expiration
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear admin data and redirect to login
+    if (error.response?.status === 401 || 
+        (error.response?.status === 403 && error.response?.data?.message === 'Token expired')) {
+      // Clear admin data
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminUser');
+      // Redirect to login
       window.location.href = '/admin/login';
     }
     return Promise.reject(error);
@@ -71,13 +59,15 @@ export const updateUser = async (userId, userData) => {
   }
 };
 
+// Admin authentication
 export const loginAdmin = async (credentials) => {
   try {
     const response = await api.post('/api/auth/admin/login', credentials);
     
     if (response.data.success && response.data.token) {
+      // Store token
       localStorage.setItem('adminToken', response.data.token);
-      localStorage.setItem('adminUser', JSON.stringify(response.data.admin));
+      localStorage.setItem('adminUser', JSON.stringify(response.data.user));
       
       // Set default auth header
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
@@ -88,6 +78,16 @@ export const loginAdmin = async (credentials) => {
     console.error('Admin login error:', error);
     throw error.response?.data || { message: 'Login failed' };
   }
+};
+
+// Initialize admin auth on app load
+export const initializeAdminAuth = () => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    return true;
+  }
+  return false;
 };
 
 export const isAdmin = () => {
@@ -143,7 +143,11 @@ export const createScholarship = async (data) => {
 
 export const updateScholarship = async (scholarshipID, data) => {
   try {
-    console.log('Updating scholarship:', scholarshipID, data);
+    if (!scholarshipID) {
+      throw new Error('Scholarship ID is required');
+    }
+
+    console.log('Updating scholarship:', { scholarshipID, data });
     const response = await api.put(`/api/admin/scholarships/${scholarshipID}`, data);
     
     if (!response.data.success) {
@@ -153,23 +157,30 @@ export const updateScholarship = async (scholarshipID, data) => {
     return response.data;
   } catch (error) {
     console.error('Error updating scholarship:', error);
-    throw error;
+    throw error.response?.data?.message || error.message || 'Failed to update scholarship';
   }
 };
 
 export const deleteScholarship = async (scholarshipID) => {
   try {
+    if (!scholarshipID) {
+      throw new Error('Scholarship ID is required');
+    }
+
     console.log('Deleting scholarship:', scholarshipID);
     const response = await api.delete(`/api/admin/scholarships/${scholarshipID}`);
     
     if (!response.data.success) {
-      throw new Error(response.data.message || 'Failed to delete scholarship');
+      throw new Error(response.data.message);
     }
 
     return response.data;
   } catch (error) {
     console.error('Error deleting scholarship:', error);
-    throw error;
+    if (error.response?.status === 404) {
+      throw new Error(error.response.data.message || 'Scholarship not found');
+    }
+    throw new Error(error.response?.data?.message || 'Failed to delete scholarship');
   }
 };
 

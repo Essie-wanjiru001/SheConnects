@@ -21,8 +21,13 @@ import ManageUsers from "./components/Admin/ManageUsers";
 import ResetPassword from "./components/Auth/ResetPassword"; // Import ResetPassword component
 import ScholarshipManager from './components/Scholarships/ScholarshipManager'; // Import ScholarshipManager component
 import { SidebarProvider } from './contexts/SidebarContext';
+import { initializeAdminAuth } from './services/adminService';
 
 function App() {
+  useEffect(() => {
+    initializeAdminAuth();
+  }, []);
+
   return (
     <Router>
       <GlobalStyles />

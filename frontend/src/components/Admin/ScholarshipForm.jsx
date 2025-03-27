@@ -10,12 +10,19 @@ const ScholarshipForm = ({ scholarship, onClose, onSubmit }) => {
     application_deadline: scholarship?.application_deadline?.split('T')[0] || '',
     apply_link: scholarship?.apply_link || '',
     amount: scholarship?.amount || '',
-    location: scholarship?.location || ''
+    location: scholarship?.location || '',
+    scholarshipID: scholarship?.scholarshipID || null
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSubmit(formData);
+    try {
+      await onSubmit(formData);
+      onClose();
+    } catch (error) {
+      console.error('Form submission error:', error);
+      alert(error.message || 'Failed to submit form');
+    }
   };
 
   return (

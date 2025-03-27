@@ -1,4 +1,7 @@
 const { pool } = require('../config/database');
+const Scholarship = require('../models/Scholarship');
+const path = require('path');
+const fs = require('fs').promises;
 
 const adminController = {
   // Stats endpoint
@@ -265,27 +268,38 @@ const adminController = {
   async deleteScholarship(req, res) {
     try {
       const { id } = req.params;
-      const [result] = await pool.query(
-        'UPDATE scholarships SET is_active = 0 WHERE id = ?',
-        [id]
-      );
+      console.log('Attempting to delete scholarship:', id);
 
-      if (result.affectedRows === 0) {
+      const result = await Scholarship.deleteScholarship(id);
+
+      if (!result.success) {
         return res.status(404).json({
           success: false,
-          message: 'Scholarship not found'
+          message: result.message
         });
+      }
+
+      // Handle image deletion if exists
+      if (result.data?.image) {
+        try {
+          const imagePath = path.join(__dirname, '..', 'public', result.data.image);
+          await fs.unlink(imagePath);
+          console.log('Successfully deleted image:', imagePath);
+        } catch (error) {
+          console.error('Error deleting image file:', error);
+          // Continue even if image deletion fails
+        }
       }
 
       res.json({
         success: true,
-        message: 'Scholarship deleted successfully'
+        message: result.message
       });
     } catch (error) {
-      console.error('Error deleting scholarship:', error);
+      console.error('Error in deleteScholarship controller:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete scholarship'
+        message: 'Internal server error while deleting scholarship'
       });
     }
   }
