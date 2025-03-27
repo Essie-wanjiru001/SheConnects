@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { getConversations, addConversationMessage } from '../../services/scholarshipService';
 
-const ConversationModal = ({ applicationId, onClose }) => {
+const ConversationModal = ({ applicationId, onClose, application }) => {
   const [conversations, setConversations] = useState([]);
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
@@ -56,7 +56,10 @@ const ConversationModal = ({ applicationId, onClose }) => {
     <ModalOverlay>
       <ModalContent>
         <ModalHeader>
-          <h2>Conversation History</h2>
+          <h2>Application Conversations</h2>
+          <StatusBadge status={application.status}>
+            {application.status}
+          </StatusBadge>
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </ModalHeader>
 
@@ -136,13 +139,34 @@ const ModalHeader = styled.div`
   padding: 1rem;
   border-bottom: 1px solid #eee;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
 
-  h2 {
-    margin: 0;
-    color: #154C79;
-  }
+const StatusBadge = styled.div`
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: ${props => {
+    switch (props.status) {
+      case 'IN_PROGRESS': return '#fff3e0';
+      case 'SUBMITTED': return '#e3f2fd';
+      case 'ACCEPTED': return '#e8f5e9';
+      case 'REJECTED': return '#ffebee';
+      default: return '#e0e0e0';
+    }
+  }};
+  color: ${props => {
+    switch (props.status) {
+      case 'IN_PROGRESS': return '#e65100';
+      case 'SUBMITTED': return '#0d47a1';
+      case 'ACCEPTED': return '#1b5e20';
+      case 'REJECTED': return '#b71c1c';
+      default: return '#333';
+    }
+  }};
 `;
 
 const CloseButton = styled.button`

@@ -99,6 +99,7 @@ const ScholarshipManager = () => {
   };
 
   const handleNotes = (application) => {
+    setSelectedApplication(application);
     setSelectedApplicationId(application.id);
     setConversationModalOpen(true);
   };
@@ -227,6 +228,7 @@ const ScholarshipManager = () => {
                               value={application.status}
                               onChange={(e) => handleStatusUpdate(application.scholarshipID, e.target.value)}
                               data-scholarship-id={application.scholarshipID}
+                              disabled={application.status === 'ACCEPTED' || application.status === 'REJECTED'}
                             >
                               {getStatusOptions(application)}
                             </StatusSelect>
@@ -236,11 +238,9 @@ const ScholarshipManager = () => {
                             <ViewButton href={application.apply_link} target="_blank" rel="noopener noreferrer">
                               View Application
                             </ViewButton>
-                            {application.status === 'IN_PROGRESS' && (
-                              <NotesButton onClick={() => handleNotes(application)}>
-                                Update Progress
-                              </NotesButton>
-                            )}
+                            <NotesButton onClick={() => handleNotes(application)}>
+                              View Conversations
+                            </NotesButton>
                           </ButtonGroup>
                         </ActionSection>
                       </ScholarshipContent>
@@ -337,6 +337,7 @@ const ScholarshipManager = () => {
       {isConversationModalOpen && (
         <ConversationModal
           applicationId={selectedApplicationId}
+          application={selectedApplication}
           onClose={() => setConversationModalOpen(false)}
         />
       )}
@@ -346,7 +347,6 @@ const ScholarshipManager = () => {
 
 const getStatusOptions = (scholarship, isNewApplication = false) => {
   if (isNewApplication) {
-    // For new applications, only show these options
     return (
       <>
         <option value="NOT_STARTED">Not Started</option>
@@ -356,6 +356,13 @@ const getStatusOptions = (scholarship, isNewApplication = false) => {
   }
 
   // For existing applications...
+  if (scholarship.status === 'ACCEPTED' || scholarship.status === 'REJECTED') {
+    // Only show current status for accepted/rejected applications
+    return (
+      <option value={scholarship.status}>{scholarship.status}</option>
+    );
+  }
+
   if (scholarship.status === 'SUBMITTED') {
     return (
       <>
