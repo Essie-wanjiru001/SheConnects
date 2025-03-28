@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import api from '../../config/api';
 import { getScholarships, createScholarship, updateScholarship, deleteScholarship } from '../../services/adminService';
 import ScholarshipForm from './ScholarshipForm';
+import ScholarshipStatsModal from './ScholarshipStatsModal';
 
 const ManageScholarships = () => {
   const [scholarships, setScholarships] = useState([]);
@@ -9,6 +11,9 @@ const ManageScholarships = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingScholarship, setEditingScholarship] = useState(null);
+  const [selectedScholarship, setSelectedScholarship] = useState(null);
+  const [showStats, setShowStats] = useState(false);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     fetchScholarships();
@@ -87,6 +92,29 @@ const ManageScholarships = () => {
     }
   };
 
+  const fetchScholarshipApplications = async (scholarshipId) => {
+    try {
+      setError(null);
+      const response = await api.get(`/api/admin/scholarships/${scholarshipId}/applications`);
+      
+      if (response.data.success) {
+        setApplications(response.data.applications);
+      } else {
+        throw new Error(response.data.error || 'Failed to fetch applications');
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      setError('Failed to fetch scholarship applications. Please try again.');
+      setApplications([]); // Reset applications on error
+    }
+  };
+
+  const handleViewStats = async (scholarship) => {
+    setSelectedScholarship(scholarship);
+    await fetchScholarshipApplications(scholarship.scholarshipID);
+    setShowStats(true);
+  };
+
   if (loading) return <LoadingContainer>Loading scholarships...</LoadingContainer>;
   if (error) return <ErrorContainer>{error}</ErrorContainer>;
 
@@ -96,6 +124,8 @@ const ManageScholarships = () => {
         <h2>Manage Scholarships</h2>
         <AddButton onClick={() => setShowForm(true)}>Add New Scholarship</AddButton>
       </Header>
+
+      {error && <ErrorMessage>{error}</ErrorMessage>}
 
       <TableWrapper>
         <Table>
@@ -121,6 +151,9 @@ const ManageScholarships = () => {
                 <Td>{scholarship.location || 'Not specified'}</Td>
                 <Td>
                   <ButtonGroup>
+                    <ViewButton onClick={() => handleViewStats(scholarship)}>
+                      View Stats
+                    </ViewButton>
                     <ActionButton onClick={() => handleEdit(scholarship)}>
                       Edit
                     </ActionButton>
@@ -143,6 +176,14 @@ const ManageScholarships = () => {
             setEditingScholarship(null);
           }}
           onSubmit={editingScholarship ? handleUpdate : handleCreate}
+        />
+      )}
+
+      {showStats && selectedScholarship && (
+        <ScholarshipStatsModal
+          scholarship={selectedScholarship}
+          applications={applications}
+          onClose={() => setShowStats(false)}
         />
       )}
     </Container>
@@ -243,6 +284,14 @@ const DeleteButton = styled(ActionButton)`
   }
 `;
 
+const ViewButton = styled(ActionButton)`
+  background: #4caf50;
+  
+  &:hover {
+    background: #388e3c;
+  }
+`;
+
 const LoadingContainer = styled.div`
   text-align: center;
   padding: 2rem;
@@ -258,6 +307,15 @@ const ErrorContainer = styled.div`
   border-radius: 8px;
   border: 1px solid #dc3545;
   margin: 1rem;
+`;
+
+const ErrorMessage = styled.div`
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.875rem;
 `;
 
 export default ManageScholarships;

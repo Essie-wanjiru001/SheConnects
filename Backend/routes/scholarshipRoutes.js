@@ -246,7 +246,7 @@ router.post('/applications', auth, async (req, res) => {
 
     // Create new application
     const [result] = await pool.query(
-      'INSERT INTO scholarship_applications (userID, scholarshipID, status) VALUES (?, ?, ?)',
+      'INSERT INTO scholarship_applications (userID, scholarshipID, status, last_updated) VALUES (?, ?, ?, NOW())',
       [userID, scholarshipID, status]
     );
 
