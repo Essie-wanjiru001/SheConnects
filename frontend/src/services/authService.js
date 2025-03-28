@@ -16,16 +16,29 @@ export const login = async (credentials) => {
 
 export const register = async (userData) => {
   try {
-    const response = await api.post('/api/auth/register', { 
-      name: userData.name.trim(),
-      email: userData.email.trim().toLowerCase(),
-      password: userData.password
+    console.log('Sending registration request:', userData); // Debug log
+
+    const response = await api.post('/api/auth/register', {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      acceptedPrivacyPolicy: userData.acceptedPrivacyPolicy
     });
-    
+
+    console.log('Registration response:', response.data); // Debug log
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
     return response.data;
   } catch (error) {
     console.error('Registration error:', error);
-    throw error.response?.data || { message: 'Registration failed' };
+    throw new Error(
+      error.response?.data?.message || 
+      error.message || 
+      'Registration failed'
+    );
   }
 };
 

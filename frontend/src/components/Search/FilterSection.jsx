@@ -1,11 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import FilterOptions from './FilterOptions';
+import { useSearchParams } from 'react-router-dom';
 
 const FilterSection = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const handleFilterChange = (filters) => {
-    console.log('Filters updated:', filters);
-    
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        newParams.set(key, value);
+      } else {
+        newParams.delete(key);
+      }
+    });
+    setSearchParams(newParams);
   };
 
   return (

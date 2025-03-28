@@ -1,16 +1,21 @@
 import api from '../config/api';
 
-export const searchAll = async ({ search, type, category }) => {
+export const searchAll = async (params) => {
   try {
-    const params = new URLSearchParams();
-    if (search) params.append('search', search);
-    if (type) params.append('type', type);
-    if (category) params.append('category', category);
+    const queryParams = new URLSearchParams();
     
-    const response = await api.get(`/api/search?${params.toString()}`);
+    if (params.term) queryParams.append('search', params.term);
+    if (params.category && params.category !== 'all') {
+      queryParams.append('category', params.category);
+    }
+    if (params.type) queryParams.append('type', params.type);
+    
+    console.log('Search params:', queryParams.toString()); // Debug log
+    
+    const response = await api.get(`/api/search?${queryParams.toString()}`);
     return response.data;
   } catch (error) {
     console.error('Search error:', error);
-    throw error;
+    throw new Error(error.response?.data?.message || 'Search failed');
   }
 };

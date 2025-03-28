@@ -5,13 +5,9 @@ import { endpoints } from '../config/api';
 export const getInternships = async () => {
   try {
     const response = await api.get('/api/internships');
-    if (!response.data.success) {
-      throw new Error('Failed to fetch internships');
-    }
-    return response.data.internships || [];
+    return response.data.internships;
   } catch (error) {
-    console.error('Error fetching internships:', error);
-    throw new Error('Failed to fetch internships');
+    throw error.response?.data?.message || 'Failed to fetch internships';
   }
 };
 

@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../../../services/authService';
+import PrivacyPolicy from '../../Privacy/PrivacyPolicy';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    acceptedPrivacyPolicy: false
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -26,28 +28,45 @@ const RegisterForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setError('');
 
     try {
+      // Form validation
+      if (!formData.name.trim()) {
+        throw new Error('Name is required');
+      }
+
+      if (!formData.email.trim()) {
+        throw new Error('Email is required');
+      }
+
+      if (!formData.password) {
+        throw new Error('Password is required');
+      }
+
       if (formData.password !== formData.confirmPassword) {
-        throw new Error("Passwords do not match");
+        throw new Error('Passwords do not match');
+      }
+
+      if (!formData.acceptedPrivacyPolicy) {
+        throw new Error('You must accept the Privacy Policy to register');
       }
 
       const response = await register({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        acceptedPrivacyPolicy: formData.acceptedPrivacyPolicy
       });
 
       if (response.success) {
         navigate('/login', { 
-          state: { message: 'Registration successful! Please login.' } 
+          state: { message: 'Registration successful! Please login.' }
         });
-      } else {
-        setError(response.message || 'Registration failed');
       }
     } catch (error) {
-      setError(error.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', error);
+      setError(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
@@ -100,8 +119,27 @@ const RegisterForm = () => {
               required
             />
           </InputGroup>
+          
+          <PrivacySection>
+            <PrivacyPolicy />
+            <CheckboxContainer>
+              <Checkbox
+                type="checkbox"
+                id="privacyPolicy"
+                checked={formData.acceptedPrivacyPolicy}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  acceptedPrivacyPolicy: e.target.checked
+                })}
+              />
+              <CheckboxLabel htmlFor="privacyPolicy">
+                I have read and agree to the Privacy Policy
+              </CheckboxLabel>
+            </CheckboxContainer>
+          </PrivacySection>
+
           <ButtonGroup>
-            <SubmitButton type="submit" disabled={isLoading}>
+            <SubmitButton type="submit" disabled={isLoading || !formData.acceptedPrivacyPolicy}>
               {isLoading ? 'Registering...' : 'Submit'}
             </SubmitButton>
             <CancelButton type="button" onClick={handleCancel} disabled={isLoading}>
@@ -228,6 +266,25 @@ const ErrorMessage = styled.div`
   margin-bottom: 20px;
   text-align: center;
   font-size: 14px;
+`;
+
+const PrivacySection = styled.div`
+  margin: 20px 0;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+`;
+
+const Checkbox = styled.input`
+  margin-right: 10px;
+`;
+
+const CheckboxLabel = styled.label`
+  font-size: 14px;
+  color: #666;
 `;
 
 export default RegisterForm;

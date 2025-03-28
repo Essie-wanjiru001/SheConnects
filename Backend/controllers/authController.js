@@ -4,38 +4,32 @@ const { pool } = require('../config/database');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, acceptedPrivacyPolicy } = req.body;
+    console.log('Registration request:', { name, email, acceptedPrivacyPolicy }); // Debug log
 
-    // Debug logging
-    console.log('Registration attempt:', { name, email });
-
-    // Basic validation
+    // Validate required fields
     if (!name || !email || !password) {
-      console.log('Missing required fields');
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: 'Name, email and password are required'
       });
     }
 
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.log('Invalid email format:', email);
+    // Validate privacy policy acceptance
+    if (!acceptedPrivacyPolicy) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid email format'
+        message: 'You must accept the Privacy Policy to register'
       });
     }
 
-    // Check if email already exists
+    // Check if email exists
     const [existingUsers] = await pool.query(
-      'SELECT email FROM users WHERE email = ?', 
+      'SELECT email FROM users WHERE email = ?',
       [email]
     );
 
     if (existingUsers.length > 0) {
-      console.log('Email already exists:', email);
       return res.status(400).json({
         success: false,
         message: 'Email is already registered'
@@ -45,16 +39,20 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
+    // Insert user with privacy policy acceptance
     const [result] = await pool.query(
-      `INSERT INTO users (name, email, password) 
-       VALUES (?, ?, ?)`,
+      `INSERT INTO users (
+        name, 
+        email, 
+        password, 
+        accepted_privacy_policy,
+        privacy_policy_acceptance_date
+      ) VALUES (?, ?, ?, TRUE, CURRENT_TIMESTAMP)`,
       [name, email, hashedPassword]
     );
 
-    console.log('User registered successfully:', result.insertId);
+    console.log('User registered:', result.insertId); // Debug log
 
-    // Return 201 Created status
     return res.status(201).json({
       success: true,
       message: 'Registration successful',
@@ -64,8 +62,9 @@ const register = async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     return res.status(500).json({
-      success: false, 
-      message: 'Internal server error'
+      success: false,
+      message: 'Registration failed',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

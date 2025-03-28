@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import Logo from "./Logo";
@@ -12,47 +12,73 @@ import InternshipList from '../Internships/InternshipList';
 import EventList from '../Events/EventList';
 
 const HomePage = () => {
+  const [searchResults, setSearchResults] = useState(null);
+
+  const handleSearchResults = (results) => {
+    setSearchResults(results);
+  };
+
   return (
     <CommonWrapper>
       <CommonHeader>
         <Logo />
         <NavigationMenu />
       </CommonHeader>
+      
       <SearchSection>
-        <SearchBar />
+        <SearchBar onSearchResults={handleSearchResults} />
         <FilterSection />
       </SearchSection>
-      <MainContent>
-        <CategorySection>
-          <SectionHeader>
-            <SectionTitle>Scholarships</SectionTitle>
-            <ViewAllButton to="/scholarships">View All</ViewAllButton>
-          </SectionHeader>
-          <RowContainer>
-            <ScholarshipList isHomePage={true} />
-          </RowContainer>
-        </CategorySection>
 
-        <CategorySection>
-          <SectionHeader>
-            <SectionTitle>Internships</SectionTitle>
-            <ViewAllButton to="/internships">View All</ViewAllButton>
-          </SectionHeader>
-          <RowContainer>
-            <InternshipList isHomePage={true} />
-          </RowContainer>
-        </CategorySection>
+      {searchResults ? (
+        <SearchResults>
+          <h2>Search Results</h2>
+          <ResultsGrid>
+            {searchResults.map((item) => (
+              <ResultCard key={`${item.type}-${item.id}`}>
+                <h3>{item.title}</h3>
+                <p>{item.description?.substring(0, 150)}...</p>
+                <TypeBadge type={item.type}>
+                  {item.type}
+                </TypeBadge>
+              </ResultCard>
+            ))}
+          </ResultsGrid>
+        </SearchResults>
+      ) : (
+        <MainContent>
+          <CategorySection>
+            <SectionHeader>
+              <SectionTitle>Scholarships</SectionTitle>
+              <ViewAllButton to="/login">View All</ViewAllButton>
+            </SectionHeader>
+            <RowContainer>
+              <ScholarshipList isHomePage={true} />
+            </RowContainer>
+          </CategorySection>
 
-        <CategorySection>
-          <SectionHeader>
-            <SectionTitle>Events</SectionTitle>
-            <ViewAllButton to="/events">View All</ViewAllButton>
-          </SectionHeader>
-          <RowContainer>
-            <EventList isHomePage={true} />
-          </RowContainer>
-        </CategorySection>
-      </MainContent>
+          <CategorySection>
+            <SectionHeader>
+              <SectionTitle>Internships</SectionTitle>
+              <ViewAllButton to="/login">View All</ViewAllButton>
+            </SectionHeader>
+            <RowContainer>
+              <InternshipList isHomePage={true} />
+            </RowContainer>
+          </CategorySection>
+
+          <CategorySection>
+            <SectionHeader>
+              <SectionTitle>Events</SectionTitle>
+              <ViewAllButton to="/login">View All</ViewAllButton>
+            </SectionHeader>
+            <RowContainer>
+              <EventList isHomePage={true} />
+            </RowContainer>
+          </CategorySection>
+        </MainContent>
+      )}
+      
       <Footer />
     </CommonWrapper>
   );
@@ -125,6 +151,44 @@ const RowContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+`;
+
+const SearchResults = styled.section`
+  padding: 20px;
+  
+  h2 {
+    margin-bottom: 20px;
+    color: #1a2a6c;
+  }
+`;
+
+const ResultsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+`;
+
+const ResultCard = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
+const TypeBadge = styled.span`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: ${props => {
+    switch(props.type) {
+      case 'scholarship': return '#4CAF50';
+      case 'internship': return '#2196F3';
+      case 'event': return '#FF9800';
+      default: return '#9E9E9E';
+    }
+  }};
+  color: white;
 `;
 
 export default HomePage;
