@@ -18,10 +18,11 @@ import ManageScholarships from "./components/Admin/ManageScholarships";
 import ManageInternships from "./components/Admin/ManageInternships";
 import ManageEvents from "./components/Admin/ManageEvents";
 import ManageUsers from "./components/Admin/ManageUsers";
-import ResetPassword from "./components/Auth/ResetPassword"; // Import ResetPassword component
-import ScholarshipManager from './components/Scholarships/ScholarshipManager'; // Import ScholarshipManager component
+import ResetPassword from "./components/Auth/ResetPassword";
+import ScholarshipManager from './components/Scholarships/ScholarshipManager'; 
 import { SidebarProvider } from './contexts/SidebarContext';
 import { initializeAdminAuth } from './services/adminService';
+import InternshipManager from './components/Internships/InternshipManager';
 
 function App() {
   useEffect(() => {
@@ -47,6 +48,7 @@ function App() {
             <Routes>
               <Route index element={<StudentDashboard />} />
               <Route path="scholarships" element={<ScholarshipManager />} />
+              <Route path="internships" element={<InternshipManager />} />
               <Route path="profile" element={<ProfilePage />} />
               {/* Add other dashboard routes here */}
             </Routes>
@@ -93,7 +95,7 @@ function App() {
         
         {/* Temporary Redirects */}
         <Route path="/scholarships" element={<Navigate to="/dashboard" />} />
-        <Route path="/internships" element={<Navigate to="/dashboard" />} />
+        {/* <Route path="/internships" element={<Navigate to="/dashboard" />} /> */}
         <Route path="/events" element={<Navigate to="/dashboard" />} />
         <Route path="/notifications" element={<Navigate to="/dashboard" />} />
         <Route path="/report" element={<Navigate to="/dashboard" />} />

@@ -1,24 +1,35 @@
 const jwt = require('jsonwebtoken');
 const { pool } = require('../config/database');
 
-const auth = (req, res, next) => {
+module.exports = function(req, res, next) {
   try {
+    // Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    console.log('Auth token:', token); // Debug log
-
+    
+    // Check if no token
     if (!token) {
-      throw new Error('No token provided');
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No token, authorization denied' 
+      });
     }
-
+    
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Decoded user:', decoded); // Debug log
-
-    req.user = decoded;
+    
+    // Attach user to request
+    req.user = {
+      id: decoded.id,           // Keep this for existing code
+      userID: decoded.id,       // Add this to match the database field name
+      email: decoded.email,
+      name: decoded.name
+    };
+    
     next();
-  } catch (error) {
-    console.error('Auth error:', error); // Debug log
-    res.status(401).json({ error: 'Please authenticate' });
+  } catch (err) {
+    res.status(401).json({ 
+      success: false, 
+      message: 'Token is not valid' 
+    });
   }
 };
-
-module.exports = auth;

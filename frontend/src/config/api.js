@@ -11,7 +11,10 @@ export const endpoints = {
     login: '/api/auth/login',
     register: '/api/auth/register'
   },
-  internships: '/internships',
+  internships: {
+    base: '/api/internships',
+    applications: '/api/internships/applications'
+  },
   events: '/events',
   scholarships: '/scholarships',
   search: '/search',
