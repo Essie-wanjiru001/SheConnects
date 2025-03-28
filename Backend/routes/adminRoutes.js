@@ -6,7 +6,31 @@ const adminController = require('../controllers/adminController');
 const adminAuth = require('../middleware/adminAuth');
 const { auth } = require('../middleware/auth');
 const { pool } = require('../config/database');
+const multer = require('multer');
+const path = require('path');
 const router = express.Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: './uploads/conversations',
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
+});
 
 // Admin Registration
 router.post('/register', async (req, res) => {
@@ -115,26 +139,18 @@ router.get('/scholarships/:id/applications', adminAuth, async (req, res) => {
   try {
     const scholarshipId = req.params.id;
     
-    // Verify the scholarship exists
-    const [scholarships] = await pool.query(
-      'SELECT * FROM scholarships WHERE scholarshipID = ?', 
-      [scholarshipId]
-    );
-
-    if (scholarships.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'Scholarship not found'
-      });
-    }
-
-    // Get applications with user details
+    // Get applications with stats
     const [applications] = await pool.query(`
       SELECT 
         sa.*,
         u.name as user_name,
         u.email,
-        u.userID
+        u.userID,
+        (
+          SELECT COUNT(*) 
+          FROM scholarship_applications 
+          WHERE scholarshipID = ? AND status = sa.status
+        ) as status_count
       FROM scholarship_applications sa
       JOIN users u ON sa.userID = u.userID
       WHERE sa.scholarshipID = ?
@@ -146,20 +162,56 @@ router.get('/scholarships/:id/applications', adminAuth, async (req, res) => {
           WHEN 'REJECTED' THEN 4
         END,
         sa.last_updated DESC
-    `, [scholarshipId]);
+    `, [scholarshipId, scholarshipId]);
+
+    // Calculate stats
+    const stats = applications.reduce((acc, app) => {
+      if (!acc[app.status]) {
+        acc[app.status] = app.status_count;
+      }
+      return acc;
+    }, {});
 
     res.json({
       success: true,
-      scholarship: scholarships[0],
-      applications: applications || []
+      applications,
+      stats
     });
 
   } catch (error) {
     console.error('Error fetching scholarship applications:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to fetch applications'
+      error: error.message
     });
+  }
+});
+
+// Add new route for conversation with attachment
+router.post('/applications/:id/conversations', adminAuth, upload.single('attachment'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+    const attachment = req.file ? `/uploads/conversations/${req.file.filename}` : null;
+
+    const [result] = await pool.query(`
+      INSERT INTO conversations (application_id, message, attachment_url, is_admin, created_at)
+      VALUES (?, ?, ?, true, NOW())
+    `, [id, message, attachment]);
+
+    res.json({
+      success: true,
+      conversation: {
+        id: result.insertId,
+        message,
+        attachment_url: attachment,
+        is_admin: true,
+        created_at: new Date()
+      }
+    });
+  } catch (error) {
+    console.error('Error adding conversation:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
