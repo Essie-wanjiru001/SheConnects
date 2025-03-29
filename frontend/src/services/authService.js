@@ -1,11 +1,16 @@
 import api from '../config/api';
+import { StorageUtils } from '../utils/storage';
 
 export const login = async (credentials) => {
   try {
     const response = await api.post('/api/auth/login', credentials);
     if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // Set both cookie and localStorage
+      StorageUtils.setCookie('authToken', response.data.token);
+      StorageUtils.setLocalStorage('user', response.data.user);
+      
+      // Set token for API calls
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     }
     return response.data;
   } catch (error) {
@@ -43,8 +48,8 @@ export const register = async (userData) => {
 };
 
 export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  StorageUtils.clearAll();
+  api.defaults.headers.common['Authorization'] = '';
   window.location.href = '/login';
 };
 
@@ -65,8 +70,7 @@ export const getAuthToken = () => {
 };
 
 export const getCurrentUser = () => {
-  const userStr = localStorage.getItem('user');
-  return userStr ? JSON.parse(userStr) : null;
+  return StorageUtils.getLocalStorage('user');
 };
 
 export const resetPassword = async (data) => {
@@ -98,4 +102,9 @@ export const loginAdmin = async (credentials) => {
 
 export const getAdminToken = () => {
   return localStorage.getItem('adminToken');
+};
+
+export const isAuthenticated = () => {
+  const token = StorageUtils.getCookie('authToken');
+  return !!token;
 };
