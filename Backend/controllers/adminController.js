@@ -1,5 +1,5 @@
 const { pool } = require('../config/database');
-const Scholarship = require('../models/Scholarship');
+const Scholarship = require('../models/scholarship');
 const path = require('path');
 const fs = require('fs').promises;
 
