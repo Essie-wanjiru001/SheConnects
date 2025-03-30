@@ -33,8 +33,7 @@ const Nav = styled.nav`
 `;
 
 const NavLink = styled(Link)`
-  color: #ffffff; // Changed to white for better visibility
-  font-family: Inter, sans-serif;
+  color: #ffffff;
   font-size: 16px;
   font-weight: 500;
   text-decoration: none;
@@ -43,12 +42,12 @@ const NavLink = styled(Link)`
   position: relative;
 
   &:hover {
-    color: #9ad0c2; // Light mint color on hover
-    text-shadow: 0 0 8px rgba(154, 208, 194, 0.4); // Glow effect on hover
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
   }
 
   &.active {
-    color: #9ad0c2; // Light mint color for active state
+    color: #ffffff;
     font-weight: 600;
     
     &::after {
@@ -59,7 +58,7 @@ const NavLink = styled(Link)`
       transform: translateX(-50%);
       width: 70%;
       height: 2px;
-      background-color: #9ad0c2;
+      background-color: #ffffff;
       border-radius: 2px;
     }
   }

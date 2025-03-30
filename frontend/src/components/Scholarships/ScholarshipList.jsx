@@ -13,10 +13,8 @@ const ScholarshipList = () => {
       try {
         setLoading(true);
         const data = await getTopScholarships();
-        console.log('Scholarships data:', data);
-        setScholarships(data); // Use the array directly
+        setScholarships(data);
       } catch (error) {
-        console.error('Error fetching scholarships:', error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -46,28 +44,50 @@ const ScholarshipList = () => {
 };
 
 const ListContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  width: 100%;
+  display: flex;
+  overflow-x: auto;
+  gap: 25px;
+  padding: 20px;
+  margin: 0 -20px;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  & > * {
+    flex: 0 0 350px;
+  }
 `;
 
 const Loading = styled.div`
   text-align: center;
   padding: 20px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 const Error = styled.div`
   text-align: center;
   padding: 20px;
   color: #ff4444;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 `;
 
 const NoResults = styled.div`
   text-align: center;
   padding: 20px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 export default ScholarshipList;

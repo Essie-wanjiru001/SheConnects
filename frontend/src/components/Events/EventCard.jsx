@@ -29,26 +29,26 @@ const EventCard = ({ event }) => {
       </DateBadge>
 
       <Content>
-        <Title>{event.title}</Title>
+        <EventTitle>{event.title}</EventTitle>
         <Description>{event.description}</Description>
 
         <Details>
-          <DetailItem>
+          <DetailRow>
             <FaCalendarAlt />
             <span>{formatDate(event.event_date)}</span>
-          </DetailItem>
-          <DetailItem>
+          </DetailRow>
+          <DetailRow>
             <FaClock />
             <span>{formatTime(event.start_time)} - {formatTime(event.end_time)}</span>
-          </DetailItem>
-          <DetailItem>
+          </DetailRow>
+          <DetailRow>
             <FaMapMarkerAlt />
             <span>{event.location}</span>
-          </DetailItem>
-          <DetailItem>
+          </DetailRow>
+          <DetailRow>
             <FaTag />
             <span>{event.event_type}</span>
-          </DetailItem>
+          </DetailRow>
         </Details>
 
         <Tags>
@@ -75,8 +75,19 @@ const EventCard = ({ event }) => {
   );
 };
 
-const Card = styled(CardBase)`
-  // Additional event-specific styling
+const Card = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 const DateBadge = styled.div`
@@ -87,7 +98,6 @@ const DateBadge = styled.div`
   min-width: 80px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
 `;
 
 const Month = styled.div`
@@ -105,15 +115,16 @@ const Content = styled.div`
   padding: 20px;
 `;
 
-const Title = styled.h3`
-  color: #154C79;
-  margin: 0 0 10px;
-  font-size: 18px;
+const EventTitle = styled.h3`
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
 `;
 
 const Description = styled.p`
-  color: #666;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
   line-height: 1.5;
   margin: 0 0 15px;
 `;
@@ -125,14 +136,14 @@ const Details = styled.div`
   margin-bottom: 15px;
 `;
 
-const DetailItem = styled.div`
+const DetailRow = styled.div`
   display: flex;
   align-items: center;
-  color: #666;
-  font-size: 14px;
-
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 8px 0;
+  
   svg {
-    margin-right: 8px;
     color: #154C79;
   }
 `;
@@ -168,16 +179,18 @@ const Footer = styled.div`
 `;
 
 const RegisterButton = styled.a`
-  background: #154C79;
-  color: white;
+  display: inline-block;
   padding: 8px 24px;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #0d3251;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
   }
 `;
 

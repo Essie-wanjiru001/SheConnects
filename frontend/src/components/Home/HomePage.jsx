@@ -10,6 +10,7 @@ import { CommonWrapper, CommonHeader, ContentContainer } from '../../styles/Comm
 import ScholarshipList from '../Scholarships/ScholarshipList';
 import InternshipList from '../Internships/InternshipList';
 import EventList from '../Events/EventList';
+import HeroSection from './HeroSection';
 
 const HomePage = () => {
   const [searchResults, setSearchResults] = useState(null);
@@ -19,81 +20,81 @@ const HomePage = () => {
   };
 
   return (
-    <CommonWrapper>
-      <CommonHeader>
-        <Logo />
-        <NavigationMenu />
-      </CommonHeader>
-      
-      <SearchSection>
-        <SearchBar onSearchResults={handleSearchResults} />
-        <FilterSection />
-      </SearchSection>
+    <>
+      <HeroSection />
+      <CommonWrapper>
+        <CommonHeader>
+          <Logo />
+          <NavigationMenu />
+        </CommonHeader>
+        
+        <SearchSection>
+          <SearchBar onSearchResults={handleSearchResults} />
+          <FilterSection />
+        </SearchSection>
 
-      {searchResults ? (
-        <SearchResults>
-          <h2>Search Results</h2>
-          <ResultsGrid>
-            {searchResults.map((item) => (
-              <ResultCard key={`${item.type}-${item.id}`}>
-                <h3>{item.title}</h3>
-                <p>{item.description?.substring(0, 150)}...</p>
-                <TypeBadge type={item.type}>
-                  {item.type}
-                </TypeBadge>
-              </ResultCard>
-            ))}
-          </ResultsGrid>
-        </SearchResults>
-      ) : (
-        <MainContent>
-          <CategorySection>
-            <SectionHeader>
-              <SectionTitle>Scholarships</SectionTitle>
-              <ViewAllButton to="/login">View All</ViewAllButton>
-            </SectionHeader>
-            <RowContainer>
-              <ScholarshipList isHomePage={true} />
-            </RowContainer>
-          </CategorySection>
+        {searchResults ? (
+          <SearchResults>
+            <h2>Search Results</h2>
+            <ResultsGrid>
+              {searchResults.map((item) => (
+                <ResultCard key={`${item.type}-${item.id}`}>
+                  <h3>{item.title}</h3>
+                  <p>{item.description?.substring(0, 150)}...</p>
+                  <TypeBadge type={item.type}>
+                    {item.type}
+                  </TypeBadge>
+                </ResultCard>
+              ))}
+            </ResultsGrid>
+          </SearchResults>
+        ) : (
+          <MainContent>
+            <CategorySection>
+              <SectionHeader>
+                <SectionTitle>Scholarships</SectionTitle>
+                <ViewAllButton to="/login">View All</ViewAllButton>
+              </SectionHeader>
+              <RowContainer>
+                <ScholarshipList isHomePage={true} />
+              </RowContainer>
+            </CategorySection>
 
-          <CategorySection>
-            <SectionHeader>
-              <SectionTitle>Internships</SectionTitle>
-              <ViewAllButton to="/login">View All</ViewAllButton>
-            </SectionHeader>
-            <RowContainer>
-              <InternshipList isHomePage={true} />
-            </RowContainer>
-          </CategorySection>
+            <CategorySection>
+              <SectionHeader>
+                <SectionTitle>Internships</SectionTitle>
+                <ViewAllButton to="/login">View All</ViewAllButton>
+              </SectionHeader>
+              <RowContainer>
+                <InternshipList isHomePage={true} />
+              </RowContainer>
+            </CategorySection>
 
-          <CategorySection>
-            <SectionHeader>
-              <SectionTitle>Events</SectionTitle>
-              <ViewAllButton to="/login">View All</ViewAllButton>
-            </SectionHeader>
-            <RowContainer>
-              <EventList isHomePage={true} />
-            </RowContainer>
-          </CategorySection>
-        </MainContent>
-      )}
-      
-      <Footer />
-    </CommonWrapper>
+            <CategorySection>
+              <SectionHeader>
+                <SectionTitle>Events</SectionTitle>
+                <ViewAllButton to="/login">View All</ViewAllButton>
+              </SectionHeader>
+              <RowContainer>
+                <EventList isHomePage={true} />
+              </RowContainer>
+            </CategorySection>
+          </MainContent>
+        )}
+        
+        <Footer />
+      </CommonWrapper>
+    </>
   );
 };
 
 const SearchSection = styled.div`
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 2rem;
   margin-top: 2rem;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
+  border-radius: 10px;
 `;
 
 const MainContent = styled(ContentContainer)`
@@ -105,11 +106,10 @@ const MainContent = styled(ContentContainer)`
 
 const CategorySection = styled.section`
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 20px;
-  width: 100%;
-  margin-bottom: 2rem;
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const SectionHeader = styled.div`
@@ -120,7 +120,7 @@ const SectionHeader = styled.div`
 `;
 
 const ViewAllButton = styled(Link)`
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -129,7 +129,7 @@ const ViewAllButton = styled(Link)`
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
   }
 `;
 
@@ -182,10 +182,10 @@ const TypeBadge = styled.span`
   font-size: 12px;
   background-color: ${props => {
     switch(props.type) {
-      case 'scholarship': return '#4CAF50';
-      case 'internship': return '#2196F3';
-      case 'event': return '#FF9800';
-      default: return '#9E9E9E';
+      case 'scholarship': return '#1a2a6c';
+      case 'internship': return '#b21f1f';
+      case 'event': return '#4a1042';
+      default: return '#666';
     }
   }};
   color: white;

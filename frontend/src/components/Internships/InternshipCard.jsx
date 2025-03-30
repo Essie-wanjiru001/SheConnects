@@ -45,20 +45,19 @@ const InternshipCard = ({ internship }) => {
   );
 };
 
-const CardBase = styled.div`
-  background: white;
+const Card = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  color: white;
 
   &:hover {
     transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.2);
   }
-`;
-
-const Card = styled(CardBase)`
-  // Additional internship-specific styling
 `;
 
 const Header = styled.div`
@@ -70,7 +69,7 @@ const Header = styled.div`
 const CompanyLogo = styled.div`
   width: 48px;
   height: 48px;
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -84,16 +83,16 @@ const CompanyInfo = styled.div`
 `;
 
 const Title = styled.h3`
-  margin: 0;
   color: #154C79;
-  font-size: 18px;
+  font-size: 1.2rem;
   font-weight: 600;
+  margin-bottom: 8px;
 `;
 
 const Company = styled.p`
   margin: 4px 0 0;
-  color: #666;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
 `;
 
 const Content = styled.div`
@@ -101,10 +100,16 @@ const Content = styled.div`
 `;
 
 const Description = styled.p`
-  color: #444;
-  font-size: 14px;
-  line-height: 1.5;
-  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 12px 0;
+  max-height: 4.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const DetailsList = styled.div`
@@ -114,13 +119,14 @@ const DetailsList = styled.div`
 const DetailItem = styled.div`
   display: flex;
   align-items: center;
-  color: #666;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
   margin: 8px 0;
-
+  
   svg {
-    margin-right: 8px;
     color: #154C79;
+    margin-right: 8px;
+    font-size: 1.1rem;
   }
 `;
 
@@ -134,9 +140,11 @@ const Tags = styled.div`
 const Tag = styled.span`
   padding: 4px 12px;
   border-radius: 16px;
-  font-size: 12px;
-  background: ${props => props.isPaid ? '#e1f7e1' : '#f0f0f0'};
-  color: ${props => props.isPaid ? '#2e7d32' : '#666'};
+  font-size: 0.8rem;
+  background: ${props => props.isPaid ? 'rgba(46, 125, 50, 0.4)' : 'rgba(255, 255, 255, 0.2)'};
+  color: ${props => props.isPaid ? '#98fb98' : 'white'};
+  border: 1px solid ${props => props.isPaid ? 'rgba(46, 125, 50, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const Footer = styled.div`
@@ -147,16 +155,29 @@ const Footer = styled.div`
 const ApplyButton = styled.a`
   display: inline-block;
   padding: 8px 24px;
-  background-color: #154C79;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   text-decoration: none;
   border-radius: 6px;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: #0d3251;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
   }
+`;
+
+const IconWrapper = styled.div`
+  color: #154C79;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin-right: 12px;
 `;
 
 export default InternshipCard;

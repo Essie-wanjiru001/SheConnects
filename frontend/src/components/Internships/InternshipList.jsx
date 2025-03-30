@@ -81,34 +81,55 @@ const InternshipList = () => {
 
 const Section = styled.section`
   padding: 40px 20px;
-  background-color: #f5f7fa;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
   min-height: 60vh;
 `;
 
 const Title = styled.h2`
   text-align: center;
-  color: #1a2a6c;
+  color: white;
   margin-bottom: 40px;
   font-size: 2rem;
   font-weight: 600;
 `;
 
 const CardsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  display: flex;
+  overflow-x: auto;
   gap: 25px;
   padding: 20px;
+  margin: 0 -20px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
 `;
 
 const Card = styled.div`
-  background: white;
+  flex: 0 0 350px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  transition: transform 0.2s ease;
+  color: white;
+  transition: transform 0.3s ease;
 
   &:hover {
     transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
   }
 `;
 
@@ -139,9 +160,8 @@ const HeaderText = styled.div`
   }
 `;
 
-const CompanyName = styled.p`
-  margin: 5px 0 0;
-  color: #666;
+const CompanyName = styled.span`
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
 `;
 
@@ -155,20 +175,27 @@ const CardDetails = styled.div`
 const DetailItem = styled.div`
   display: flex;
   align-items: center;
-  color: #666;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
-
+  margin: 8px 0;
+  
   svg {
-    margin-right: 8px;
-    color: #1a2a6c;
+    color: rgba(255, 255, 255, 0.8);
   }
 `;
 
 const CardDescription = styled.p`
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 12px 0;
+  max-height: 4.8rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const CardFooter = styled.div`
@@ -179,21 +206,23 @@ const CardFooter = styled.div`
 `;
 
 const ApplyButton = styled.a`
-  background: #1a2a6c;
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 8px 20px;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border-radius: 20px;
   text-decoration: none;
   font-size: 0.9rem;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #2a3a7c;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
   }
 `;
 
 const Deadline = styled.span`
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.8rem;
 `;
 

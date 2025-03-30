@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const CommonWrapper = styled.div`
-  background: linear-gradient(135deg, rgb(170, 208, 223) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -21,7 +21,7 @@ export const CommonHeader = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, rgb(170, 208, 223) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
   z-index: 1000;
   
   &::after {
@@ -34,7 +34,7 @@ export const CommonHeader = styled.div`
     background: linear-gradient(
       to right,
       transparent,
-      rgba(21, 76, 121, 0.5),
+      rgba(255, 255, 255, 0.3),
       transparent
     );
   }
