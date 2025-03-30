@@ -109,3 +109,55 @@ exports.deleteEvent = async (req, res) => {
     });
   }
 };
+
+exports.updateAttendance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user.id;
+
+    const [result] = await pool.query(
+      `INSERT INTO event_attendance (event_id, user_id, status)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE status = ?`,
+      [id, userId, status, status]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Attendance status updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating attendance:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to update attendance status' 
+    });
+  }
+};
+
+exports.submitFeedback = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, feedback } = req.body;
+    const userId = req.user.id;
+
+    const [result] = await pool.query(
+      `INSERT INTO event_feedback (event_id, user_id, rating, feedback)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE rating = ?, feedback = ?`,
+      [id, userId, rating, feedback, rating, feedback]
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Feedback submitted successfully' 
+    });
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to submit feedback' 
+    });
+  }
+};

@@ -81,25 +81,33 @@ router.get('/top', async (req, res) => {
   }
 });
 
-// Get user's scholarship applications
+// Update the my-applications route to support status filtering
 router.get('/my-applications', auth, async (req, res) => {
   try {
-    const userID = req.user.id; // Using id from JWT token
+    const userID = req.user.id;
+    const status = req.query.status; // Optional status filter
 
-    // Get user's applications with scholarship details
-    const [applications] = await pool.query(`
+    let query = `
       SELECT 
         sa.*,
         s.*,
-        sa.status as application_status
+        sa.status as application_status,
+        sa.last_updated
       FROM scholarship_applications sa
       JOIN scholarships s ON sa.scholarshipID = s.scholarshipID
       WHERE sa.userID = ?
-      ORDER BY sa.last_updated DESC
-    `, [userID]);
+    `;
 
-    console.log('User applications found:', applications); // Debug log
+    const queryParams = [userID];
 
+    if (status && status !== 'ALL') {
+      query += ' AND sa.status = ?';
+      queryParams.push(status);
+    }
+
+    query += ' ORDER BY sa.last_updated DESC';
+
+    const [applications] = await pool.query(query, queryParams);
     res.json(applications);
   } catch (error) {
     console.error('Error fetching applications:', error);

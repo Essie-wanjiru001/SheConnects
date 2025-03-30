@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { getInternships, createOrUpdateApplication, getUserApplications } from '../../services/internshipService';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import InternshipCard from './InternshipCard'; 
+import InternshipCard from './InternshipCard';
 import Sidebar from '../Dashboard/Sidebar';
 import DashboardHeader from '../Dashboard/DashboardHeader';
 import { useSidebar } from '../../contexts/SidebarContext';
@@ -14,22 +14,24 @@ const InternshipManager = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { isSidebarOpen } = useSidebar();
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       setError(null);
-      const internshipsData = await getInternships();
-      setInternships(internshipsData);
       
-      try {
-        const applications = await getUserApplications();
-        setMyApplications(applications);
-      } catch (appError) {
-        console.error('Applications error:', appError);
-      }
+      // Fetch internships
+      const internshipsData = await getInternships();
+      setInternships(internshipsData || []);
+      
+      // Fetch user's applications
+      const applications = await getUserApplications();
+      setMyApplications(applications || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('Failed to load data');
+      setError(error.message || 'Failed to load data');
+      toast.error('Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -39,7 +41,7 @@ const InternshipManager = () => {
     fetchData();
   }, []);
 
-  const handleStatusChange = async (internshipId, status) => {
+  const handleStatusChange = async (internshipId, newStatus) => {
     try {
       setError(null);
       
@@ -47,19 +49,41 @@ const InternshipManager = () => {
         throw new Error('Invalid internship selected');
       }
       
-      console.log(`Updating status for internship ${internshipId} to ${status}`);
-      await createOrUpdateApplication(internshipId, status);
-      
-      // Refresh data
-      await fetchData();
-      
-      toast.success('Application updated successfully');
+      await createOrUpdateApplication(internshipId, newStatus);
+      await fetchData(); // Refresh data after successful update
+      toast.success('Application status updated successfully');
     } catch (error) {
       console.error('Application error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update application status';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      setError(error.message || 'Failed to update application status');
+      toast.error('Failed to update application status');
     }
+  };
+
+  // Filter out internships that user has already applied to
+  const availableInternships = internships.filter(internship => 
+    !myApplications.some(app => app.internship_id === internship.id)
+  );
+
+  const getStatusCounts = () => {
+    const counts = {
+      IN_PROGRESS: 0,
+      SUBMITTED: 0,
+      OFFER: 0,
+      NO_OFFER: 0
+    };
+    
+    myApplications.forEach(app => {
+      if (counts.hasOwnProperty(app.status)) {
+        counts[app.status]++;
+      }
+    });
+    
+    return counts;
+  };
+
+  const getFilteredApplications = () => {
+    if (statusFilter === 'ALL') return myApplications;
+    return myApplications.filter(app => app.status === statusFilter);
   };
 
   return (
@@ -75,46 +99,135 @@ const InternshipManager = () => {
                 <CloseButton onClick={() => setError(null)}>×</CloseButton>
               </ErrorMessage>
             )}
-            
-            <Header>
-              <h2>Available Internships</h2>
-            </Header>
 
-            {loading ? (
-              <LoadingSpinner>Loading internships...</LoadingSpinner>
-            ) : internships.length === 0 ? (
-              <EmptyState>No internships available at the moment.</EmptyState>
-            ) : (
-              <InternshipsGrid>
-                {internships.map(internship => {
-                  const existingApplication = myApplications.find(
-                    app => app.internship_id === internship.id
-                  );
+            <Section>
+              <SectionHeader>
+                <SectionTitle>My Applications</SectionTitle>
+                <FilterSection>
+                  <FilterLabel>Filter by Status:</FilterLabel>
+                  <FilterSelect 
+                    value={statusFilter} 
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <option value="ALL">
+                      All Applications ({myApplications.length})
+                    </option>
+                    <option value="IN_PROGRESS">
+                      In Progress ({getStatusCounts().IN_PROGRESS})
+                    </option>
+                    <option value="SUBMITTED">
+                      Submitted ({getStatusCounts().SUBMITTED})
+                    </option>
+                    <option value="OFFER">
+                      Offer Received ({getStatusCounts().OFFER})
+                    </option>
+                    <option value="NO_OFFER">
+                      No Offer ({getStatusCounts().NO_OFFER})
+                    </option>
+                  </FilterSelect>
+                </FilterSection>
+              </SectionHeader>
 
-                  return (
-                    <InternshipCardWrapper key={internship.id}>
-                      <InternshipCard internship={internship} />
-                      <ApplicationSection>
-                        {existingApplication ? (
-                          <StatusBadge status={existingApplication.status}>
-                            {existingApplication.status.replace('_', ' ')}
+              {loading ? (
+                <LoadingSpinner>Loading applications...</LoadingSpinner>
+              ) : getFilteredApplications().length === 0 ? (
+                <EmptyState>
+                  {statusFilter === 'ALL' 
+                    ? 'No applications yet' 
+                    : `No ${statusFilter.toLowerCase().replace('_', ' ')} applications`}
+                </EmptyState>
+              ) : (
+                <ApplicationsGrid>
+                  {getFilteredApplications().map(app => {
+                    const internship = internships.find(i => i.id === app.internship_id);
+                    if (!internship) return null;
+                    
+                    return (
+                      <ApplicationCard key={app.id}>
+                        <Header>
+                          <CompanyLogo>
+                            {internship.company?.[0] || '?'}
+                          </CompanyLogo>
+                          <HeaderContent>
+                            <Title>{internship.title}</Title>
+                            <Company>{internship.company}</Company>
+                          </HeaderContent>
+                        </Header>
+                        <Details>
+                          <DetailItem>Location: {internship.location}</DetailItem>
+                          <DetailItem>Type: {internship.type}</DetailItem>
+                          <DetailItem>Duration: {internship.duration}</DetailItem>
+                        </Details>
+                        <StatusSection>
+                          <StatusBadge status={app.status}>
+                            {app.status.replace('_', ' ')}
                           </StatusBadge>
-                        ) : (
-                          <StatusSelect
-                            onChange={(e) => handleStatusChange(internship.id, e.target.value)}
-                            defaultValue=""
-                          >
-                            <option value="">Apply Now</option>
-                            <option value="IN_PROGRESS">In Progress</option>
-                            <option value="SUBMITTED">Submitted</option>
-                          </StatusSelect>
-                        )}
-                      </ApplicationSection>
-                    </InternshipCardWrapper>
-                  );
-                })}
-              </InternshipsGrid>
-            )}
+                          {app.status === 'IN_PROGRESS' && (
+                            <ActionButtons>
+                              <StatusButton onClick={() => handleStatusChange(app.internship_id, 'SUBMITTED')}>
+                                Mark as Submitted
+                              </StatusButton>
+                              <DeleteButton onClick={() => handleStatusChange(app.internship_id, 'DELETE')}>
+                                Delete Application
+                              </DeleteButton>
+                            </ActionButtons>
+                          )}
+                          {app.status === 'SUBMITTED' && (
+                            <ActionButtons>
+                              <StatusButton success onClick={() => handleStatusChange(app.internship_id, 'OFFER')}>
+                                Received Offer
+                              </StatusButton>
+                              <StatusButton reject onClick={() => handleStatusChange(app.internship_id, 'NO_OFFER')}>
+                                No Offer
+                              </StatusButton>
+                            </ActionButtons>
+                          )}
+                        </StatusSection>
+                        <ApplicationDate>
+                          Applied: {new Date(app.created_at).toLocaleDateString()}
+                        </ApplicationDate>
+                      </ApplicationCard>
+                    );
+                  })}
+                </ApplicationsGrid>
+              )}
+            </Section>
+
+            <Section>
+              <SectionTitle>Available Internships</SectionTitle>
+              {loading ? (
+                <LoadingSpinner>Loading internships...</LoadingSpinner>
+              ) : availableInternships.length === 0 ? (
+                <EmptyState>No available internships at the moment</EmptyState>
+              ) : (
+                <InternshipsGrid>
+                  {availableInternships.map(internship => (
+                    <ApplicationCard key={internship.id}>
+                      <Header>
+                        <CompanyLogo>
+                          {internship.company?.[0] || '?'}
+                        </CompanyLogo>
+                        <HeaderContent>
+                          <Title>{internship.title}</Title>
+                          <Company>{internship.company}</Company>
+                        </HeaderContent>
+                      </Header>
+                      <Details>
+                        <DetailItem>Location: {internship.location}</DetailItem>
+                        <DetailItem>Type: {internship.type}</DetailItem>
+                        <DetailItem>Duration: {internship.duration}</DetailItem>
+                        <DetailItem>Stipend: {internship.stipend}</DetailItem>
+                      </Details>
+                      <ApplyButton
+                        onClick={() => handleStatusChange(internship.id, 'IN_PROGRESS')}
+                      >
+                        Apply Now
+                      </ApplyButton>
+                    </ApplicationCard>
+                  ))}
+                </InternshipsGrid>
+              )}
+            </Section>
           </Container>
         </ContentSection>
       </MainContent>
@@ -122,85 +235,68 @@ const InternshipManager = () => {
   );
 };
 
-// Updated MyApplications component to receive applications as props
-const MyApplications = ({ applications, internships }) => {
-  if (!applications || applications.length === 0) {
-    return (
-      <div className="text-center py-10 bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">My Applications</h2>
-        <p className="text-gray-600">You haven't applied to any internships yet.</p>
-      </div>
-    );
-  }
-
-  // Helper function to get status badge color
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-800';
-      case 'SUBMITTED': return 'bg-blue-100 text-blue-800';
-      case 'OFFER': return 'bg-green-100 text-green-800';
-      case 'NO_OFFER': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  return (
-    <ApplicationsWrapper>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {applications.map((app) => {
-            // Find the associated internship to get title and company
-            const internship = internships.find(i => i.id === app.internship_id) || {};
-            
-            return (
-              <tr key={app.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{internship.title || 'Unknown'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{internship.company || 'Unknown'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(app.status)}`}>
-                    {app.status.replace('_', ' ')}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(app.created_at).toLocaleDateString()}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </ApplicationsWrapper>
-  );
-};
-
 // Styled components
 const Container = styled.div`
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 24px;
+  width: 100%;
 `;
 
 const Section = styled.div`
-  margin-bottom: 3rem;
+  margin-bottom: 32px;
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+`;
+
+const FilterSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const FilterLabel = styled.label`
+  color: #666;
+  font-weight: 500;
+`;
+
+const FilterSelect = styled.select`
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  color: #333;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #999;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #1a2a6c;
+    box-shadow: 0 0 0 2px rgba(26, 42, 108, 0.1);
+  }
+
+  option {
+    padding: 8px;
+  }
 `;
 
 const SectionTitle = styled.h2`
-  color: #1a2a6c;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
+  color: #333;
+  font-size: 1.5rem;
+  margin: 0;
   font-weight: 600;
 `;
 
@@ -340,7 +436,8 @@ const Header = styled.div`
 const InternshipsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 24px;
+  padding: 20px 0;
 `;
 
 const LoadingSpinner = styled.div`
@@ -376,6 +473,129 @@ const CloseButton = styled.button`
   
   &:hover {
     opacity: 0.8;
+  }
+`;
+
+const ApplicationsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+`;
+
+const ApplicationCard = styled.div`
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: white;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+`;
+
+const CompanyLogo = styled.div`
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  font-size: 24px;
+  color: white;
+`;
+
+const HeaderContent = styled.div`
+  flex: 1;
+`;
+
+const Title = styled.h3`
+  color: white;
+  font-size: 1.2rem;
+  margin: 0 0 4px 0;
+`;
+
+const Company = styled.p`
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size: 0.9rem;
+`;
+
+const Details = styled.div`
+  margin: 16px 0;
+`;
+
+const DetailItem = styled.div`
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  margin: 4px 0;
+`;
+
+const ApplyButton = styled.button`
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+`;
+
+const StyledApplicationDate = styled.div`
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+`;
+
+const StatusSection = styled.div`
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+`;
+
+const StatusButton = styled.button`
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  background: ${props => 
+    props.success ? 'rgba(46, 213, 115, 0.2)' :
+    props.reject ? 'rgba(255, 71, 87, 0.2)' :
+    'rgba(255, 255, 255, 0.2)'};
+  color: white;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: ${props => 
+      props.success ? 'rgba(46, 213, 115, 0.3)' :
+      props.reject ? 'rgba(255, 71, 87, 0.3)' :
+      'rgba(255, 255, 255, 0.3)'};
+  }
+`;
+
+const DeleteButton = styled(StatusButton)`
+  background: rgba(255, 71, 87, 0.2);
+  
+  &:hover {
+    background: rgba(255, 71, 87, 0.3);
   }
 `;
 

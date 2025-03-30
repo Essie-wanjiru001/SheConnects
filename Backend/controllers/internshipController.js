@@ -138,29 +138,70 @@ exports.createApplication = async (req, res) => {
   }
 };
 
+// Add these methods to handle application updates
 exports.updateApplication = async (req, res) => {
   try {
     const { status } = req.body;
-    await pool.query(
-      'UPDATE internship_applications SET status = ? WHERE id = ? AND user_id = ?',
-      [status, req.params.id, req.user.userID]
+    const applicationId = req.params.id;
+    const userID = req.user.id;
+
+    // Validate status
+    const validStatuses = ['IN_PROGRESS', 'SUBMITTED', 'OFFER', 'NO_OFFER'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status value'
+      });
+    }
+
+    const [result] = await pool.query(
+      'UPDATE internship_applications SET status = ?, updated_at = NOW() WHERE id = ? AND userID = ?',
+      [status, applicationId, userID]
     );
-    res.json({ message: 'Application updated' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found or unauthorized'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Application updated successfully'
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update application'
+    });
   }
 };
 
 exports.deleteApplication = async (req, res) => {
   try {
-    await pool.query(
-      'DELETE FROM internship_applications WHERE id = ? AND user_id = ?',
-      [req.params.id, req.user.userID]
+    const [result] = await pool.query(
+      'DELETE FROM internship_applications WHERE id = ? AND userID = ?',
+      [req.params.id, req.user.id]
     );
-    res.json({ message: 'Application deleted' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found or unauthorized'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Application deleted successfully'
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete application'
+    });
   }
 };

@@ -11,12 +11,13 @@ export const endpoints = {
   },
   internships: {
     base: '/api/internships',
-    applications: '/api/internships/applications'
+    applications: '/api/internships/my-applications',
+    apply: '/api/internships/apply'
   },
-  events: '/events',
-  scholarships: '/scholarships',
-  search: '/search',
-  users: '/users'
+  events: '/api/events',
+  scholarships: '/api/scholarships',
+  search: '/api/search',
+  users: '/api/users'
 };
 
 console.log('API Base URL:', baseURL);

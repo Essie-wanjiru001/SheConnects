@@ -24,9 +24,8 @@ const HeaderWrapper = styled.header`
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   width: 100%;
-  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
   padding: 10px 0;
   position: fixed;
   top: 0;
@@ -34,6 +33,7 @@ const HeaderWrapper = styled.header`
   height: 70px;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 
 const MenuIcon = styled.img`
@@ -43,6 +43,7 @@ const MenuIcon = styled.img`
   height: 40px;
   cursor: pointer;
   transition: transform 0.3s ease;
+  filter: brightness(0) invert(1);
 
   &:hover {
     transform: scale(1.1);
@@ -52,14 +53,13 @@ const MenuIcon = styled.img`
 const Title = styled.h1`
   margin: 0;
   color: #ffffff;
-  font-family: Moul, -apple-system, Roboto, Helvetica, sans-serif;
-  font-size: 45px; // Slightly reduced
-  font-weight: 400;
+  font-size: 2rem;
+  font-weight: 600;
   text-align: center;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
 
   @media (max-width: 991px) {
-    font-size: 35px;
+    font-size: 1.8rem;
   }
 `;
 

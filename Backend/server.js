@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 const { pool, testConnection } = require('./config/database');
 const cron = require('node-cron');
 
-// Remove the describe block that was causing the issue
+
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
@@ -17,6 +17,7 @@ const internshipRoutes = require('./routes/internshipRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -93,6 +94,7 @@ app.use('/api/internships', internshipRoutes);
 app.use('/api/events', eventRoutes); 
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health Check Route
 app.get("/", (req, res) => {

@@ -24,6 +24,7 @@ import ScholarshipManager from './components/Scholarships/ScholarshipManager';
 import { SidebarProvider } from './contexts/SidebarContext';
 import { initializeAdminAuth } from './services/adminService';
 import InternshipManager from './components/Internships/InternshipManager';
+import EventManager from './components/Events/EventManager';
 import { SessionProvider } from './contexts/SessionContext';
 import CookieConsent from './components/CookieConsent/CookieConsent';
 
@@ -55,7 +56,7 @@ function App() {
                 <Route path="scholarships" element={<ScholarshipManager />} />
                 <Route path="internships" element={<InternshipManager />} />
                 <Route path="profile" element={<ProfilePage />} />
-                {/* Add other dashboard routes here */}
+                <Route path="events" element={<EventManager />} />
               </Routes>
             </SidebarProvider>
           } />
@@ -99,9 +100,6 @@ function App() {
           } />
           
           {/* Temporary Redirects */}
-          <Route path="/scholarships" element={<Navigate to="/dashboard" />} />
-          {/* <Route path="/internships" element={<Navigate to="/dashboard" />} /> */}
-          <Route path="/events" element={<Navigate to="/dashboard" />} />
           <Route path="/notifications" element={<Navigate to="/dashboard" />} />
           <Route path="/report" element={<Navigate to="/dashboard" />} />
           

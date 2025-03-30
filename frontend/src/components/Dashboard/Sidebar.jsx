@@ -70,7 +70,7 @@ const Sidebar = () => {
         <NavItem as={Link} to="/dashboard/internships" $active={isActive('/dashboard/internships')}>
           Internships
         </NavItem>
-        <NavItem as={Link} to="/events" $active={isActive('/events')}>
+        <NavItem as={Link} to="/dashboard/events" $active={isActive('/dashboard/events')}>
           Events
         </NavItem>
         <NavItem as={Link} to="/notifications" $active={isActive('/notifications')}>
@@ -79,7 +79,7 @@ const Sidebar = () => {
         <NavItem as={Link} to="/report" $active={isActive('/report')}>
           Report
         </NavItem>
-        <NavItem as={Link} to="/profile" $active={isActive('/profile')}>
+        <NavItem as={Link} to="/dashboard/profile" $active={isActive('/dashboard/profile')}>
           Profile
         </NavItem>
       </NavMenu>
@@ -89,7 +89,7 @@ const Sidebar = () => {
 };
 
 const SidebarWrapper = styled.aside`
-  background: linear-gradient(135deg, rgb(13, 57, 75) 0%, rgb(21, 76, 121) 100%);
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
   display: flex;
   flex-direction: column;
   padding: 30px 20px;
@@ -101,41 +101,48 @@ const SidebarWrapper = styled.aside`
   transform: translateX(${props => props.$isOpen ? '0' : '-100%'});
   transition: transform 0.3s ease;
   z-index: 1000;
-  overflow-y: scroll;
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none;  // IE and Edge
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   
   &::-webkit-scrollbar {
-    display: none; // Chrome, Safari, Opera
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
   }
 
   @media (max-width: 991px) {
     width: 100%;
-    position: fixed;
-    top: 70px;
-    transform: translateX(${props => props.isOpen ? '0' : '-100%'});
-    transition: transform 0.3s ease;
   }
 `;
 
-// Adjust ProfileContainer top margin
 const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 10px 0 30px; // Reduced top margin
+  margin: 10px 0 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
 `;
 
 const ProfileImageWrapper = styled.div`
-  width: 100px; // Reduced size
-  height: 100px; // Reduced size
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid rgba(13, 146, 118, 1);
+  border: 3px solid #FFD700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 `;
 
 const ProfileImage = styled.img`
@@ -146,54 +153,65 @@ const ProfileImage = styled.img`
 
 const ProfileName = styled.div`
   color: #ffffff;
-  align-self: center;
   margin-top: 15px;
-  font-size: 20px;
+  font-size: 1.2rem;
   font-weight: 500;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 `;
 
-// Update NavMenu top margin
 const NavMenu = styled.nav`
   display: flex;
   flex-direction: column;
-  margin-top: 20px; // Reduced margin
-  gap: 15px;
-  padding: 0 13px;
-  flex: 1; // Take up available space
+  margin-top: 20px;
+  gap: 10px;
 `;
 
 const NavItem = styled(Link)`
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 12px 20px;
+  font-size: 1rem;
   cursor: pointer;
   text-decoration: none;
   color: #ffffff;
   transition: all 0.3s ease;
-  border-radius: 50px;
-  background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent'};
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: ${props => props.$active ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
     transform: translateX(5px);
   }
+
+  svg {
+    font-size: 1.2rem;
+    color: ${props => props.$active ? '#FFD700' : 'rgba(255, 255, 255, 0.8)'};
+  }
 `;
 
 const LogoutButton = styled.button`
-  background-color: #ff4d4d; // Changed to red for logout
+  background-color: rgba(255, 59, 48, 0.1);
   color: #ffffff;
   padding: 12px 24px;
-  margin: 20px 20px; // Changed from auto margin
-  border: none;
-  border-radius: 50px;
+  margin: 20px;
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
   &:hover {
-    background-color: #ff3333;
+    background-color: rgba(255, 59, 48, 0.2);
     transform: translateY(-2px);
+  }
+
+  svg {
+    font-size: 1.1rem;
   }
 `;
 

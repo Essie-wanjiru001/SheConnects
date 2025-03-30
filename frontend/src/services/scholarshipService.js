@@ -169,3 +169,14 @@ export const deleteScholarshipApplication = async (applicationId) => {
     );
   }
 };
+
+export const getMyApplications = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/scholarships/my-applications`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch scholarship applications');
+  }
+};
