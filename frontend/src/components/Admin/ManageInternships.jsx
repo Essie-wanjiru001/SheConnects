@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import InternshipForm from './InternshipForm';
-import { getInternships, createInternship, updateInternship, deleteInternship } from '../../services/adminService';
+import InternshipStats from './InternshipStats';
+import { getInternships, createInternship, updateInternship, deleteInternship, getInternshipStats } from '../../services/adminService';
 
 const ManageInternships = () => {
   const [internships, setInternships] = useState([]);
@@ -9,6 +10,10 @@ const ManageInternships = () => {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingInternship, setEditingInternship] = useState(null);
+  const [showStats, setShowStats] = useState(false);
+  const [selectedInternship, setSelectedInternship] = useState(null);
+  const [applications, setApplications] = useState([]);
+  const [selectedStats, setSelectedStats] = useState(null);
 
   useEffect(() => {
     fetchInternships();
@@ -74,6 +79,18 @@ const ManageInternships = () => {
     }
   };
 
+  const handleViewStats = async (internship) => {
+    try {
+      const response = await getInternshipStats(internship.id);
+      console.log('Stats response:', response); // Debug log
+      setSelectedStats(response.stats);
+      setShowStats(true);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      alert('Failed to load internship statistics');
+    }
+  };
+
   if (loading) return <LoadingContainer>Loading internships...</LoadingContainer>;
   if (error) return <ErrorContainer>{error}</ErrorContainer>;
 
@@ -109,6 +126,9 @@ const ManageInternships = () => {
                     <ActionButton onClick={() => handleEdit(internship)}>
                       Edit
                     </ActionButton>
+                    <ActionButton onClick={() => handleViewStats(internship)}>
+                      View Stats
+                    </ActionButton>
                     <DeleteButton onClick={() => handleDelete(internship.id)}>
                       Delete
                     </DeleteButton>
@@ -128,6 +148,16 @@ const ManageInternships = () => {
             setEditingInternship(null);
           }}
           onSubmit={editingInternship ? handleUpdate : handleCreate}
+        />
+      )}
+
+      {showStats && selectedStats && (
+        <InternshipStats
+          stats={selectedStats}
+          onClose={() => {
+            setShowStats(false);
+            setSelectedStats(null);
+          }}
         />
       )}
     </Container>

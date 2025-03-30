@@ -228,6 +228,16 @@ export const getInternships = async () => {
   }
 };
 
+export const getInternshipStats = async (internshipId) => {
+  try {
+    const response = await api.get(`/api/admin/internships/${internshipId}/stats`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching internship stats:', error);
+    throw error;
+  }
+};
+
 // Event Management
 export const createEvent = async (data) => {
   try {

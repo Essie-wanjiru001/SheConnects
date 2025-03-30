@@ -221,6 +221,78 @@ router.post('/internships', adminAuth, adminController.createInternship);
 router.put('/internships/:id', adminAuth, adminController.updateInternship);
 router.delete('/internships/:id', adminAuth, adminController.deleteInternship);
 
+router.get('/internships/:id/applications', adminAuth, async (req, res) => {
+  try {
+    const [applications] = await pool.query(`
+      SELECT 
+        ia.*,
+        u.name as user_name,
+        u.email as user_email
+      FROM internship_applications ia
+      JOIN users u ON ia.userID = u.userID
+      WHERE ia.internship_id = ?
+      ORDER BY ia.created_at DESC
+    `, [req.params.id]);
+
+    res.json({
+      success: true,
+      applications
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch internship applications'
+    });
+  }
+});
+
+// Update the internship stats route
+router.get('/internships/:id/stats', adminAuth, async (req, res) => {
+  try {
+    const [applications] = await pool.query(`
+      SELECT 
+        ia.*,
+        u.name as user_name,
+        u.email as user_email,
+        i.title as internship_title,
+        i.company
+      FROM internship_applications ia
+      JOIN users u ON ia.userID = u.userID 
+      JOIN internships i ON ia.internship_id = i.id
+      WHERE ia.internship_id = ?
+      ORDER BY ia.created_at DESC
+    `, [req.params.id]);
+
+    // Group applications by status
+    const stats = {
+      total: applications.length,
+      IN_PROGRESS: 0,
+      SUBMITTED: 0, 
+      OFFER: 0,
+      NO_OFFER: 0,
+      applications: applications
+    };
+
+    applications.forEach(app => {
+      if (stats.hasOwnProperty(app.status)) {
+        stats[app.status]++;
+      }
+    });
+
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Error fetching internship stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch internship statistics'
+    });
+  }
+});
+
 // Event routes
 router.get('/events', adminAuth, adminController.getEvents);
 router.post('/events', adminAuth, adminController.createEvent);
