@@ -18,7 +18,7 @@ function LoginForm() {
       ...prevState,
       [id]: value
     }));
-    setError(""); // Clear error when user types
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -28,12 +28,7 @@ function LoginForm() {
 
     try {
       const response = await login(formData);
-      console.log('Login successful:', response);
-      
-      // Store the token
       localStorage.setItem('token', response.token);
-      
-      // Redirect to dashboard
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid credentials');
@@ -48,37 +43,37 @@ function LoginForm() {
 
   return (
     <FormContainer>
+      <Title>Welcome Back</Title>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       <Form onSubmit={handleSubmit}>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        <InputField>
-          <label htmlFor="email" className="visually-hidden">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            placeholder="email" 
-            aria-label="Email"
+        <FormField>
+          <Input
+            type="email"
+            id="email"
+            placeholder="Email Address"
             value={formData.email}
             onChange={handleChange}
             disabled={isLoading}
             required
           />
-        </InputField>
-        <InputField>
-          <label htmlFor="password" className="visually-hidden">Password</label>
-          <input 
-            type="password" 
-            id="password" 
-            placeholder="password" 
-            aria-label="Password"
+        </FormField>
+
+        <FormField>
+          <Input
+            type="password"
+            id="password"
+            placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             disabled={isLoading}
             required
           />
-        </InputField>
-        <StyledLink to="/reset-password">
-          <ForgotPassword>forgot password?</ForgotPassword>
-        </StyledLink>
+        </FormField>
+
+        <ForgotPasswordLink to="/reset-password">
+          Forgot Password?
+        </ForgotPasswordLink>
+
         <ButtonGroup>
           <SubmitButton type="submit" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
@@ -87,150 +82,140 @@ function LoginForm() {
             Cancel
           </CancelButton>
         </ButtonGroup>
-        <SignUpPrompt>
-          <NoAccountText>No account yet? </NoAccountText>
-          <StyledLink to="/register">Sign Up</StyledLink>
-        </SignUpPrompt>
+
+        <SignUpSection>
+          Don't have an account?{' '}
+          <SignUpLink to="/register">Sign Up</SignUpLink>
+        </SignUpSection>
       </Form>
     </FormContainer>
   );
 }
 
-const FormWrapper = styled.div`
-  border-radius: 30px;
-  background-color: rgba(255, 246, 233, 1);
-  display: flex;
-  width: 604px;
-  max-width: 100%;
-  flex-direction: column;
-  align-items: start;
-  padding: 124px 80px 47px;
-  font: 500 32px Inter, sans-serif;
-  @media (max-width: 991px) {
-    padding: 100px 20px 0;
-  }
-`;
-
-const InputField = styled.div`
-  margin-bottom: 34px;
-  width: 100%;
-
-  input {
-    border-radius: 30px;
-    background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    width: 100%;
-    color: #010101;
-    font-weight: 400;
-    padding: 23px 27px;
-    border: none;
-    font-size: 32px;
-
-    &::placeholder {
-      color: #010101;
-    }
-  }
-`;
-
-const ForgotPassword = styled.div`
-  color: #000101;
-  font-size: 24px;
-  align-self: end;
-  margin-top: 34px;
-  cursor: pointer;
-  @media (max-width: 991px) {
-    margin-right: 4px;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  margin-top: 37px;
-  width: 100%;
-  gap: 20px;
-  color: #010101;
-  white-space: nowrap;
-  justify-content: space-between;
-  @media (max-width: 991px) {
-    white-space: initial;
-  }
-`;
-
-const Button = styled.button`
-  border-radius: 30px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 6px 42px;
-  font-size: 32px;
-  border: none;
-  cursor: pointer;
-  @media (max-width: 991px) {
-    white-space: initial;
-    padding: 10px 20px;
-  }
-`;
-
-const SubmitButton = styled(Button)`
-  background-color: rgba(64, 162, 227, 1);
-  color: #010101;
-`;
-
-const CancelButton = styled(Button)`
-  background-color: rgba(255, 246, 233, 1);
-  color: #010101;
-`;
-
-const SignUpPrompt = styled.div`
-  align-self: center;
-  display: flex;
-  margin-top: 81px;
-  width: 284px;
-  max-width: 100%;
-  gap: 13px;
-  font-size: 24px;
-  @media (max-width: 991px) {
-    margin-top: 40px;
-  }
-`;
-
-const NoAccountText = styled.div`
-  color: #010101;
-  flex-grow: 1;
-`;
-
-const StyledLink = styled(Link)`
-  color: #000101;
-  text-decoration: none;
-  cursor: pointer;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  color: #ff0033;
-  background-color: #ffe6e6;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-size: 14px;
-`;
-
 const FormContainer = styled.div`
-  background-color: #fff6e9;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px; // Reduced from original size
-  margin-top: 40px; // Added spacing from header
+  max-width: 500px;
+  width: 90%;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+`;
+
+const Title = styled.h1`
+  color: white;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px; // Slightly reduced gap
+  gap: 1.5rem;
+`;
+
+const FormField = styled.div`
+  position: relative;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const Button = styled.button`
+  flex: 1;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+`;
+
+const SubmitButton = styled(Button)`
+  background: #154C79;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #1a5c8f;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+`;
+
+const CancelButton = styled(Button)`
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const ForgotPasswordLink = styled(Link)`
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: 0.9rem;
+  text-align: right;
+  display: block;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const SignUpSection = styled.div`
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+`;
+
+const SignUpLink = styled(Link)`
+  color: #FFD700;
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 export default LoginForm;

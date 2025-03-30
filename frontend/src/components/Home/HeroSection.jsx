@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { FaArrowRight, FaSearch, FaGraduationCap, FaHandsHelping } from 'react-icons/fa';
+import { FaSearch, FaGraduationCap, FaHandsHelping } from 'react-icons/fa';
+import SearchBar from '../Search/SearchBar';
+import FilterSection from '../Search/FilterSection';
 
-const HeroSection = () => {
+const HeroSection = ({ onSearchResults }) => {
   return (
     <HeroContainer>
       <HeroContent>
@@ -12,28 +13,35 @@ const HeroSection = () => {
           <GradientSpan> Endless Possibilities</GradientSpan>
         </MainTitle>
         <Subtitle>
-          Discover opportunities, find mentorship, and connect with a community that supports your journey. 
-          From scholarships to career guidance, we're here to help you thrive in every aspect of life.
+          Empowering women to reach new heights through access to opportunities, 
+          mentorship, and a supportive community. Join thousands of women who are 
+          breaking barriers and achieving their dreams.
         </Subtitle>
-        <FeatureGrid>
-          <FeatureItem>
-            <FaSearch color="#154C79" size={24} />
-            <FeatureText>Find Opportunities</FeatureText>
-          </FeatureItem>
-          <FeatureItem>
-            <FaGraduationCap color="#154C79" size={24} />
-            <FeatureText>Get Guidance</FeatureText>
-          </FeatureItem>
-          <FeatureItem>
-            <FaHandsHelping color="#154C79" size={24} />
-            <FeatureText>Connect & Grow</FeatureText>
-          </FeatureItem>
-        </FeatureGrid>
-        <CallToAction>
-          <CTAButton to="/register">
-            Start Your Journey <FaArrowRight style={{ marginLeft: '8px' }} />
-          </CTAButton>
-        </CallToAction>
+        
+        <SearchBox>
+          <SearchBar onSearchResults={onSearchResults} />
+        </SearchBox>
+        <FilterBox>
+          <FilterSection />
+        </FilterBox>
+
+        <StatsGrid>
+          <StatItem>
+            <FaGraduationCap size={24} />
+            <StatNumber>500+</StatNumber>
+            <StatLabel>Scholarships</StatLabel>
+          </StatItem>
+          <StatItem>
+            <FaSearch size={24} />
+            <StatNumber>300+</StatNumber>
+            <StatLabel>Internships</StatLabel>
+          </StatItem>
+          <StatItem>
+            <FaHandsHelping size={24} />
+            <StatNumber>100+</StatNumber>
+            <StatLabel>Events</StatLabel>
+          </StatItem>
+        </StatsGrid>
       </HeroContent>
       <WaveShape />
     </HeroContainer>
@@ -86,55 +94,47 @@ const Subtitle = styled.p`
   line-height: 1.6;
 `;
 
-const FeatureGrid = styled.div`
+const SearchBox = styled.div`
+  max-width: 900px;
+  width: 90%;
+  margin: 0 auto 1rem;
+`;
+
+const FilterBox = styled.div`
+  max-width: 900px;
+  width: 90%;
+  margin: 0 auto 2rem;
+`;
+
+const StatsGrid = styled.div`
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin: 2rem 0;
+  gap: 4rem;
+  margin-top: 3rem;
   flex-wrap: wrap;
 `;
 
-const FeatureItem = styled.div`
+const StatItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
-  border-radius: 12px;
-  min-width: 200px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-`;
-
-const FeatureText = styled.span`
   color: white;
-  font-size: 1.1rem;
-  font-weight: 500;
-`;
 
-const CallToAction = styled.div`
-  margin-top: 3rem;
-`;
-
-const CTAButton = styled(Link)`
-  background: #154C79;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 30px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-decoration: none;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(21, 76, 121, 0.4);
-    color: white;
+  svg {
+    color: #154C79;
   }
+`;
+
+const StatNumber = styled.div`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFD700;
+`;
+
+const StatLabel = styled.div`
+  font-size: 1rem;
+  opacity: 0.9;
 `;
 
 const WaveShape = styled.div`

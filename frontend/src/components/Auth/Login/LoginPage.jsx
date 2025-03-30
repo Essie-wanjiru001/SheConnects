@@ -3,33 +3,33 @@ import styled from "styled-components";
 import Logo from "../../Home/Logo";
 import NavigationMenu from "../../Home/NavigationMenu";
 import LoginForm from "./LoginForm";
-import { CommonWrapper, CommonHeader, ContentContainer } from '../../../styles/CommonStyles';
-import { login } from '../../../services/authService';
+import { CommonHeader } from '../../../styles/CommonStyles';
 
 const LoginPage = () => {
   return (
-    <LoginWrapper>
+    <PageContainer>
       <CommonHeader>
         <Logo />
         <NavigationMenu />
       </CommonHeader>
-      <ContentContainer>
+      <MainContent>
         <LoginForm />
-      </ContentContainer>
-    </LoginWrapper>
+      </MainContent>
+    </PageContainer>
   );
 };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await login({ email, password });
-    // ...rest of your code...
-  } catch (error) {
-    setError('Invalid credentials');
-  }
-};
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+`;
 
-const LoginWrapper = styled(CommonWrapper)``;
+const MainContent = styled.main`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  margin-top: 70px;
+`;
 
 export default LoginPage;

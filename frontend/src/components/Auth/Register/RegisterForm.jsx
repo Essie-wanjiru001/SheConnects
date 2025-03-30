@@ -14,6 +14,7 @@ const RegisterForm = () => {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -76,215 +77,344 @@ const RegisterForm = () => {
     navigate('/');
   };
 
-  return (
-    <FormWrapper>
-      <FormContainer>
-        <Form onSubmit={handleSubmit}>
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          <InputGroup>
-            <Input
-              type="text"
-              id="name"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-              disabled={isLoading}
-              required
-            />
-            <Input
-              type="email"
-              id="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={isLoading}
-              required
-            />
-            <Input
-              type="password"
-              id="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={isLoading}
-              required
-            />
-            <Input
-              type="password"
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              disabled={isLoading}
-              required
-            />
-          </InputGroup>
-          
-          <PrivacySection>
-            <PrivacyPolicy />
-            <CheckboxContainer>
-              <Checkbox
-                type="checkbox"
-                id="privacyPolicy"
-                checked={formData.acceptedPrivacyPolicy}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  acceptedPrivacyPolicy: e.target.checked
-                })}
-              />
-              <CheckboxLabel htmlFor="privacyPolicy">
-                I have read and agree to the Privacy Policy
-              </CheckboxLabel>
-            </CheckboxContainer>
-          </PrivacySection>
+  const handleAcceptPrivacyPolicy = () => {
+    setFormData({
+      ...formData,
+      acceptedPrivacyPolicy: true
+    });
+    setShowPrivacyPolicy(false);
+  };
 
-          <ButtonGroup>
-            <SubmitButton type="submit" disabled={isLoading || !formData.acceptedPrivacyPolicy}>
-              {isLoading ? 'Registering...' : 'Submit'}
-            </SubmitButton>
-            <CancelButton type="button" onClick={handleCancel} disabled={isLoading}>
-              Cancel
-            </CancelButton>
-          </ButtonGroup>
-        </Form>
-      </FormContainer>
-    </FormWrapper>
+  return (
+    <FormContainer>
+      <Title>Create Account</Title>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <Form onSubmit={handleSubmit}>
+        <FormField>
+          <Input
+            type="text"
+            id="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </FormField>
+
+        <FormField>
+          <Input
+            type="email"
+            id="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </FormField>
+
+        <FormField>
+          <Input
+            type="password"
+            id="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </FormField>
+
+        <FormField>
+          <Input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            disabled={isLoading}
+            required
+          />
+        </FormField>
+        
+        <PrivacySection>
+          <CheckboxContainer>
+            <Checkbox
+              type="checkbox"
+              id="privacyPolicy"
+              checked={formData.acceptedPrivacyPolicy}
+              onChange={(e) => setFormData({
+                ...formData,
+                acceptedPrivacyPolicy: e.target.checked
+              })}
+            />
+            <CheckboxLabel htmlFor="privacyPolicy">
+              I have read and agree to the{' '}
+              <PrivacyLink onClick={() => setShowPrivacyPolicy(true)}>
+                Privacy Policy
+              </PrivacyLink>
+            </CheckboxLabel>
+          </CheckboxContainer>
+        </PrivacySection>
+
+        <ButtonGroup>
+          <SubmitButton type="submit" disabled={isLoading || !formData.acceptedPrivacyPolicy}>
+            {isLoading ? 'Creating Account...' : 'Create Account'}
+          </SubmitButton>
+          <CancelButton type="button" onClick={handleCancel} disabled={isLoading}>
+            Cancel
+          </CancelButton>
+        </ButtonGroup>
+      </Form>
+
+      {showPrivacyPolicy && (
+        <Modal>
+          <ModalContent>
+            <CloseButton onClick={() => setShowPrivacyPolicy(false)}>×</CloseButton>
+            <PrivacyPolicy />
+            <ModalActions>
+              <AcceptButton onClick={handleAcceptPrivacyPolicy}>
+                Accept & Continue Registration
+              </AcceptButton>
+              <DeclineButton onClick={() => setShowPrivacyPolicy(false)}>
+                Close
+              </DeclineButton>
+            </ModalActions>
+          </ModalContent>
+        </Modal>
+      )}
+    </FormContainer>
   );
 };
 
-const FormWrapper = styled.div`
-  border-radius: 30px;
-  background-color: #fff6e9;
-  display: flex;
-  margin-left: 23px;
-  width: 1007px;
-  max-width: 100%;
-  flex-direction: column;
-  align-items: center;
-  color: #010101;
-  white-space: nowrap;
-  justify-content: center;
-  padding: 78px 80px;
-  font: 400 32px Inter, sans-serif;
-  @media (max-width: 991px) {
-    white-space: initial;
-    padding: 0 20px;
-  }
+const FormContainer = styled.div`
+  max-width: 500px;
+  width: 90%;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 `;
 
-const FormContainer = styled.div`
-  background-color: #fff6e9;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px; // Reduced from original size
-  margin-top: 40px; // Added spacing from header
+const Title = styled.h1`
+  color: white;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px; // Slightly reduced gap
+  gap: 1.5rem;
 `;
 
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0 23px 0 9px;
-  @media (max-width: 991px) {
-    padding-right: 20px;
-    white-space: initial;
-  }
-`;
-
-const Label = styled.label`
-  &.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
+const FormField = styled.div`
+  position: relative;
 `;
 
 const Input = styled.input`
-  border-radius: 30px;
-  background-color: #ffffff;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 8px 27px;
-  margin-bottom: 45px;
   width: 100%;
-  @media (max-width: 991px) {
-    padding: 8px 20px;
-    margin-bottom: 20px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
   }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  margin-top: 41px;
-  align-items: start;
-  gap: 20px;
-  font-weight: 500;
-  justify-content: space-between;
-  @media (max-width: 991px) {
-    margin: 40px 10px 0 0;
-  }
+  gap: 1rem;
+  margin-top: 1rem;
 `;
 
 const Button = styled.button`
-  border-radius: 30px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 6px 32px;
-  font-size: 32px;
+  flex: 1;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  @media (max-width: 991px) {
-    padding: 6px 20px;
-  }
+  transition: all 0.3s ease;
+  border: none;
 `;
 
 const SubmitButton = styled(Button)`
-  background-color: #40a2e3;
-  color: #010101;
+  background: #154C79;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #1a5c8f;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 `;
 
 const CancelButton = styled(Button)`
-  background-color: #fff6e9;
-  color: #010101;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 const ErrorMessage = styled.div`
-  color: #ff0033;
-  background-color: #ffe6e6;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
   text-align: center;
-  font-size: 14px;
 `;
 
 const PrivacySection = styled.div`
-  margin: 20px 0;
+  margin-top: 1rem;
 `;
 
 const CheckboxContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 10px;
+  gap: 0.5rem;
 `;
 
 const Checkbox = styled.input`
-  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 `;
 
 const CheckboxLabel = styled.label`
-  font-size: 14px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+`;
+
+const PrivacyLink = styled.span`
+  color: #FFD700;
+  text-decoration: underline;
+  cursor: pointer;
+  
+  &:hover {
+    color: #FFA500;
+  }
+`;
+
+const Modal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+  padding: 2rem;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  justify-content: flex-end;
+`;
+
+const AcceptButton = styled.button`
+  background: #154C79;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #1a5c8f;
+    transform: translateY(-2px);
+  }
+`;
+
+const DeclineButton = styled.button`
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 `;
 
 export default RegisterForm;

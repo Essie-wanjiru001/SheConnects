@@ -20,82 +20,50 @@ const HomePage = () => {
   };
 
   return (
-    <>
-      <HeroSection />
-      <CommonWrapper>
-        <CommonHeader>
-          <Logo />
-          <NavigationMenu />
-        </CommonHeader>
-        
-        <SearchSection>
-          <SearchBar onSearchResults={handleSearchResults} />
-          <FilterSection />
-        </SearchSection>
+    <CommonWrapper>
+      <CommonHeader>
+        <Logo />
+        <NavigationMenu />
+      </CommonHeader>
 
-        {searchResults ? (
-          <SearchResults>
-            <h2>Search Results</h2>
-            <ResultsGrid>
-              {searchResults.map((item) => (
-                <ResultCard key={`${item.type}-${item.id}`}>
-                  <h3>{item.title}</h3>
-                  <p>{item.description?.substring(0, 150)}...</p>
-                  <TypeBadge type={item.type}>
-                    {item.type}
-                  </TypeBadge>
-                </ResultCard>
-              ))}
-            </ResultsGrid>
-          </SearchResults>
-        ) : (
-          <MainContent>
-            <CategorySection>
-              <SectionHeader>
-                <SectionTitle>Scholarships</SectionTitle>
-                <ViewAllButton to="/login">View All</ViewAllButton>
-              </SectionHeader>
-              <RowContainer>
-                <ScholarshipList isHomePage={true} />
-              </RowContainer>
-            </CategorySection>
+      <HeroSection onSearchResults={handleSearchResults} />
+      
+      {searchResults ? (
+        <ContentContainer>
+          <SearchResults results={searchResults} />
+        </ContentContainer>
+      ) : (
+        <ContentContainer>
+          <CategorySection>
+            <SectionHeader>
+              <h2>Featured Scholarships</h2>
+              <ViewAllButton to="/scholarships">View All</ViewAllButton>
+            </SectionHeader>
+            <ScholarshipList />
+          </CategorySection>
 
-            <CategorySection>
-              <SectionHeader>
-                <SectionTitle>Internships</SectionTitle>
-                <ViewAllButton to="/login">View All</ViewAllButton>
-              </SectionHeader>
-              <RowContainer>
-                <InternshipList isHomePage={true} />
-              </RowContainer>
-            </CategorySection>
+          <CategorySection>
+            <SectionHeader>
+              <h2>Latest Internships</h2>
+              <ViewAllButton to="/internships">View All</ViewAllButton>
+            </SectionHeader>
+            <InternshipList />
+          </CategorySection>
 
-            <CategorySection>
-              <SectionHeader>
-                <SectionTitle>Events</SectionTitle>
-                <ViewAllButton to="/login">View All</ViewAllButton>
-              </SectionHeader>
-              <RowContainer>
-                <EventList isHomePage={true} />
-              </RowContainer>
-            </CategorySection>
-          </MainContent>
-        )}
-        
-        <Footer />
-      </CommonWrapper>
-    </>
+          <CategorySection>
+            <SectionHeader>
+              <h2>Upcoming Events</h2>
+              <ViewAllButton to="/events">View All</ViewAllButton>
+            </SectionHeader>
+            <EventList />
+          </CategorySection>
+        </ContentContainer>
+      )}
+      
+      <Footer />
+    </CommonWrapper>
   );
 };
-
-const SearchSection = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 2rem;
-  margin-top: 2rem;
-  border-radius: 10px;
-`;
 
 const MainContent = styled(ContentContainer)`
   display: flex;

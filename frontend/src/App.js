@@ -5,6 +5,7 @@ import HomePage from "./components/Home/HomePage";
 import About from "./components/About/About";
 import GlobalStyles from "./styles/GlobalStyles";
 import UserGuide from "./components/Guide/UserGuide";
+import ResourcesAndSupport from "./components/Guide/ResourcesAndSupport"; // Updated import
 import LoginPage from "./components/Auth/Login/LoginPage";
 import RegisterPage from "./components/Auth/Register/RegisterPage";
 import StudentDashboard from "./components/Dashboard/DashboardHome";
@@ -41,6 +42,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<About />} />
           <Route path="/user-guide" element={<UserGuide />} />
+          <Route path="/resources" element={<ResourcesAndSupport />} /> {/* Added new route */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/reset-password" element={<ResetPassword />} /> 

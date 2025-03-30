@@ -3,22 +3,33 @@ import styled from "styled-components";
 import Logo from "../../Home/Logo";
 import NavigationMenu from "../../Home/NavigationMenu";
 import RegisterForm from "./RegisterForm";
-import { CommonWrapper, CommonHeader, ContentContainer } from '../../../styles/CommonStyles';
+import { CommonHeader } from '../../../styles/CommonStyles';
 
 const RegisterPage = () => {
   return (
-    <RegisterWrapper>
+    <PageContainer>
       <CommonHeader>
         <Logo />
         <NavigationMenu />
       </CommonHeader>
-      <ContentContainer>
+      <MainContent>
         <RegisterForm />
-      </ContentContainer>
-    </RegisterWrapper>
+      </MainContent>
+    </PageContainer>
   );
 };
 
-const RegisterWrapper = styled(CommonWrapper)``;
+const PageContainer = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+`;
+
+const MainContent = styled.main`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  margin-top: 70px;
+`;
 
 export default RegisterPage;
