@@ -6,7 +6,7 @@ import Sidebar from '../Dashboard/Sidebar';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { submitFeedback } from '../../services/feedbackService';
 
-const ReportForm = () => {
+const ReportForm = (props) => {
   const { isSidebarOpen } = useSidebar();
   const [formData, setFormData] = useState({
     category: '',
@@ -32,15 +32,24 @@ const ReportForm = () => {
         formDataToSend.append('attachment', formData.attachments);
       }
 
-      await submitFeedback(formDataToSend);
-      toast.success('Thank you for your feedback!');
-      setFormData({
-        category: '',
-        title: '',
-        description: '',
-        priority: 'medium',
-        attachments: null
-      });
+      const response = await submitFeedback(formDataToSend);
+      
+      if (response.success) {
+        toast.success('Thank you for your feedback!');
+        setFormData({
+          category: '',
+          title: '',
+          description: '',
+          priority: 'medium',
+          attachments: null
+        });
+        
+        if (props.onSubmitSuccess) {
+          props.onSubmitSuccess();
+        }
+      } else {
+        toast.error(response.message || 'Failed to submit feedback');
+      }
     } catch (error) {
       console.error('Error submitting feedback:', error);
       toast.error('Failed to submit feedback. Please try again.');

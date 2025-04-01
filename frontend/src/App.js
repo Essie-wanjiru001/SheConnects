@@ -29,7 +29,9 @@ import { SessionProvider } from './contexts/SessionContext';
 import CookieConsent from './components/CookieConsent/CookieConsent';
 import ForumPage from './components/Forum/ForumPage';
 import { UserProvider } from './contexts/UserContext';
-import ReportForm from "./components/Report/ReportForm";
+
+import ReportsPage from "./components/Report/ReportsPage"; 
+import ManageReports from "./components/Admin/ManageReports";
 
 function App() {
   useEffect(() => {
@@ -62,11 +64,11 @@ function App() {
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="events" element={<EventManager />} />
                   <Route path="forum" element={<ForumPage />} />
-                  <Route path="report" element={<ReportForm />} />
+                  <Route path="report" element={<ReportsPage />} />
                 </Routes>
               </SidebarProvider>
             } />
-            
+                        
             {/* Admin Routes - All wrapped with AdminLayout */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={
@@ -104,7 +106,13 @@ function App() {
                 </AdminLayout>
               </ProtectedAdminRoute>
             } />
-            
+            <Route path="/admin/reports" element={
+              <ProtectedAdminRoute>
+                <AdminLayout>
+                  <ManageReports />
+                </AdminLayout>
+              </ProtectedAdminRoute>
+            } />
             
             {/* 404 Route */}
             <Route path="*" element={<Navigate to="/" />} />

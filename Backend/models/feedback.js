@@ -6,8 +6,8 @@ class Feedback {
       const { category, title, description, priority, attachmentPath } = data;
       const [result] = await pool.query(
         `INSERT INTO platform_feedback 
-         (user_id, category, title, description, priority, attachment_path, created_at) 
-         VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+         (user_id, category, title, description, priority, attachment_path, status, created_at) 
+         VALUES (?, ?, ?, ?, ?, ?, 'PENDING', NOW())`,
         [userId, category, title, description, priority, attachmentPath]
       );
       return result.insertId;
@@ -35,7 +35,14 @@ class Feedback {
   static async getByUserId(userId) {
     try {
       const [feedbacks] = await pool.query(
-        `SELECT * FROM platform_feedback WHERE user_id = ? ORDER BY created_at DESC`,
+        `SELECT 
+          f.id, f.category, f.title, f.description, f.priority,
+          f.attachment_path, f.status, f.created_at,
+          u.name as user_name
+         FROM platform_feedback f
+         JOIN users u ON f.user_id = u.userID
+         WHERE f.user_id = ? 
+         ORDER BY f.created_at DESC`,
         [userId]
       );
       return feedbacks;
