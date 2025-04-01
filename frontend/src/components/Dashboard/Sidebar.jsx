@@ -73,8 +73,8 @@ const Sidebar = () => {
         <NavItem as={Link} to="/dashboard/events" $active={isActive('/dashboard/events')}>
           Events
         </NavItem>
-        <NavItem as={Link} to="/notifications" $active={isActive('/notifications')}>
-          Notifications
+        <NavItem as={Link} to="/dashboard/forum" $active={isActive('/dashboard/forum')}>
+          Community Forum
         </NavItem>
         <NavItem as={Link} to="/report" $active={isActive('/report')}>
           Report

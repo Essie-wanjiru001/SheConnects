@@ -264,16 +264,21 @@ router.get('/internships/:id/stats', adminAuth, async (req, res) => {
       ORDER BY ia.created_at DESC
     `, [req.params.id]);
 
-    // Group applications by status
+    // Initialize stats object
     const stats = {
       total: applications.length,
       IN_PROGRESS: 0,
       SUBMITTED: 0, 
       OFFER: 0,
       NO_OFFER: 0,
-      applications: applications
+      applications: applications.map(app => ({
+        ...app,
+        created_at: new Date(app.created_at).toISOString(),
+        updated_at: app.updated_at ? new Date(app.updated_at).toISOString() : null
+      }))
     };
 
+    // Count applications by status
     applications.forEach(app => {
       if (stats.hasOwnProperty(app.status)) {
         stats[app.status]++;

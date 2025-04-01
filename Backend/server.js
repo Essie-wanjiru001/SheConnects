@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const { pool, testConnection } = require('./config/database');
 const cron = require('node-cron');
 
-
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require('./routes/adminRoutes');
@@ -18,6 +17,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const forumRoutes = require('./routes/forumRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -29,7 +29,7 @@ app.use(helmet());
 const allowedOrigins = [
   'https://sheconnects-teal.vercel.app',
   'https://sheconnects-esther-wanjirus-projects.vercel.app',
-  'https://sheconnects-essie-wanjiru001-esther-wanjirus-projects.vercel.app',
+  'https://sheconnects-aq0nrsxvj-esther-wanjirus-projects.vercel.app', 
   'https://sheconnects-api.onrender.com',
   'http://localhost:3000' 
 ];
@@ -95,6 +95,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/forum', forumRoutes);
 
 // Health Check Route
 app.get("/", (req, res) => {
