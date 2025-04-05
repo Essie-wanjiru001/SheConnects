@@ -12,6 +12,9 @@ const adminController = {
       const [[scholarshipCount]] = await pool.query('SELECT COUNT(*) as count FROM scholarships');
       const [[internshipCount]] = await pool.query('SELECT COUNT(*) as count FROM internships');
       const [[eventCount]] = await pool.query('SELECT COUNT(*) as count FROM events');
+      const [[pendingReports]] = await pool.query(
+        'SELECT COUNT(*) as count FROM platform_feedback WHERE status = "PENDING"'
+      );
 
       res.json({
         success: true,
@@ -19,7 +22,8 @@ const adminController = {
           totalUsers: userCount.count,
           activeScholarships: scholarshipCount.count,
           activeInternships: internshipCount.count,
-          upcomingEvents: eventCount.count
+          upcomingEvents: eventCount.count,
+          pendingReports: pendingReports.count
         }
       });
     } catch (error) {

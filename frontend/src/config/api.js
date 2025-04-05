@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { StorageUtils } from '../utils/storage';
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000'; // Ensure this is 8000
 
 // Add endpoints configuration
 export const endpoints = {
@@ -13,6 +13,12 @@ export const endpoints = {
     base: '/api/internships',
     applications: '/api/internships/my-applications',
     apply: '/api/internships/apply'
+  },
+  feedback: {
+    base: '/api/feedback',
+    myFeedbacks: '/api/feedback/my-feedbacks',
+    all: '/api/feedback/all',
+    status: (id) => `/api/feedback/${id}/status`
   },
   events: '/api/events',
   scholarships: '/api/scholarships',

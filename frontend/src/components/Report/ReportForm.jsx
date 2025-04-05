@@ -5,8 +5,10 @@ import DashboardHeader from '../Dashboard/DashboardHeader';
 import Sidebar from '../Dashboard/Sidebar';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { submitFeedback } from '../../services/feedbackService';
+import { useUser } from '../../contexts/UserContext';
 
-const ReportForm = () => {
+const ReportForm = ({ onSubmitSuccess }) => {
+  const { currentUser } = useUser();
   const { isSidebarOpen } = useSidebar();
   const [formData, setFormData] = useState({
     category: '',
@@ -19,10 +21,17 @@ const ReportForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!currentUser) {
+      toast.error('Please log in to submit a report');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const formDataToSend = new FormData();
+      formDataToSend.append('userId', currentUser.id);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('title', formData.title);
       formDataToSend.append('description', formData.description);
@@ -41,6 +50,11 @@ const ReportForm = () => {
         priority: 'medium',
         attachments: null
       });
+      
+      // Call the success callback
+      if (onSubmitSuccess) {
+        onSubmitSuccess();
+      }
     } catch (error) {
       console.error('Error submitting feedback:', error);
       toast.error('Failed to submit feedback. Please try again.');
