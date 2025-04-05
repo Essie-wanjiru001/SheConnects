@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const forumRoutes = require('./routes/forumRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -83,6 +84,9 @@ app.use('/api/', limiter);
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
+
 // Add before routes
 app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
 
@@ -96,6 +100,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/forum', forumRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Health Check Route
 app.get("/", (req, res) => {

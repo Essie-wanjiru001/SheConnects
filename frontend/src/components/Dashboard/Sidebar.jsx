@@ -6,6 +6,7 @@ import defaultProfileImage from "../../assets/images/profile 1.jpg";
 import { logout } from "../../services/authService";
 import ScholarshipList from '../Scholarships/ScholarshipList';
 import { useSidebar } from "../../contexts/SidebarContext";
+import { FaFlag } from 'react-icons/fa';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -76,8 +77,8 @@ const Sidebar = () => {
         <NavItem as={Link} to="/dashboard/forum" $active={isActive('/dashboard/forum')}>
           Community Forum
         </NavItem>
-        <NavItem as={Link} to="/report" $active={isActive('/report')}>
-          Report
+        <NavItem as={Link} to="/dashboard/report" $active={isActive('/dashboard/report')}>
+          <FaFlag /> Report
         </NavItem>
         <NavItem as={Link} to="/dashboard/profile" $active={isActive('/dashboard/profile')}>
           Profile
