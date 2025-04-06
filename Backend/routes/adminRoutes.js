@@ -64,61 +64,60 @@ router.post('/register', async (req, res) => {
 
 // Admin Login
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        
-        // Find admin user
-        const admin = await User.findByEmail(email);
-        // Add debug log
-        console.log('Admin found:', admin);
-        if (!admin || !admin.is_admin) {
-            return res.status(401).json({
-                success: false,
-                error: 'Invalid admin credentials'
-            });
-        }
+  try {
+    const { email, password } = req.body;
+    
+    // Find admin user
+    const [users] = await pool.query(
+      'SELECT * FROM users WHERE email = ? AND is_admin = 1',
+      [email]
+    );
 
-        // Verify password
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                error: 'Invalid admin credentials'
-            });
-        }
-
-        // Generate token with admin flag
-        const token = jwt.sign(
-            {
-                id: admin.id,
-                email: admin.email,
-                is_admin: true
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-        
-        // Add debug log
-        console.log('Generated token:', token);
-
-        // Send response
-        res.json({
-            success: true,
-            message: 'Admin login successful',
-            token,
-            admin: {
-                id: admin.id,
-                name: admin.name,
-                email: admin.email
-            }
-        });
-    } catch (error) {
-        console.error('Admin Login Error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Internal server error'
-        });
+    if (users.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid admin credentials'
+      });
     }
+
+    const user = users[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid admin credentials'
+      });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      {
+        id: user.userID,
+        email: user.email,
+        is_admin: true
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.userID,
+        name: user.name,
+        email: user.email,
+        is_admin: true
+      }
+    });
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
 });
 
 // Admin routes

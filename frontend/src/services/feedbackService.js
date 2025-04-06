@@ -34,12 +34,22 @@ export const getAllFeedbacks = async () => {
   }
 };
 
-export const updateFeedbackStatus = async (feedbackId, status) => {
+export const updateFeedbackStatus = async (feedbackId, newStatus) => {
   try {
-    const response = await api.patch(`${endpoints.feedback.base}/${feedbackId}/status`, { status });
-    return response.data;
+    const response = await api.patch(`${endpoints.feedback.base}/${feedbackId}/status`, {
+      status: newStatus
+    });
+    
+    if (response.data.success) {
+      return { success: true, feedback: response.data.feedback };
+    } else {
+      throw new Error(response.data.message || 'Failed to update status');
+    }
   } catch (error) {
     console.error('Error updating feedback status:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update feedback status');
+    return { 
+      success: false, 
+      error: error.response?.data?.message || error.message || 'Failed to update status'
+    };
   }
 };

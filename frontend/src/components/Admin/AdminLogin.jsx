@@ -22,7 +22,7 @@ const AdminLogin = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.response?.data?.message || 'Login failed');
+      setError(error.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }

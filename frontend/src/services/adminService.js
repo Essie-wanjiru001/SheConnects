@@ -62,21 +62,22 @@ export const updateUser = async (userId, userData) => {
 // Admin authentication
 export const loginAdmin = async (credentials) => {
   try {
-    const response = await api.post('/api/auth/admin/login', credentials);
+    const response = await api.post('/api/admin/login', credentials); // Changed from '/api/auth/admin/login'
     
     if (response.data.success && response.data.token) {
       // Store token
       localStorage.setItem('adminToken', response.data.token);
-      localStorage.setItem('adminUser', JSON.stringify(response.data.user));
       
       // Set default auth header
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      
+      return response.data;
+    } else {
+      throw new Error(response.data.message || 'Login failed');
     }
-    
-    return response.data;
   } catch (error) {
     console.error('Admin login error:', error);
-    throw error.response?.data || { message: 'Login failed' };
+    throw error.response?.data || error;
   }
 };
 

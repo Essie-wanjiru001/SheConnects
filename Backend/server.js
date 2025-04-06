@@ -42,7 +42,6 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Remove trailing slashes and compare
     const cleanOrigin = origin.replace(/\/$/, '');
     if (allowedOrigins.includes(cleanOrigin)) {
       callback(null, true);
@@ -52,7 +51,7 @@ const corsOptions = {
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], 
   allowedHeaders: [
     'Content-Type', 
     'Authorization',
@@ -69,15 +68,15 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // General Middleware
-app.use(morgan('dev')); // Request logging
-app.use(compression()); // Response compression
+app.use(morgan('dev'));
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100 
 });
 app.use('/api/', limiter);
 

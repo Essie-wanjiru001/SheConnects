@@ -4,10 +4,38 @@ import { toast } from 'react-toastify';
 import { getAllFeedbacks, updateFeedbackStatus } from '../../services/feedbackService';
 import { FaCheckCircle, FaClock, FaSpinner, FaDownload } from 'react-icons/fa';
 
+
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'RESOLVED':
+      return '#4caf50';
+    case 'IN_PROGRESS':
+      return '#2196f3';
+    case 'PENDING':
+      return '#ff9800';
+    default:
+      return '#ff9800'; 
+  }
+};
+
+const getStatusPriority = (status) => {
+  switch (status) {
+    case 'PENDING':
+      return 1;
+    case 'IN_PROGRESS':
+      return 2;
+    case 'RESOLVED':
+      return 3;
+    default:
+      return 4;
+  }
+};
+
 const ManageReports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('PENDING');
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
 
   useEffect(() => {
     fetchReports();
@@ -29,64 +57,80 @@ const ManageReports = () => {
 
   const handleStatusUpdate = async (reportId, newStatus) => {
     try {
+      setLoading(true);
       const response = await updateFeedbackStatus(reportId, newStatus);
+      
       if (response.success) {
-        setReports(reports.map(report => 
-          report.id === reportId ? { ...report, status: newStatus } : report
-        ));
-        toast.success('Report status updated successfully');
+        setReports(prevReports => 
+          prevReports.map(report => 
+            report.id === reportId 
+              ? { ...report, status: newStatus }
+              : report
+          )
+        );
+        toast.success('Status updated successfully');
+      } else {
+        throw new Error(response.error || 'Failed to update status');
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Failed to update report status');
+      toast.error(error.message || 'Failed to update status');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'RESOLVED': return '#4caf50';
-      case 'IN_PROGRESS': return '#2196f3';
-      case 'PENDING': return '#ff9800';
-      default: return '#ff9800';
-    }
-  };
+  const filteredReports = reports
+    .filter(report => {
+      const matchesStatus = selectedStatus === 'ALL' || report.status === selectedStatus;
+      const matchesCategory = selectedCategory === 'ALL' || 
+                            report.category.toUpperCase() === selectedCategory;
+      return matchesStatus && matchesCategory;
+    })
+    .sort((a, b) => {
+      // Sort by status priority
+      return getStatusPriority(a.status) - getStatusPriority(b.status);
+    });
 
-  const filteredReports = reports.filter(report => {
-    if (filter === 'all') return true;
-    return report.status === filter;
-  });
+  const getReportsByStatus = (status) => {
+    return reports.filter(report => 
+      (status === 'ALL' || report.status === status) &&
+      (selectedCategory === 'ALL' || report.category.toUpperCase() === selectedCategory)
+    );
+  };
 
   return (
     <Container>
       <Header>
         <h1>Manage Reports</h1>
-        <FilterContainer>
-          <FilterButton 
-            $active={filter === 'all'} 
-            onClick={() => setFilter('all')}
-          >
-            All
-          </FilterButton>
-          <FilterButton 
-            $active={filter === 'PENDING'} 
-            onClick={() => setFilter('PENDING')}
-          >
-            Pending
-          </FilterButton>
-          <FilterButton 
-            $active={filter === 'IN_PROGRESS'} 
-            onClick={() => setFilter('IN_PROGRESS')}
-          >
-            In Progress
-          </FilterButton>
-          <FilterButton 
-            $active={filter === 'RESOLVED'} 
-            onClick={() => setFilter('RESOLVED')}
-          >
-            Resolved
-          </FilterButton>
-        </FilterContainer>
       </Header>
+      
+      <FilterContainer>
+        <StatusSection>
+          {['ALL', 'PENDING', 'IN_PROGRESS', 'RESOLVED'].map(status => (
+            <StatusFilter key={status}>
+              <StatusButton
+                $isActive={selectedStatus === status}
+                onClick={() => setSelectedStatus(status)}
+              >
+                {status.replace('_', ' ')} ({getReportsByStatus(status).length})
+              </StatusButton>
+              {selectedStatus === status && (
+                <CategoryDropdown
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  <option value="ALL">All Categories</option>
+                  <option value="BUG">Bug Reports</option>
+                  <option value="FEATURE">Feature Requests</option>
+                  <option value="IMPROVEMENT">Improvements</option>
+                  <option value="OTHER">Other</option>
+                </CategoryDropdown>
+              )}
+            </StatusFilter>
+          ))}
+        </StatusSection>
+      </FilterContainer>
 
       {loading ? (
         <LoadingMessage>
@@ -97,9 +141,14 @@ const ManageReports = () => {
           {filteredReports.map((report) => (
             <ReportCard key={report.id}>
               <ReportHeader>
-                <CategoryBadge>{report.category}</CategoryBadge>
+                <CategoryBadge $category={report.category}>
+                  {report.category === 'bug' ? 'Bug Report' :
+                   report.category === 'feature' ? 'Feature Request' :
+                   report.category === 'improvement' ? 'Improvement' :
+                   'Other'}
+                </CategoryBadge>
                 <StatusBadge $status={report.status}>
-                  {report.status || 'PENDING'}
+                  {report.status.replace('_', ' ')}
                 </StatusBadge>
               </ReportHeader>
 
@@ -165,6 +214,7 @@ const ManageReports = () => {
 
 const Container = styled.div`
   padding: 2rem;
+  background: #f5f5f5;
 `;
 
 const Header = styled.div`
@@ -174,7 +224,7 @@ const Header = styled.div`
   margin-bottom: 2rem;
 
   h1 {
-    color: white;
+    color: #333;
     margin: 0;
   }
 `;
@@ -182,19 +232,85 @@ const Header = styled.div`
 const FilterContainer = styled.div`
   display: flex;
   gap: 1rem;
+  margin: 1rem 0 2rem;
+  flex-wrap: wrap;
+`;
+
+const StatusSection = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
+
+const StatusFilter = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const StatusButton = styled.button`
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: ${props => props.$isActive ? '#1565c0' : 'white'};
+  color: ${props => props.$isActive ? 'white' : '#333'};
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  min-width: 150px;
+
+  &:hover {
+    background: ${props => props.$isActive ? '#1976d2' : '#f5f5f5'};
+    border-color: ${props => props.$isActive ? '#1976d2' : '#ccc'};
+  }
+`;
+
+const CategoryDropdown = styled.select`
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    border-color: #1565c0;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #1565c0;
+    box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.1);
+  }
 `;
 
 const FilterButton = styled.button`
   padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: ${props => props.$active ? '#FFD700' : 'rgba(255, 255, 255, 0.1)'};
-  color: ${props => props.$active ? '#1a2a6c' : 'white'};
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: ${props => props.$isActive ? '#1565c0' : 'white'};
+  color: ${props => props.$isActive ? 'white' : '#333'};
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.$active ? '#FFC700' : 'rgba(255, 255, 255, 0.2)'};
+    background: ${props => props.$isActive ? '#1976d2' : '#f5f5f5'};
+    border-color: ${props => props.$isActive ? '#1976d2' : '#ccc'};
+  }
+`;
+
+const FilterSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 `;
 
@@ -205,11 +321,11 @@ const ReportsGrid = styled.div`
 `;
 
 const ReportCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background: white;
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
 `;
 
 const ReportHeader = styled.div`
@@ -220,26 +336,72 @@ const ReportHeader = styled.div`
 `;
 
 const CategoryBadge = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: ${props => {
+    switch (props.$category?.toLowerCase()) {
+      case 'bug':
+        return '#ffebee';
+      case 'feature':
+        return '#e8f5e9';
+      case 'improvement':
+        return '#e3f2fd';
+      default:
+        return '#f3e5f5';
+    }
+  }};
+  color: ${props => {
+    switch (props.$category?.toLowerCase()) {
+      case 'bug':
+        return '#c62828';
+      case 'feature':
+        return '#2e7d32';
+      case 'improvement':
+        return '#1565c0';
+      default:
+        return '#6a1b9a';
+    }
+  }};
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.85rem;
 `;
 
 const StatusBadge = styled.span`
-  color: ${props => getStatusColor(props.$status)};
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  background-color: ${props => {
+    switch (props.$status) {
+      case 'RESOLVED':
+        return '#e8f5e9';
+      case 'IN_PROGRESS':
+        return '#e3f2fd';
+      case 'PENDING':
+        return '#fff3e0';
+      default:
+        return '#fff3e0';
+    }
+  }};
+  color: ${props => {
+    switch (props.$status) {
+      case 'RESOLVED':
+        return '#2e7d32';
+      case 'IN_PROGRESS':
+        return '#1565c0';
+      case 'PENDING':
+        return '#e65100';
+      default:
+        return '#e65100';
+    }
+  }};
   font-weight: 600;
-  font-size: 0.85rem;
 `;
 
 const ReportTitle = styled.h3`
-  color: white;
+  color: #333;
   margin: 0 0 0.5rem 0;
 `;
 
 const ReportDescription = styled.p`
-  color: rgba(255, 255, 255, 0.8);
+  color: #555;
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
@@ -250,12 +412,16 @@ const ReportMeta = styled.div`
   align-items: center;
   margin-bottom: 1rem;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #666;
 `;
 
-const UserInfo = styled.span``;
+const UserInfo = styled.span`
+  color: #555;
+`;
 
-const DateInfo = styled.span``;
+const DateInfo = styled.span`
+  color: #666;
+`;
 
 const ActionButtons = styled.div`
   display: flex;
@@ -283,7 +449,7 @@ const AttachmentLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #FFD700;
+  color: #1565c0;
   text-decoration: none;
   font-size: 0.9rem;
 
@@ -293,7 +459,7 @@ const AttachmentLink = styled.a`
 `;
 
 const LoadingMessage = styled.div`
-  color: white;
+  color: #666;
   text-align: center;
   padding: 2rem;
 
@@ -311,7 +477,7 @@ const LoadingMessage = styled.div`
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem;
-  color: white;
+  color: #666;
 `;
 
 export default ManageReports;

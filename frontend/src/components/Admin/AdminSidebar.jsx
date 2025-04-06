@@ -1,7 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaUsers, FaGraduationCap, FaBriefcase, FaCalendarAlt, FaTachometerAlt, FaSignOutAlt } from 'react-icons/fa';
+import { 
+  FaUsers, 
+  FaGraduationCap, 
+  FaBriefcase, 
+  FaCalendarAlt, 
+  FaTachometerAlt, 
+  FaSignOutAlt,
+  FaFlag 
+} from 'react-icons/fa';
 import { logoutAdmin } from '../../services/adminService';
 
 const AdminSidebar = () => {
@@ -50,6 +58,13 @@ const AdminSidebar = () => {
           <NavLink to="/admin/events">
             <FaCalendarAlt />
             <span>Events</span>
+          </NavLink>
+        </NavItem>
+
+        <NavItem $isActive={location.pathname === '/admin/reports'}>
+          <NavLink to="/admin/reports">
+            <FaFlag />
+            <span>Reports</span>
           </NavLink>
         </NavItem>
 

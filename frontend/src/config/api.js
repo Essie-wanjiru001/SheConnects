@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { StorageUtils } from '../utils/storage';
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000'; // Ensure this is 8000
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Add endpoints configuration
 export const endpoints = {
@@ -36,19 +36,14 @@ const api = axios.create({
   }
 });
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    const token = StorageUtils.getCookie('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Add auth interceptor
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
 // Response interceptor
 api.interceptors.response.use(
