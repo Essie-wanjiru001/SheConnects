@@ -1,6 +1,6 @@
 # SheConnects
 
-![SheConnects Logo](frontend/public/logo192.png)
+![SheConnects Logo](src/assets/images/logo.png)
 
 A comprehensive platform dedicated to empowering women in Kenya through educational and career opportunities. SheConnects bridges the gap between talented women and transformative opportunities in education and professional development.
 
@@ -86,7 +86,6 @@ SheConnects serves as a centralized platform that:
 - MySQL >= 8.0
 - Git
 - npm or yarn
-- Visual Studio Code (recommended)
 
 ### Development Environment Setup
 
@@ -101,15 +100,6 @@ https://dev.mysql.com/downloads/mysql/
 # Install Git from
 https://git-scm.com/downloads
 ```
-
-2. **IDE Setup**
-- Install Visual Studio Code
-- Recommended Extensions:
-  - ESLint
-  - Prettier
-  - GitLens
-  - MySQL
-  - React Developer Tools
 
 ### Installation Steps
 
@@ -147,18 +137,20 @@ NODE_ENV=development
 # Start MySQL service
 net start mysql80
 
-# Log into MySQL
+# Log into MySQL and create database
 mysql -u root -p
-
-# In MySQL console
 CREATE DATABASE sheconnects;
-USE sheconnects;
-source database/schema.sql;
 
-# Create database user
-CREATE USER 'sheconnects_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON sheconnects.* TO 'sheconnects_user'@'localhost';
-FLUSH PRIVILEGES;
+# Import database schema (from Backend directory)
+mysql -u root -p sheconnects < database/schema.sql
+```
+
+Configure your database credentials in `.env`:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=sheconnects
 ```
 
 4. **Frontend Setup**
@@ -170,7 +162,7 @@ cd ../frontend
 npm install
 
 # Create environment file
-copy .env.example .env   # Windows
+copy .env.example .env
 ```
 
 Configure frontend `.env`:
@@ -222,16 +214,6 @@ net start mysql80
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
 ```
 
-2. **Port Conflicts**
-```bash
-# Check ports in use
-netstat -ano | findstr :3000
-netstat -ano | findstr :8000
-
-# Kill process using port
-taskkill /PID <process_id> /F
-```
-
 3. **Node Module Issues**
 ```bash
 # Clear npm cache
@@ -269,7 +251,6 @@ SheConnects/
 - Home: Overview and featured opportunities
 - Scholarships: Browse and apply for scholarships
 - Careers: Explore internships and jobs
-- Resources: Access learning materials
 - Events: View upcoming networking opportunities
 
 ### Key Features Usage
