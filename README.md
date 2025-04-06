@@ -11,7 +11,6 @@ A comprehensive platform dedicated to empowering women in Kenya through educatio
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [User Guide](#user-guide)
-- [API Documentation](#api-documentation)
 - [Contributing](#contributing)
 - [Deployment](#deployment)
 - [Contact](#contact)
@@ -91,13 +90,13 @@ SheConnects serves as a centralized platform that:
 
 1. **Install Required Software**
 ```bash
-# Install Node.js from
+// Install Node.js from
 https://nodejs.org/
 
-# Install MySQL from
+// Install MySQL from
 https://dev.mysql.com/downloads/mysql/
 
-# Install Git from
+// Install Git from
 https://git-scm.com/downloads
 ```
 
@@ -277,7 +276,7 @@ SheConnects/
 
 ## Deployment
 
-- Frontend: [SheConnects Web App](https://sheconnects-esther-wanjirus-projects.vercel.app/)
+- Frontend: [SheConnects Web App](https://sheconnects-teal.vercel.app/)
 - Backend API: [SheConnects API](https://sheconnects-api.onrender.com)
 
 ## Contact
