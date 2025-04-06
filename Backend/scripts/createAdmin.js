@@ -37,8 +37,7 @@ async function createOrUpdateAdmin(email, password, name) {
   }
 }
 
-// Usage:
-// node createAdmin.js "admin@sheconnects.com" "securePassword123" "Admin User"
+
 const [email, password, name] = process.argv.slice(2);
 
 if (!email || !password || !name) {

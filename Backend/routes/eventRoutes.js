@@ -14,7 +14,7 @@ router.post('/', adminAuth, eventController.createEvent);
 router.put('/:id', adminAuth, eventController.updateEvent);
 router.delete('/:id', adminAuth, eventController.deleteEvent);
 
-// Add these new routes to your existing eventRoutes.js
+// User routes
 router.post('/:id/attendance', auth, eventController.updateAttendance);
 router.post('/:id/feedback', auth, eventController.submitFeedback);
 

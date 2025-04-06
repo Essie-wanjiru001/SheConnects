@@ -11,7 +11,7 @@ afterAll(async () => {
   await closeConnection();
 });
 
-jest.setTimeout(30000); // Increase timeout to 30 seconds
+jest.setTimeout(30000); 
 
 // Add custom matchers
 expect.extend({

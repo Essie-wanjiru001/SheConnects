@@ -94,7 +94,7 @@ describe('Event Model Tests', () => {
 
       expect(result).toEqual(mockEvents);
       expect(pool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE event_date >= CURDATE()') // Changed from 'date' to 'event_date'
+        expect.stringContaining('WHERE event_date >= CURDATE()') 
       );
     });
 

@@ -51,7 +51,7 @@ const register = async (req, res) => {
       [name, email, hashedPassword]
     );
 
-    console.log('User registered:', result.insertId); // Debug log
+    console.log('User registered:', result.insertId); 
 
     return res.status(201).json({
       success: true,
@@ -74,7 +74,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email directly using pool instead of User model
+    // Find user by email directly
     const [users] = await pool.query(
       'SELECT * FROM users WHERE email = ?',
       [email]
@@ -172,7 +172,7 @@ const loginAdmin = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000 
     });
 
     res.json({

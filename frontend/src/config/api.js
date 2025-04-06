@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { StorageUtils } from '../utils/storage';
 
-const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const baseURL = process.env.NODE_ENV === 'production' 
+  ? 'https://sheconnects-api.onrender.com'
+  : 'http://localhost:8000';
 
 // Add endpoints configuration
 export const endpoints = {

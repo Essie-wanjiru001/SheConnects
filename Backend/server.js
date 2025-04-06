@@ -36,8 +36,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin 
+  origin: function (origin, callback) { 
     if (!origin) {
       return callback(null, true);
     }
@@ -86,7 +85,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
-// Add before routes
+// Logging middleware
 app.use(morgan('[:date[iso]] :method :url :status :response-time ms'));
 
 // API Routes

@@ -62,9 +62,9 @@ const searchItems = async (req, res) => {
                  AND (title LIKE ? OR description LIKE ?))
             `;
             params = [
-                `%${query}%`, `%${query}%`,                    // scholarships
-                `%${query}%`, `%${query}%`, `%${query}%`,     // internships
-                `%${query}%`, `%${query}%`                     // events
+                `%${query}%`, `%${query}%`,      
+                `%${query}%`, `%${query}%`, `%${query}%`,    
+                `%${query}%`, `%${query}%`                     
             ];
         }
 

@@ -14,6 +14,7 @@ A comprehensive platform dedicated to empowering women in Kenya through educatio
 - [Contributing](#contributing)
 - [Deployment](#deployment)
 - [Contact](#contact)
+- [Admin Access](#admin-access)
 
 ## Overview
 
@@ -133,7 +134,7 @@ FRONTEND_URL=http://localhost:3000
 net start mysql80
 mysql -u root -p
 CREATE DATABASE sheconnects;
-mysql -u root -p sheconnects < schema.sql
+mysql -u root -p sheconnects < backend/sheconnects_schema.sql
 ```
 
 4. **Frontend Setup**
@@ -162,12 +163,76 @@ npm start
 
 ### Running Tests
 
-1. **Backend Tests**
+1. ** Tests**
 ```bash
 cd Backend
 npm test
 ```
 
+## Admin Access
+
+### Creating/Updating Admin Users
+
+1. **Using Command Line Script**
+```bash
+# Navigate to Backend directory
+cd Backend
+
+# Create or update admin using the script
+node scripts/createAdmin.js <email> <password> <name>
+
+# Example
+node scripts/createAdmin.js admin@email.com AdminPass123! "Admin Name"
+```
+
+2. **Using Environment Variables (Production)**
+```bash
+# Set these variables in your .env file
+ADMIN_EMAIL=admin@email.com
+ADMIN_PASSWORD=SecurePassword123!
+ADMIN_NAME="Admin Name"
+
+# Run the production admin script
+cd Backend
+node scripts/createProdAdmin.js
+```
+
+### Accessing Admin Panel
+
+1. Navigate to `/admin/login` in your browser
+2. Login with admin credentials
+3. You'll access the admin dashboard at `/admin`
+
+### Admin Features
+
+- **Dashboard Overview**
+  - Total users count
+  - Active scholarships
+  - Active internships
+  - Upcoming events
+  - Pending reports
+
+- **User Management**
+  - View all users
+  - Delete user accounts
+  - Manage user roles
+
+- **Content Management**
+  - Scholarships CRUD operations
+  - Internships CRUD operations
+  - Events CRUD operations
+  - Reports management
+
+
+### Security Notes
+
+- Admin accounts have full platform access
+- Use strong passwords and secure storage
+- Admin creation scripts should be used with caution
+- Production environments should use environment variables
+- API routes are protected with JWT authentication
+
+---
 
 ### Common Issues and Solutions
 
@@ -253,6 +318,5 @@ SheConnects/
 - **GitHub**: [Essie-wanjiru001](https://github.com/Essie-wanjiru001)
 - **Project Repository**: [SheConnects](https://github.com/Essie-wanjiru001/SheConnects)
 
----
 
 Built with ❤️ for women's empowerment in Kenya

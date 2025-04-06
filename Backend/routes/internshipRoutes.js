@@ -25,10 +25,10 @@ router.get('/', async (req, res) => {
 });
 router.get('/search', internshipController.searchInternships);
 
-// Applications routes - Keep these before param routes
+// Applications routes 
 router.get('/applications', auth, async (req, res) => {
   try {
-    const userID = req.user.userID; // Note: using userID instead of id
+    const userID = req.user.userID;
     
     const [applications] = await pool.query(`
       SELECT 
@@ -59,7 +59,7 @@ router.get('/applications', auth, async (req, res) => {
 router.post('/applications', auth, async (req, res) => {
   try {
     const { internshipId, status } = req.body;
-    const userID = req.user.userID; // Using userID from auth middleware
+    const userID = req.user.userID;
 
     // Add validation
     if (!internshipId || !status) {
@@ -147,7 +147,7 @@ router.put('/applications/:id', auth, async (req, res) => {
   }
 });
 
-// Add DELETE route for applications
+// DELETE route for applications
 router.delete('/applications/:id', auth, async (req, res) => {
   try {
     const applicationId = req.params.id;
@@ -183,7 +183,7 @@ router.post('/', adminAuth, internshipController.createInternship);
 router.put('/:id', adminAuth, internshipController.updateInternship);
 router.delete('/:id', adminAuth, internshipController.deleteInternship);
 
-// Must be last - parameter routes
+// Get internship by ID
 router.get('/:id', internshipController.getInternshipById);
 
 module.exports = router;

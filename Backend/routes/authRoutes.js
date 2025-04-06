@@ -8,13 +8,13 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public routes (no token required)
+// Public routes 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/admin/login', authController.loginAdmin);
 
 // Protected routes
-router.use(authMiddleware); // Apply auth middleware only after public routes
+router.use(authMiddleware);
 router.get('/profile', authController.getProfile);
 // ...other protected routes
 

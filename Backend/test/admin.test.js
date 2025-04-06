@@ -130,7 +130,7 @@ describe('Admin Features Tests', () => {
         description: 'Test Description',
         eligibility: 'Test Eligibility',
         application_deadline: '2025-12-31',
-        apply_link: 'https://example.com/apply' // Added required field
+        apply_link: 'https://example.com/apply' 
       };
 
       const response = await request(app)

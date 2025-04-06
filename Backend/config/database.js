@@ -27,7 +27,7 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 }).promise();
 
-let server; // Add this at the top level
+let server; 
 
 // Improved connection monitoring
 pool.on('connection', (connection) => {
@@ -68,7 +68,7 @@ const testConnection = async () => {
   }
 };
 
-// Enhanced graceful shutdown
+// database connection pool shutdown
 const shutdown = async (signal) => {
   try {
     console.log(`\n${signal} received. Shutting down gracefully...`);
@@ -85,7 +85,6 @@ const shutdown = async (signal) => {
   }
 };
 
-// Export setServer function to be called from main application file
 const setServer = (httpServer) => {
   server = httpServer;
 };

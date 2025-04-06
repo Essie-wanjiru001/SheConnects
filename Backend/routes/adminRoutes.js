@@ -186,7 +186,7 @@ router.get('/scholarships/:id/applications', adminAuth, async (req, res) => {
   }
 });
 
-// Add new route for conversation with attachment
+// Conversation routes
 router.post('/applications/:id/conversations', adminAuth, upload.single('attachment'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -246,7 +246,7 @@ router.get('/internships/:id/applications', adminAuth, async (req, res) => {
   }
 });
 
-// Update the internship stats route
+// Internship stats route
 router.get('/internships/:id/stats', adminAuth, async (req, res) => {
   try {
     const [applications] = await pool.query(`

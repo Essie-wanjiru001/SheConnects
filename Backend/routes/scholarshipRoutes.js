@@ -85,7 +85,7 @@ router.get('/top', async (req, res) => {
 router.get('/my-applications', auth, async (req, res) => {
   try {
     const userID = req.user.id;
-    const status = req.query.status; // Optional status filter
+    const status = req.query.status;
 
     let query = `
       SELECT 
