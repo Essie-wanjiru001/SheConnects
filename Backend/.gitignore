@@ -6,10 +6,11 @@ node_modules/
 uploads/
 
 # Admin scripts
-scripts/createAdmin.js
-scripts/updateProdAdmin.js
-scripts/createProdAdmin.js
+!scripts/createAdmin.js
+!scripts/updateProdAdmin.js
+!scripts/createProdAdmin.js
 
 # Environment files
 .env
 .env.*
+!.env.example
