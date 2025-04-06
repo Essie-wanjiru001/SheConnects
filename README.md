@@ -1,6 +1,6 @@
 # SheConnects
 
-![SheConnects Logo](https://raw.githubusercontent.com/Essie-wanjiru001/SheConnects/main/frontend/src/assets/images/logo.png)
+![SheConnects Logo](https://github.com/user-attachments/assets/5fa6e832-5210-4a99-b373-ebf0792e4a7f)
 
 A comprehensive platform dedicated to empowering women in Kenya through educational and career opportunities. SheConnects bridges the gap between talented women and transformative opportunities in education and professional development.
 
@@ -266,29 +266,6 @@ SheConnects/
    - Access career resources
    - Connect with mentors
 
-## API Documentation
-
-### Authentication
-```
-POST /api/auth/register    # User registration
-POST /api/auth/login       # User login
-POST /api/auth/logout      # User logout
-```
-
-### Resources
-```
-GET    /api/scholarships   # List scholarships
-POST   /api/applications   # Submit application
-GET    /api/events        # List events
-GET    /api/resources     # Access resources
-```
-
-### Protected Routes
-```
-GET    /api/user/profile  # Get user profile
-PUT    /api/user/profile  # Update profile
-POST   /api/feedback      # Submit feedback
-```
 
 ## Contributing
 
