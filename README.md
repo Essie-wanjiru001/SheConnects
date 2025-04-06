@@ -1,29 +1,125 @@
 # SheConnects
 
-A platform for empowering women through education and career opportunities.
+![SheConnects Logo](frontend/public/logo192.png)
 
-## Description
+A comprehensive platform dedicated to empowering women in Kenya through educational and career opportunities. SheConnects bridges the gap between talented women and transformative opportunities in education and professional development.
 
-SheConnects is a web application that connects women with educational and professional opportunities including scholarships, internships, and networking events. The platform aims to bridge the gender gap in education and careers by providing easy access to valuable resources and opportunities.
+## Table of Contents
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [User Guide](#user-guide)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [Deployment](#deployment)
+- [Contact](#contact)
 
-## Prerequisites
+## Overview
 
-Before you begin, ensure you have the following installed:
-- Node.js (version 18.x or higher)
-- MySQL (version 8.0 or higher)
+SheConnects serves as a centralized platform that:
+- Connects women with educational scholarships
+- Facilitates access to internship opportunities
+- Enables networking through events and forums
+- Provides mentorship programs
+- Offers comprehensive learning resources
+
+## Key Features
+
+### For Users
+- **Scholarship Management**
+  - Browse available scholarships
+  - Filter by education level and field
+  - Online application submission
+  - Application status tracking
+
+- **Career Development**
+  - Internship opportunities
+  - Job listings
+  - Resume building tools
+  - Interview preparation resources
+
+- **Learning Resources**
+  - Educational guides
+  - Online courses
+  - Skills development workshops
+  - Professional development materials
+
+- **Networking**
+  - Events calendar
+  - Discussion forums
+  - Mentorship connections
+  - Success stories
+
+### For Administrators
+- Comprehensive dashboard
+- User management system
+- Content management tools
+- Analytics and reporting
+
+## Tech Stack
+
+### Frontend
+- React.js with Styled Components
+- React Router for navigation
+- Context API for state management
+- Responsive design with mobile support
+- Font Awesome icons
+
+### Backend
+- Node.js & Express.js
+- MySQL database
+- JWT authentication
+- RESTful API architecture
+
+### Development & Deployment
+- Git version control
+- npm package management
+- Vercel (Frontend hosting)
+- Render (Backend hosting)
+
+## Getting Started
+
+### Prerequisites
+- Node.js >= 18.x
+- MySQL >= 8.0
 - Git
+- npm or yarn
+- Visual Studio Code (recommended)
 
-## Installation
+### Development Environment Setup
 
-### 1. Clone the Repository
+1. **Install Required Software**
+```bash
+# Install Node.js from
+https://nodejs.org/
 
+# Install MySQL from
+https://dev.mysql.com/downloads/mysql/
+
+# Install Git from
+https://git-scm.com/downloads
+```
+
+2. **IDE Setup**
+- Install Visual Studio Code
+- Recommended Extensions:
+  - ESLint
+  - Prettier
+  - GitLens
+  - MySQL
+  - React Developer Tools
+
+### Installation Steps
+
+1. **Clone Repository**
 ```bash
 git clone https://github.com/Essie-wanjiru001/SheConnects.git
 cd SheConnects
 ```
 
-### 2. Set Up Backend
-
+2. **Backend Setup**
 ```bash
 # Navigate to backend directory
 cd Backend
@@ -31,31 +127,41 @@ cd Backend
 # Install dependencies
 npm install
 
-# Create .env file and configure environment variables
-cp .env.example .env
+# Create environment file
+copy .env.example .env   # Windows
+```
 
-# Update .env with your database credentials
+Configure your `.env` file:
+```env
 DB_HOST=localhost
 DB_USER=your_username
 DB_PASSWORD=your_password
 DB_NAME=sheconnects
 JWT_SECRET=your_secret_key
+PORT=8000
+NODE_ENV=development
 ```
 
-### 3. Set Up Database
-
+3. **Database Setup**
 ```bash
-# Create database
+# Start MySQL service
+net start mysql80
+
+# Log into MySQL
 mysql -u root -p
+
+# In MySQL console
 CREATE DATABASE sheconnects;
 USE sheconnects;
+source database/schema.sql;
 
-# Import database schema
-mysql -u root -p sheconnects < database/schema.sql
+# Create database user
+CREATE USER 'sheconnects_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON sheconnects.* TO 'sheconnects_user'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-### 4. Set Up Frontend
-
+4. **Frontend Setup**
 ```bash
 # Navigate to frontend directory
 cd ../frontend
@@ -63,113 +169,166 @@ cd ../frontend
 # Install dependencies
 npm install
 
-# Create .env file for frontend
-cp .env.example .env
+# Create environment file
+copy .env.example .env   # Windows
+```
 
-# Update REACT_APP_API_URL in .env
+Configure frontend `.env`:
+```env
 REACT_APP_API_URL=http://localhost:8000
+REACT_APP_ENV=development
 ```
 
-## Running the Application
+### Running the Application
 
-### Start Backend Server
-
+1. **Start Backend Server**
 ```bash
-# In Backend directory
+# From Backend directory
+npm run dev
+```
+
+2. **Start Frontend Development Server**
+```bash
+# From frontend directory
 npm start
 ```
 
-The backend server will start on http://localhost:8000
+3. **Access the Application**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
 
-### Start Frontend Development Server
+### Running Tests
 
+1. **Backend Tests**
 ```bash
-# In frontend directory
-npm start
+cd Backend
+npm test
 ```
 
-The frontend application will start on http://localhost:3000
+2. **Frontend Tests**
+```bash
+cd frontend
+npm test
+```
 
-## Admin Access
+### Common Issues and Solutions
 
-To access the admin dashboard:
-1. Navigate to `/admin/login`
-2. Login with admin credentials:
-   - Email: admin@sheconnects.com
-   - Password: SheconnectsAdmin@123
+1. **MySQL Connection Issues**
+```bash
+# Check if MySQL is running
+net start mysql80
 
-## Admin Setup (Internal Use Only)
+# Reset MySQL password if needed
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'new_password';
+```
 
-To create or update an admin user, use the admin management scripts (not included in repository for security):
+2. **Port Conflicts**
+```bash
+# Check ports in use
+netstat -ano | findstr :3000
+netstat -ano | findstr :8000
 
-1. Create `.env.production` with required credentials
-2. Run the appropriate script:
-   ```bash
-   # For local development
-   node scripts/createAdmin.js <email> <password> <name>
-   
-   # For production
-   node scripts/updateProdAdmin.js
-   ```
+# Kill process using port
+taskkill /PID <process_id> /F
+```
 
-Note: Admin management scripts are kept private and not included in the repository.
+3. **Node Module Issues**
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Delete node_modules and reinstall
+rm -rf node_modules
+npm install
+```
 
 ## Project Structure
-
 ```
 SheConnects/
-├── Backend/             # Backend server code
-│   ├── config/         # Database and other configurations
-│   ├── controllers/    # Request handlers
-│   ├── middleware/     # Custom middleware
-│   ├── routes/        # API routes
-│   └── server.js      # Server entry point
-├── frontend/           # Frontend React application
-│   ├── public/        # Static files
-│   ├── src/           # Source files
-│   │   ├── components/# React components
-│   │   ├── services/  # API services
-│   │   ├── styles/    # Global styles
-│   │   └── App.js     # Main component
-│   └── package.json   # Frontend dependencies
-└── README.md          # Project documentation
+├── Backend/
+│   ├── config/           # Configuration files
+│   ├── controllers/      # Request handlers
+│   ├── middleware/       # Custom middleware
+│   ├── models/          # Database models
+│   ├── routes/          # API routes
+│   └── server.js        # Entry point
+├── frontend/
+│   ├── public/          # Static assets
+│   └── src/
+│       ├── components/  # React components
+│       ├── contexts/    # Context providers
+│       ├── services/    # API services
+│       ├── styles/      # Global styles
+│       └── App.js       # Root component
+└── README.md
 ```
+
+## User Guide
+
+### Navigation
+- Home: Overview and featured opportunities
+- Scholarships: Browse and apply for scholarships
+- Careers: Explore internships and jobs
+- Resources: Access learning materials
+- Events: View upcoming networking opportunities
+
+### Key Features Usage
+1. **Scholarship Applications**
+   - Create user profile
+   - Browse available scholarships
+   - Submit required documents
+   - Track application status
+
+2. **Career Development**
+   - Update professional profile
+   - Search opportunities
+   - Access career resources
+   - Connect with mentors
 
 ## API Documentation
 
-The API endpoints are available at:
-- Scholarships: `/api/scholarships`
-- Internships: `/api/internships`
-- Events: `/api/events`
-- Users: `/api/users`
+### Authentication
+```
+POST /api/auth/register    # User registration
+POST /api/auth/login       # User login
+POST /api/auth/logout      # User logout
+```
 
-## Deployment
+### Resources
+```
+GET    /api/scholarships   # List scholarships
+POST   /api/applications   # Submit application
+GET    /api/events        # List events
+GET    /api/resources     # Access resources
+```
 
-The application is deployed at:
-- Frontend: https://sheconnects-esther-wanjirus-projects.vercel.app/
-- Backend: https://sheconnects-api.onrender.com
-
-## Technologies Used
-
-- Frontend: React, Styled-Components
-- Backend: Node.js, Express
-- Database: MySQL
-- Authentication: JWT
-- Deployment: Vercel (frontend), Render (backend)
+### Protected Routes
+```
+GET    /api/user/profile  # Get user profile
+PUT    /api/user/profile  # Update profile
+POST   /api/feedback      # Submit feedback
+```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
-## License
+## Deployment
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+- Frontend: [SheConnects Web App](https://sheconnects-esther-wanjirus-projects.vercel.app/)
+- Backend API: [SheConnects API](https://sheconnects-api.onrender.com)
 
 ## Contact
 
-Esther Wanjiru - essiewanjiru001@gmail.com
-Project Link: https://github.com/Essie-wanjiru001/SheConnects
+- **Developer**: Esther Wanjiru
+- **Email**: essiewanjiru001@gmail.com
+- **GitHub**: [Essie-wanjiru001](https://github.com/Essie-wanjiru001)
+- **Project Repository**: [SheConnects](https://github.com/Essie-wanjiru001/SheConnects)
+
+---
+
+Built with ❤️ for women's empowerment in Kenya
