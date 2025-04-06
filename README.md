@@ -90,13 +90,13 @@ SheConnects serves as a centralized platform that:
 
 1. **Install Required Software**
 ```bash
-// Install Node.js from
+# Install Node.js from
 https://nodejs.org/
 
-// Install MySQL from
+# Install MySQL from
 https://dev.mysql.com/downloads/mysql/
 
-// Install Git from
+# Install Git from
 https://git-scm.com/downloads
 ```
 
@@ -110,77 +110,49 @@ cd SheConnects
 
 2. **Backend Setup**
 ```bash
-# Navigate to backend directory
 cd Backend
-
-# Install dependencies
 npm install
 
-# Create environment file
-copy .env.example .env   # Windows
+copy .env.example .env
 ```
 
 Configure your `.env` file:
 ```env
 DB_HOST=localhost
-DB_USER=your_username
+DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=sheconnects
 JWT_SECRET=your_secret_key
 PORT=8000
 NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
 ```
 
 3. **Database Setup**
 ```bash
-# Start MySQL service
 net start mysql80
-
-# Log into MySQL and create database
 mysql -u root -p
 CREATE DATABASE sheconnects;
-
-# Import database schema (from Backend directory)
-mysql -u root -p sheconnects < database/schema.sql
-```
-
-Configure your database credentials in `.env`:
-```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=sheconnects
+mysql -u root -p sheconnects < schema.sql
 ```
 
 4. **Frontend Setup**
 ```bash
-# Navigate to frontend directory
 cd ../frontend
-
-# Install dependencies
 npm install
-
-# Create environment file
-copy .env.example .env
-```
-
-Configure frontend `.env`:
-```env
-REACT_APP_API_URL=http://localhost:8000
-REACT_APP_ENV=development
 ```
 
 ### Running the Application
 
 1. **Start Backend Server**
 ```bash
-# From Backend directory
-npm run dev
+cd Backend
+node server.js
 ```
 
 2. **Start Frontend Development Server**
 ```bash
-# From frontend directory
+cd frontend
 npm start
 ```
 
@@ -196,11 +168,6 @@ cd Backend
 npm test
 ```
 
-2. **Frontend Tests**
-```bash
-cd frontend
-npm test
-```
 
 ### Common Issues and Solutions
 
