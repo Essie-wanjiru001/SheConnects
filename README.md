@@ -1,6 +1,6 @@
 # SheConnects
 
-![SheConnects Logo](src/assets/images/logo.png)
+![SheConnects Logo](https://raw.githubusercontent.com/Essie-wanjiru001/SheConnects/main/frontend/src/assets/images/logo.png)
 
 A comprehensive platform dedicated to empowering women in Kenya through educational and career opportunities. SheConnects bridges the gap between talented women and transformative opportunities in education and professional development.
 
