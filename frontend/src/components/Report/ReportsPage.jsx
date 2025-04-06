@@ -6,13 +6,14 @@ import Sidebar from '../Dashboard/Sidebar';
 import { useSidebar } from '../../contexts/SidebarContext';
 import ReportForm from './ReportForm';
 import { getUserFeedbacks } from '../../services/feedbackService';
-import { FaPlus, FaCheckCircle, FaClock, FaExclamationCircle } from 'react-icons/fa';
+import { FaPlus, FaCheckCircle, FaClock, FaExclamationCircle, FaSpinner, FaCheck } from 'react-icons/fa';
 
 const ReportsPage = () => {
   const { isSidebarOpen } = useSidebar();
   const [reports, setReports] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showResolved, setShowResolved] = useState(false);
 
   useEffect(() => {
     fetchReports();
@@ -54,6 +55,22 @@ const ReportsPage = () => {
     fetchReports(); 
   };
 
+  const sortedReports = reports.sort((a, b) => {
+    const getPriority = (status) => {
+      switch (status) {
+        case 'PENDING': return 1;
+        case 'IN_PROGRESS': return 2;
+        case 'RESOLVED': return 3;
+        default: return 4;
+      }
+    };
+    return getPriority(a.status) - getPriority(b.status);
+  });
+
+  const filteredReports = showResolved 
+    ? sortedReports 
+    : sortedReports.filter(report => report.status !== 'RESOLVED');
+
   return (
     <DashboardWrapper>
       <DashboardHeader />
@@ -63,7 +80,18 @@ const ReportsPage = () => {
           {!showForm ? (
             <>
               <Header>
-                <h1>My Reports</h1>
+                <HeaderLeft>
+                  <h1>My Reports</h1>
+                  <FilterToggle>
+                    <input
+                      type="checkbox"
+                      checked={showResolved}
+                      onChange={(e) => setShowResolved(e.target.checked)}
+                      id="showResolved"
+                    />
+                    <label htmlFor="showResolved">Show Resolved Reports</label>
+                  </FilterToggle>
+                </HeaderLeft>
                 <NewReportButton onClick={() => setShowForm(true)}>
                   <FaPlus /> New Report
                 </NewReportButton>
@@ -71,9 +99,9 @@ const ReportsPage = () => {
 
               {loading ? (
                 <LoadingMessage>Loading reports...</LoadingMessage>
-              ) : reports.length > 0 ? (
+              ) : filteredReports.length > 0 ? (
                 <ReportsGrid>
-                  {reports.map((report) => (
+                  {filteredReports.map((report) => (
                     <ReportCard key={report.id}>
                       <ReportHeader>
                         <CategoryBadge>{report.category}</CategoryBadge>
@@ -109,7 +137,7 @@ const ReportsPage = () => {
                 </ReportsGrid>
               ) : (
                 <EmptyState>
-                  <p>You haven't submitted any reports yet.</p>
+                  <p>No reports found.</p>
                   <NewReportButton onClick={() => setShowForm(true)}>
                     <FaPlus /> Submit Your First Report
                   </NewReportButton>
@@ -130,7 +158,7 @@ const ReportsPage = () => {
 
 const DashboardWrapper = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f);
+  background: #f8f9fa;
 `;
 
 const MainContent = styled.main`
@@ -152,8 +180,29 @@ const Header = styled.div`
   margin-bottom: 2rem;
 
   h1 {
-    color: white;
+    color: #2c3e50;
     margin: 0;
+  }
+`;
+
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+`;
+
+const FilterToggle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #555;
+
+  input[type="checkbox"] {
+    accent-color: #1565c0;
+  }
+
+  label {
+    cursor: pointer;
   }
 `;
 
@@ -162,8 +211,8 @@ const NewReportButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #FFD700;
-  color: #1a2a6c;
+  background: #1565c0;
+  color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -171,7 +220,7 @@ const NewReportButton = styled.button`
   transition: all 0.3s ease;
 
   &:hover {
-    background: #FFC700;
+    background: #1976d2;
     transform: translateY(-2px);
   }
 `;
@@ -183,11 +232,11 @@ const ReportsGrid = styled.div`
 `;
 
 const ReportCard = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background: white;
   border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
 `;
 
 const ReportHeader = styled.div`
@@ -198,29 +247,50 @@ const ReportHeader = styled.div`
 `;
 
 const CategoryBadge = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #f5f5f5;
+  color: #424242;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #e0e0e0;
+  margin-right: 0.5rem;
 `;
 
 const StatusBadge = styled.span`
+  background: ${props => {
+    switch (props.status) {
+      case 'RESOLVED': return '#e8f5e9';
+      case 'IN_PROGRESS': return '#e3f2fd';
+      case 'PENDING': return '#fff3e0';
+      default: return '#fff3e0';
+    }
+  }};
+  color: ${props => {
+    switch (props.status) {
+      case 'RESOLVED': return '#2e7d32';
+      case 'IN_PROGRESS': return '#1565c0';
+      case 'PENDING': return '#e65100';
+      default: return '#e65100';
+    }
+  }};
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: white;
   font-size: 0.85rem;
+  font-weight: 500;
 `;
 
 const ReportTitle = styled.h3`
-  color: white;
+  color: #2c3e50;
   margin: 0 0 0.5rem 0;
   font-size: 1.2rem;
 `;
 
 const ReportDescription = styled.p`
-  color: rgba(255, 255, 255, 0.8);
+  color: #555;
   margin: 0 0 1rem 0;
   line-height: 1.5;
 `;
@@ -294,6 +364,13 @@ const BackButton = styled.button`
   &:hover {
     color: #FFD700;
   }
+`;
+
+const ReportDetails = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
 `;
 
 export default ReportsPage;
